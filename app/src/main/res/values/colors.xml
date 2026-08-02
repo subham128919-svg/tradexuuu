@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── Backgrounds ── -->
+    <color name="bg_app">#07080A</color>
+    <color name="bg_surface">#0B0D10</color>
+    <color name="bg_card">#12151A</color>
+    <color name="bg_item">#14171C</color>
+    <color name="bg_icon">#1D2129</color>
+    <color name="bg_logo">#20242C</color>
+    <color name="bg_nav">#0E1116</color>
+    <!-- ── Accent purple ── -->
+    <color name="accent">#6D5EF8</color>
+    <color name="accent_subtle">#246D5EF8</color>
+    <!-- ── Status ── -->
+    <color name="positive">#2FBF71</color>
+    <color name="positive_subtle">#212FBF71</color>
+    <color name="negative">#FF5C5C</color>
+    <color name="negative_subtle">#21FF5C5C</color>
+    <!-- ── Text (bright → faint) ── -->
+    <color name="t100">#F2F4F7</color>
+    <color name="t200">#E8EBF0</color>
+    <color name="t300">#DCE0E7</color>
+    <color name="t400">#C6CBD4</color>
+    <color name="t500">#B4BAC4</color>
+    <color name="t600">#8A93A0</color>
+    <color name="t700">#7C848F</color>
+    <color name="t800">#6E7681</color>
+    <color name="t_avatar">#B9A6FF</color>
+    <color name="t_tool">#9AA3AF</color>
+    <!-- ── Dividers (white+alpha) ── -->
+    <color name="div06">#0FFFFFFF</color>
+    <color name="div07">#12FFFFFF</color>
+    <color name="div09">#17FFFFFF</color>
+    <color name="div12">#1FFFFFFF</color>
+    <color name="div14">#24FFFFFF</color>
+    <!-- ── Tags ── -->
+    <color name="tag_buy_text">#2FBF71</color>
+    <color name="tag_buy_bg">#212FBF71</color>
+    <color name="tag_sell_text">#FF5C5C</color>
+    <color name="tag_sell_bg">#21FF5C5C</color>
+    <!-- ── Chip states ── -->
+    <color name="chip_off_bg">#14171C</color>
+    <color name="chip_off_text">#9AA3AF</color>
+    <color name="chip_off_border">#14FFFFFF</color>
+    <color name="chip_on_text">#0B0D10</color>
+</resources>

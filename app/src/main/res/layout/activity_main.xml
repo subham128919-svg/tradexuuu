@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  TradingApp — Main Activity Shell
+  ─────────────────────────────────
+  Structure (top → bottom):
+    [statusBar]    9:41 / signal / battery
+    [appHeader]    logo diamond · segment title + sub · search · avatar
+    [hsvTicker]    horizontally scrolling index row
+    [divTicker]    1dp divider
+    [hsvTabs]      horizontally scrolling content tabs
+    [divTabs]      1dp divider
+    [fragmentHost] swap fragments here when user changes tab
+    [bottomNav]    3 segments: Stocks · F&O · Funds
+
+  Usage in code:
+    - Swap fragments in @id/fragmentHost for each tab/segment
+    - Update tvSegTitle, tvSegSub, and llIndices when segment changes
+    - Highlight active nav item by tinting nav dots + bold label
+-->
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_surface">
+
+    <!-- ══ Status bar ══ -->
+    <LinearLayout
+        android:id="@+id/statusBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="22dp" android:paddingEnd="22dp"
+        android:paddingTop="10dp"   android:paddingBottom="2dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <TextView
+            android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="9:41"
+            android:textSize="11sp" android:textColor="@color/t600"
+            android:fontFamily="@font/jetbrains_mono" />
+
+        <TextView
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="5G"
+            android:textSize="11sp" android:textColor="@color/t600"
+            android:fontFamily="@font/jetbrains_mono"
+            android:layout_marginEnd="6dp" />
+
+        <!-- Battery icon -->
+        <FrameLayout android:layout_width="20dp" android:layout_height="10dp">
+            <View android:layout_width="match_parent" android:layout_height="match_parent"
+                android:background="@drawable/bg_battery" />
+            <View android:layout_width="11dp" android:layout_height="6dp"
+                android:layout_gravity="start|center_vertical"
+                android:layout_marginStart="1.5dp"
+                android:background="@color/t600" />
+        </FrameLayout>
+    </LinearLayout>
+
+    <!-- ══ App header ══ -->
+    <LinearLayout
+        android:id="@+id/appHeader"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="16dp" android:paddingEnd="16dp"
+        android:paddingTop="10dp"   android:paddingBottom="12dp"
+        app:layout_constraintTop_toBottomOf="@id/statusBar"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <!-- Diamond logo: accent rounded-rect + rotated dark square -->
+        <FrameLayout
+            android:layout_width="32dp" android:layout_height="32dp"
+            android:background="@drawable/bg_app_logo"
+            android:layout_marginEnd="11dp">
+            <View
+                android:layout_width="11dp" android:layout_height="11dp"
+                android:layout_gravity="center"
+                android:background="@color/bg_surface"
+                android:rotation="45" />
+        </FrameLayout>
+
+        <!-- Segment title / subtitle (update on segment switch) -->
+        <LinearLayout
+            android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1" android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvSegTitle"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="Stocks"
+                android:textSize="17sp" android:textStyle="bold"
+                android:textColor="@color/t100" android:letterSpacing="-0.01" />
+
+            <TextView
+                android:id="@+id/tvSegSub"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="Equity · NSE / BSE"
+                android:textSize="10.5sp" android:textColor="@color/t800"
+                android:letterSpacing="0.01" />
+        </LinearLayout>
+
+        <!-- Search -->
+        <ImageView
+            android:id="@+id/ivSearch"
+            android:layout_width="19dp" android:layout_height="19dp"
+            android:src="@drawable/ic_search"
+            android:imageTintList="@color/t400"
+            android:contentDescription="Search"
+            android:layout_marginEnd="14dp" />
+
+        <!-- Avatar -->
+        <TextView
+            android:id="@+id/tvAvatar"
+            android:layout_width="30dp" android:layout_height="30dp"
+            android:text="AM" android:gravity="center"
+            android:textSize="11sp" android:textStyle="bold"
+            android:textColor="@color/t_avatar"
+            android:background="@drawable/bg_avatar" />
+    </LinearLayout>
+
+    <!-- ══ Index ticker ══ -->
+    <HorizontalScrollView
+        android:id="@+id/hsvTicker"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="none"
+        android:paddingStart="16dp" android:paddingEnd="16dp"
+        android:paddingTop="2dp"    android:paddingBottom="11dp"
+        app:layout_constraintTop_toBottomOf="@id/appHeader"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <!-- Inflate item_index.xml per index, add to this container -->
+        <LinearLayout
+            android:id="@+id/llIndices"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" />
+    </HorizontalScrollView>
+
+    <View android:id="@+id/divTicker"
+        android:layout_width="match_parent" android:layout_height="1dp"
+        android:background="@color/div06"
+        app:layout_constraintTop_toBottomOf="@id/hsvTicker"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- ══ Tab strip ══ -->
+    <HorizontalScrollView
+        android:id="@+id/hsvTabs"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="none"
+        android:paddingStart="10dp" android:paddingEnd="10dp"
+        app:layout_constraintTop_toBottomOf="@id/divTicker"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <!-- Inflate tab TextViews programmatically; active tab gets
+             textStyle=bold, textColor=t100, and a 2dp bottom border in accent.
+             Simplest approach: use a custom Tab view with a bottom-border drawable. -->
+        <LinearLayout
+            android:id="@+id/llTabs"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" />
+    </HorizontalScrollView>
+
+    <View android:id="@+id/divTabs"
+        android:layout_width="match_parent" android:layout_height="1dp"
+        android:background="@color/div07"
+        app:layout_constraintTop_toBottomOf="@id/hsvTabs"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- ══ Content (Fragment host) ══ -->
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/fragmentHost"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/divTabs"
+        app:layout_constraintBottom_toTopOf="@id/bottomNav"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- ══ Bottom navigation — 3 segments ══ -->
+    <LinearLayout
+        android:id="@+id/bottomNav"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@color/bg_nav"
+        android:paddingTop="9dp" android:paddingBottom="13dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- ── Stocks (Equity) — active state shown ── -->
+        <LinearLayout
+            android:id="@+id/navStocks"
+            android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
+
+            <!-- Icon pill: accent-subtle bg when active, transparent when inactive -->
+            <FrameLayout
+                android:id="@+id/navIconBgStocks"
+                android:layout_width="26dp" android:layout_height="20dp"
+                android:background="@drawable/bg_nav_on">
+                <!-- Rounded-square dot for Stocks -->
+                <View
+                    android:layout_width="9dp" android:layout_height="9dp"
+                    android:layout_gravity="center"
+                    android:background="@drawable/nav_dot_square" />
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/tvNavStocks"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="Stocks"
+                android:textSize="10.5sp" android:textStyle="bold"
+                android:textColor="@color/accent"
+                android:layout_marginTop="5dp" />
+        </LinearLayout>
+
+        <!-- ── F&O — inactive state shown ── -->
+        <LinearLayout
+            android:id="@+id/navFno"
+            android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
+
+            <FrameLayout
+                android:layout_width="26dp" android:layout_height="20dp"
+                android:background="@android:color/transparent">
+                <!-- Circle dot for F&O -->
+                <View
+                    android:layout_width="9dp" android:layout_height="9dp"
+                    android:layout_gravity="center"
+                    android:background="@drawable/nav_dot_circle" />
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/tvNavFno"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="F&amp;O"
+                android:textSize="10.5sp"
+                android:textColor="@color/t800"
+                android:layout_marginTop="5dp" />
+        </LinearLayout>
+
+        <!-- ── Funds (MF) — inactive state shown ── -->
+        <LinearLayout
+            android:id="@+id/navFunds"
+            android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
+
+            <FrameLayout
+                android:layout_width="26dp" android:layout_height="20dp"
+                android:background="@android:color/transparent">
+                <!-- Near-square dot for MF -->
+                <View
+                    android:layout_width="9dp" android:layout_height="9dp"
+                    android:layout_gravity="center"
+                    android:background="@drawable/nav_dot_rect" />
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/tvNavFunds"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="Funds"
+                android:textSize="10.5sp"
+                android:textColor="@color/t800"
+                android:layout_marginTop="5dp" />
+        </LinearLayout>
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Single chip. bg_chip_on = active, bg_chip_off = inactive -->
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/tvChip"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:paddingStart="13dp" android:paddingEnd="13dp"
+    android:paddingTop="7dp"   android:paddingBottom="7dp"
+    android:text="Trending"
+    android:textSize="12sp"
+    android:textColor="@color/chip_on_text"
+    android:background="@drawable/bg_chip_on"
+    android:layout_marginEnd="8dp" />

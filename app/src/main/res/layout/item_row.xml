@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Standard list row: Logo | Name + Sub | RightValue + RightSub
+     Used in Holdings, Positions, Orders, Watchlist, Sectors, etc. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:paddingStart="14dp" android:paddingEnd="14dp"
+    android:paddingTop="13dp"   android:paddingBottom="13dp"
+    android:background="@drawable/bg_row">
+
+    <!-- Logo tile -->
+    <TextView android:id="@+id/tvLogo"
+        android:layout_width="34dp" android:layout_height="34dp"
+        android:gravity="center"
+        android:text="RE" android:textSize="11.5sp" android:textStyle="bold"
+        android:textColor="@color/t400"
+        android:background="@drawable/bg_logo"
+        android:layout_marginEnd="12dp" />
+
+    <!-- Center col -->
+    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+        android:layout_weight="1" android:orientation="vertical">
+
+        <!-- Name + BUY/SELL tag row -->
+        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:gravity="center_vertical">
+
+            <TextView android:id="@+id/tvName"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="Reliance"
+                android:textSize="13sp" android:textColor="@color/t200"
+                android:maxLines="1" android:ellipsize="end" />
+
+            <!-- Tag: set visibility GONE if unused -->
+            <TextView android:id="@+id/tvTag"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="BUY" android:textSize="9sp" android:textStyle="bold"
+                android:textColor="@color/tag_buy_text"
+                android:background="@drawable/bg_tag_buy"
+                android:paddingStart="5dp" android:paddingEnd="5dp"
+                android:paddingTop="2.5dp" android:paddingBottom="2.5dp"
+                android:layout_marginStart="7dp"
+                android:letterSpacing="0.06"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <TextView android:id="@+id/tvSub"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="NSE · ₹19.9L Cr"
+            android:textSize="10.5sp" android:textColor="@color/t800"
+            android:fontFamily="@font/jetbrains_mono"
+            android:layout_marginTop="3dp" />
+    </LinearLayout>
+
+    <!-- Right col -->
+    <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:orientation="vertical" android:gravity="end">
+
+        <TextView android:id="@+id/tvRight"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="₹2,948.55"
+            android:textSize="13sp" android:textColor="@color/t200"
+            android:fontFamily="@font/jetbrains_mono" android:gravity="end" />
+
+        <TextView android:id="@+id/tvRightSub"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="+0.73%"
+            android:textSize="10.5sp" android:textColor="@color/positive"
+            android:fontFamily="@font/jetbrains_mono"
+            android:layout_marginTop="3dp" android:gravity="end" />
+    </LinearLayout>
+</LinearLayout>

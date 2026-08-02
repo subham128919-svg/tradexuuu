@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Single tab button in the horizontal tab strip.
+  Active:   textStyle bold, textColor t100, bottom border via layer-list bg
+  Inactive: textStyle normal, textColor t700, no border
+
+  In code: inflate this view, set text, set background based on active state,
+  add to llTabs in activity_main.xml.
+
+  For the active 2dp bottom border, use a layer-list:
+      <item android:top="huge_value">
+          <shape><solid accent/></shape>
+      </item>
+  — or simply overlay a View below the TextView.
+-->
+<TextView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/tvTab"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:paddingStart="10dp"  android:paddingEnd="10dp"
+    android:paddingTop="13dp"    android:paddingBottom="11dp"
+    android:text="Explore"
+    android:textSize="13.5sp"
+    android:textStyle="bold"
+    android:textColor="@color/t100"
+    android:background="@android:color/transparent" />

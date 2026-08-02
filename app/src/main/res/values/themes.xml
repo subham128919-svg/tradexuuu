@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base dark theme. Add to AndroidManifest: android:theme="@style/Theme.TradingApp" -->
+    <style name="Theme.TradingApp" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="android:windowBackground">@color/bg_surface</item>
+        <item name="android:statusBarColor">@color/bg_surface</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:navigationBarColor">@color/bg_nav</item>
+        <item name="colorPrimary">@color/accent</item>
+    </style>
+    <!-- Text helpers -->
+    <style name="T.SectionTitle">
+        <item name="android:textSize">15.5sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/t100</item>
+        <item name="android:letterSpacing">-0.01</item>
+    </style>
+    <style name="T.Mono">
+        <item name="android:fontFamily">@font/jetbrains_mono</item>
+    </style>
+    <!-- NOTE: add DM Sans + JetBrains Mono to res/font/
+         dm_sans_regular.ttf, dm_sans_medium.ttf, dm_sans_bold.ttf
+         jetbrains_mono_regular.ttf, jetbrains_mono_medium.ttf -->
+</resources>

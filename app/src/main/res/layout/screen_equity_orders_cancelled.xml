@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_surface"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingTop="16dp"
+        android:paddingBottom="24dp">
+
+        <!-- ── Chips filter row ── -->
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="none"
+            android:layout_marginBottom="22dp">
+            <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingStart="16dp" android:paddingEnd="16dp" android:paddingBottom="2dp">
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="Open" android:textSize="12sp" android:textColor="@color/chip_off_text"
+                    android:background="@drawable/bg_chip_off"
+                    android:paddingStart="13dp" android:paddingEnd="13dp"
+                    android:paddingTop="7dp" android:paddingBottom="7dp"
+                    android:layout_marginEnd="8dp" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="Executed" android:textSize="12sp" android:textColor="@color/chip_off_text"
+                    android:background="@drawable/bg_chip_off"
+                    android:paddingStart="13dp" android:paddingEnd="13dp"
+                    android:paddingTop="7dp" android:paddingBottom="7dp"
+                    android:layout_marginEnd="8dp" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="Cancelled" android:textSize="12sp" android:textColor="@color/chip_on_text"
+                    android:background="@drawable/bg_chip_on"
+                    android:paddingStart="13dp" android:paddingEnd="13dp"
+                    android:paddingTop="7dp" android:paddingBottom="7dp"
+                    android:layout_marginEnd="8dp" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="GTT" android:textSize="12sp" android:textColor="@color/chip_off_text"
+                    android:background="@drawable/bg_chip_off"
+                    android:paddingStart="13dp" android:paddingEnd="13dp"
+                    android:paddingTop="7dp" android:paddingBottom="7dp"
+                    android:layout_marginEnd="8dp" />
+            </LinearLayout>
+        </HorizontalScrollView>
+        <!-- ── Empty state ── -->
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical" android:gravity="center_horizontal"
+            android:paddingTop="34dp" android:paddingBottom="34dp"
+            android:paddingStart="20dp" android:paddingEnd="20dp"
+            android:layout_marginStart="16dp" android:layout_marginEnd="16dp"
+            android:layout_marginBottom="22dp"
+            android:background="@drawable/bg_empty">
+            <View android:layout_width="38dp" android:layout_height="38dp"
+                android:background="@drawable/bg_empty_circle" android:layout_marginBottom="12dp" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="No cancelled orders" android:textSize="13sp"
+                android:textColor="@color/t500" android:gravity="center" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="Orders you cancel today will show up here." android:textSize="11.5sp"
+                android:textColor="@color/t800" android:gravity="center"
+                android:lineSpacingMultiplier="1.5" android:layout_marginTop="5dp" />
+        </LinearLayout>
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

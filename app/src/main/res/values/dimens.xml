@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="screen_pad">16dp</dimen>
+    <dimen name="block_gap">22dp</dimen>
+    <dimen name="radius_card">15dp</dimen>
+    <dimen name="radius_summary">18dp</dimen>
+    <dimen name="radius_chip">24dp</dimen>
+    <dimen name="radius_tool">14dp</dimen>
+    <dimen name="radius_logo">10dp</dimen>
+    <dimen name="radius_app_logo">11dp</dimen>
+    <dimen name="radius_nav">7dp</dimen>
+    <dimen name="radius_banner">12dp</dimen>
+    <dimen name="radius_tag">4dp</dimen>
+    <dimen name="logo_size">34dp</dimen>
+    <dimen name="card_logo_size">32dp</dimen>
+    <dimen name="tool_size">46dp</dimen>
+    <dimen name="avatar_size">30dp</dimen>
+    <dimen name="app_logo_size">32dp</dimen>
+</resources>
