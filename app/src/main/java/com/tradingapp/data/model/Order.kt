@@ -1,0 +1,2 @@
+package com.tradingapp.data.model
+data class Order(val id: String, val symbol: String, val exchange: String, val type: String, val product: String, val orderType: String, val quantity: Int, val filledQuantity: Int, val price: Double, val avgPrice: Double, val status: String, val timestamp: String) { val isBuy get() = type == "BUY"; val isOpen get() = status == "OPEN"; val isComplete get() = status == "COMPLETE" }

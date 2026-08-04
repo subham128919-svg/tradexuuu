@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ChartActivity layout
+  Structure:
+    [toolbar]       ← back · symbol · exchange · price · change
+    [periodRow]     ← 1D 1W 1M 3M 1Y 5Y tags
+    [chartWebView]  ← TradingView Lightweight Charts (fills remaining space)
+    [ohlvBar]       ← O / H / L / V stat row
+    [tradeRow]      ← BUY (green) · SELL (red) buttons
+-->
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_surface">
+
+    <!-- ── Toolbar ── -->
+    <LinearLayout
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="horizontal" android:gravity="center_vertical"
+        android:paddingStart="16dp" android:paddingEnd="16dp"
+        android:paddingTop="52dp"  android:paddingBottom="14dp"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/ivBack"
+            android:layout_width="22dp" android:layout_height="22dp"
+            android:src="@drawable/ic_back"
+            android:imageTintList="@color/t300"
+            android:layout_marginEnd="14dp"
+            android:contentDescription="Back" />
+
+        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1" android:orientation="vertical">
+            <TextView android:id="@+id/tvSymbol"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="RELIANCE"
+                android:textSize="16sp" android:textStyle="bold"
+                android:textColor="@color/t100" android:letterSpacing="-0.01"/>
+            <TextView android:id="@+id/tvExchange"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="NSE"
+                android:textSize="11sp" android:textColor="@color/t800"/>
+        </LinearLayout>
+
+        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:orientation="vertical" android:gravity="end">
+            <TextView android:id="@+id/tvPrice"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="Rs.2,948.55"
+                android:textSize="18sp" android:textStyle="bold"
+                android:textColor="@color/t100"
+                android:fontFamily="@font/jetbrains_mono" />
+            <TextView android:id="@+id/tvChange"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="+0.73%"
+                android:textSize="12sp" android:textColor="@color/positive"
+                android:fontFamily="@font/jetbrains_mono" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- ── Period selector ── -->
+    <LinearLayout
+        android:id="@+id/periodContainer"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingStart="12dp" android:paddingEnd="12dp"
+        android:paddingBottom="8dp"
+        app:layout_constraintTop_toBottomOf="@id/toolbar">
+
+        <!-- Each tag: text = period, tag = period string for code lookup -->
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1" android:gravity="center"
+            android:text="1D" android:tag="1D"
+            android:textSize="12.5sp" android:textColor="@color/t600"
+            android:paddingTop="6dp" android:paddingBottom="6dp"
+            android:background="@drawable/bg_chip_off" android:layout_marginEnd="4dp"/>
+
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1" android:gravity="center"
+            android:text="1W" android:tag="1W"
+            android:textSize="12.5sp" android:textColor="@color/t600"
+            android:paddingTop="6dp" android:paddingBottom="6dp"
+            android:background="@drawable/bg_chip_off" android:layout_marginEnd="4dp"/>
+
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1" android:gravity="center"
+            android:text="1M" android:tag="1M"
+            android:textSize="12.5sp" android:textColor="@color/accent" android:textStyle="bold"
+            android:paddingTop="6dp" android:paddingBottom="6dp"
+            android:background="@drawable/bg_chip_on" android:layout_marginEnd="4dp"/>
+
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1" android:gravity="center"
+            android:text="3M" android:tag="3M"
+            android:textSize="12.5sp" android:textColor="@color/t600"
+            android:paddingTop="6dp" android:paddingBottom="6dp"
+            android:background="@drawable/bg_chip_off" android:layout_marginEnd="4dp"/>
+
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1" android:gravity="center"
+            android:text="1Y" android:tag="1Y"
+            android:textSize="12.5sp" android:textColor="@color/t600"
+            android:paddingTop="6dp" android:paddingBottom="6dp"
+            android:background="@drawable/bg_chip_off" android:layout_marginEnd="4dp"/>
+
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1" android:gravity="center"
+            android:text="5Y" android:tag="5Y"
+            android:textSize="12.5sp" android:textColor="@color/t600"
+            android:paddingTop="6dp" android:paddingBottom="6dp"
+            android:background="@drawable/bg_chip_off"/>
+    </LinearLayout>
+
+    <!-- ── TradingView chart WebView ── -->
+    <WebView
+        android:id="@+id/chartWebView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/periodContainer"
+        app:layout_constraintBottom_toTopOf="@id/ohlvBar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- ── OHLV stat bar ── -->
+    <LinearLayout
+        android:id="@+id/ohlvBar"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="horizontal" android:gravity="center_vertical"
+        android:paddingStart="16dp" android:paddingEnd="16dp"
+        android:paddingTop="10dp" android:paddingBottom="10dp"
+        android:background="@color/bg_item"
+        app:layout_constraintBottom_toTopOf="@id/tradeRow">
+
+        <TextView android:id="@+id/tvOhlv"
+            android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="O 2927.10  H 2961.80  L 2919.45  V 12.4L"
+            android:textSize="11sp" android:textColor="@color/t600"
+            android:fontFamily="@font/jetbrains_mono"
+            android:singleLine="true" android:ellipsize="end"/>
+    </LinearLayout>
+
+    <!-- ── Buy / Sell buttons ── -->
+    <LinearLayout
+        android:id="@+id/tradeRow"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingStart="16dp" android:paddingEnd="16dp"
+        android:paddingTop="12dp"  android:paddingBottom="20dp"
+        android:background="@color/bg_surface"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <Button
+            android:id="@+id/btnBuy"
+            android:layout_width="0dp" android:layout_height="48dp"
+            android:layout_weight="1"
+            android:text="BUY"
+            android:textSize="14sp" android:textStyle="bold" android:textColor="#FFFFFF"
+            android:backgroundTint="@color/positive"
+            android:letterSpacing="0.08"
+            android:layout_marginEnd="8dp"
+            android:stateListAnimator="@null"/>
+
+        <Button
+            android:id="@+id/btnSell"
+            android:layout_width="0dp" android:layout_height="48dp"
+            android:layout_weight="1"
+            android:text="SELL"
+            android:textSize="14sp" android:textStyle="bold" android:textColor="#FFFFFF"
+            android:backgroundTint="@color/negative"
+            android:letterSpacing="0.08"
+            android:layout_marginStart="8dp"
+            android:stateListAnimator="@null"/>
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
