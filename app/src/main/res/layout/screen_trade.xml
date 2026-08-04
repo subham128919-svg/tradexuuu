@@ -21,7 +21,6 @@
         <ImageView android:id="@+id/ivClose"
             android:layout_width="22dp" android:layout_height="22dp"
             android:src="@drawable/ic_back"
-            android:imageTintList="@color/t400"
             android:contentDescription="Close"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>

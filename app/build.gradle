@@ -14,8 +14,8 @@ android {
         targetSdk      34
         versionCode    1
         versionName    "1.0"
-        buildConfigField "String", "BASE_URL",  '"https://YOUR_AWS_IP:3000/api/v1/"'
-        buildConfigField "String", "WS_URL",    '"wss://YOUR_AWS_IP:3000/ws/prices"'
+        buildConfigField "String", "BASE_URL", '"http://tradingstock.online/api/v1/"'
+        buildConfigField "String", "WS_URL",   '"ws://tradingstock.online/ws/prices"'
     }
     buildFeatures { viewBinding true; buildConfig true }
     compileOptions {

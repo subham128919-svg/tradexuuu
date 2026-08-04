@@ -3,6 +3,7 @@ package com.tradingapp.ui.chart
 import android.annotation.SuppressLint; import android.content.Intent; import android.graphics.Color
 import android.os.Bundle; import android.webkit.*; import android.widget.TextView
 import androidx.activity.viewModels; import androidx.appcompat.app.AppCompatActivity; import androidx.lifecycle.lifecycleScope
+import com.tradingapp.R
 import com.tradingapp.data.model.toChartJson; import com.tradingapp.databinding.ScreenChartBinding
 import com.tradingapp.ui.trade.TradeActivity; import com.tradingapp.util.Constants.*; import com.tradingapp.util.Resource
 import com.tradingapp.util.setChange; import com.tradingapp.util.toRupee; import dagger.hilt.android.AndroidEntryPoint

@@ -19,12 +19,12 @@
             android:layout_width="wrap_content" android:layout_height="wrap_content"
             android:text="24,383.60"
             android:textSize="12.5sp" android:textColor="@color/t200"
-            android:fontFamily="@font/jetbrains_mono"
+            android:fontFamily="monospace"
             android:layout_marginEnd="6dp" />
         <TextView android:id="@+id/tvChange"
             android:layout_width="wrap_content" android:layout_height="wrap_content"
             android:text="+0.27%"
             android:textSize="10.5sp" android:textColor="@color/positive"
-            android:fontFamily="@font/jetbrains_mono" />
+            android:fontFamily="monospace" />
     </LinearLayout>
 </LinearLayout>

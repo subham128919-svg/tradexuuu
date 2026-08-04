@@ -28,7 +28,6 @@
             android:id="@+id/ivBack"
             android:layout_width="22dp" android:layout_height="22dp"
             android:src="@drawable/ic_back"
-            android:imageTintList="@color/t300"
             android:layout_marginEnd="14dp"
             android:contentDescription="Back" />
 

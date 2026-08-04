@@ -1,6 +1,9 @@
 package com.tradingapp.data.repository
 
-import com.tradingapp.data.api.ApiService; import com.tradingapp.data.model.*; import com.tradingapp.util.Resource
+import com.tradingapp.data.api.ApiService;
+import com.tradingapp.data.api.HoldingsResponse
+import com.tradingapp.data.api.PositionsResponse
+import com.tradingapp.data.model.*; import com.tradingapp.util.Resource
 import kotlinx.coroutines.flow.Flow; import kotlinx.coroutines.flow.flow; import javax.inject.Inject; import javax.inject.Singleton
 
 @Singleton
