@@ -1,282 +1,90 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Holdings screen — contains summary card with tvSummaryValue, tvSummaryDelta, tvStat1Value, tvStat2Value -->
 <androidx.core.widget.NestedScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/bg_surface"
-    android:fillViewport="true">
+    android:scrollbars="none">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingTop="16dp"
-        android:paddingBottom="24dp">
+        android:orientation="vertical">
 
-        <!-- ── Summary block ── -->
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        <!-- Summary card -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp" android:paddingBottom="6dp"
-            android:layout_marginStart="16dp" android:layout_marginEnd="16dp"
-            android:layout_marginBottom="22dp"
-            android:background="@drawable/bg_summary">
+            android:background="@drawable/bg_summary"
+            android:padding="20dp"
+            android:layout_margin="16dp">
 
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="Current value" android:textSize="11sp"
-                android:textColor="@color/t600" android:letterSpacing="0.03"
-                android:layout_marginBottom="5dp" />
+            <TextView
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="Current value"
+                android:textSize="11sp" android:textColor="@color/t700" />
 
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:orientation="horizontal" android:gravity="center_vertical|bottom"
-                android:layout_marginBottom="14dp">
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="₹4,86,210" android:textSize="26sp" android:textColor="@color/t100"
-                    android:fontFamily="@font/jetbrains_mono" android:letterSpacing="-0.02"
-                    android:layout_marginEnd="9dp" />
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="+₹3,142 (0.65%) today" android:textSize="12sp" android:textColor="@color/positive"
-                    android:fontFamily="@font/jetbrains_mono" />
-            </LinearLayout>
+            <!-- tvSummaryValue — total portfolio value -->
+            <TextView
+                android:id="@+id/tvSummaryValue"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="₹0.00"
+                android:textSize="26sp" android:textStyle="bold"
+                android:textColor="@color/t100"
+                android:fontFamily="@font/jetbrains_mono"
+                android:layout_marginTop="4dp"/>
 
-            <GridLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:columnCount="2" android:rowCount="2"
-                android:layout_marginBottom="10dp"
-                android:background="@color/div06">
+            <!-- tvSummaryDelta — today's P&L change line -->
+            <TextView
+                android:id="@+id/tvSummaryDelta"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="+₹0.00 (0.00%) today"
+                android:textSize="12.5sp" android:textColor="@color/positive"
+                android:layout_marginTop="4dp"/>
 
-                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
-                            android:layout_columnWeight="1" android:orientation="vertical"
-                            android:padding="11dp" android:paddingStart="13dp"
-                            android:background="@drawable/bg_stat_cell" android:layout_margin="0.5dp">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                                android:text="INVESTED" android:textSize="10sp"
-                                android:textColor="@color/t800" android:letterSpacing="0.04"
-                                android:layout_marginBottom="4dp" />
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                                android:text="₹4,12,900" android:textSize="13sp" android:textColor="@color/t200"
-                                android:fontFamily="@font/jetbrains_mono" />
-                        </LinearLayout>
-                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
-                            android:layout_columnWeight="1" android:orientation="vertical"
-                            android:padding="11dp" android:paddingStart="13dp"
-                            android:background="@drawable/bg_stat_cell" android:layout_margin="0.5dp">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                                android:text="TOTAL RETURNS" android:textSize="10sp"
-                                android:textColor="@color/t800" android:letterSpacing="0.04"
-                                android:layout_marginBottom="4dp" />
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                                android:text="+₹73,310 (17.75%)" android:textSize="13sp" android:textColor="@color/positive"
-                                android:fontFamily="@font/jetbrains_mono" />
-                        </LinearLayout>
-                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
-                            android:layout_columnWeight="1" android:orientation="vertical"
-                            android:padding="11dp" android:paddingStart="13dp"
-                            android:background="@drawable/bg_stat_cell" android:layout_margin="0.5dp">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                                android:text="DAY P&amp;L" android:textSize="10sp"
-                                android:textColor="@color/t800" android:letterSpacing="0.04"
-                                android:layout_marginBottom="4dp" />
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                                android:text="+₹3,142" android:textSize="13sp" android:textColor="@color/positive"
-                                android:fontFamily="@font/jetbrains_mono" />
-                        </LinearLayout>
-                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
-                            android:layout_columnWeight="1" android:orientation="vertical"
-                            android:padding="11dp" android:paddingStart="13dp"
-                            android:background="@drawable/bg_stat_cell" android:layout_margin="0.5dp">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                                android:text="HOLDINGS" android:textSize="10sp"
-                                android:textColor="@color/t800" android:letterSpacing="0.04"
-                                android:layout_marginBottom="4dp" />
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                                android:text="14 stocks" android:textSize="13sp" android:textColor="@color/t200"
-                                android:fontFamily="@font/jetbrains_mono" />
-                        </LinearLayout>
-            </GridLayout>
-        </LinearLayout>
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingStart="16dp" android:paddingEnd="16dp"
-            android:layout_marginBottom="22dp">
+            <!-- Stat row: Invested | Overall returns -->
+            <LinearLayout
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="18dp">
 
-            <!-- Section header -->
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:orientation="horizontal" android:gravity="center_vertical|bottom"
-                android:layout_marginBottom="11dp">
-                <TextView android:layout_width="0dp" android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Your stocks" android:textSize="15.5sp" android:textStyle="bold"
-                    android:textColor="@color/t100" android:letterSpacing="-0.01" />
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Sort" android:textSize="11.5sp" android:textStyle="bold" android:textColor="@color/accent" />
-            </LinearLayout>
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:orientation="vertical" android:background="@drawable/bg_rows_wrap"
-                android:clipToOutline="true">
-
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                    android:orientation="horizontal" android:gravity="center_vertical"
-                    android:paddingStart="14dp" android:paddingEnd="14dp"
-                    android:paddingTop="13dp" android:paddingBottom="13dp"
-                    android:background="@drawable/bg_row">
-                    <TextView android:layout_width="34dp" android:layout_height="34dp"
-                        android:gravity="center" android:text="RE"
-                        android:textSize="11.5sp" android:textStyle="bold"
-                        android:textColor="@color/t400" android:background="@drawable/bg_logo"
-                        android:layout_marginEnd="12dp" />
-                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
-                        android:layout_weight="1" android:orientation="vertical">
-                        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:orientation="horizontal" android:gravity="center_vertical">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                                android:text="Reliance" android:textSize="13sp" android:textColor="@color/t200"
-                                android:maxLines="1" android:ellipsize="end" />
-                        </LinearLayout>
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="24 qty · avg ₹2,684.10" android:textSize="10.5sp" android:textColor="@color/t800"
-                            android:fontFamily="@font/jetbrains_mono" android:layout_marginTop="3dp" />
-                    </LinearLayout>
-                    <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:orientation="vertical" android:gravity="end">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="₹70,765" android:textSize="13sp" android:textColor="@color/t200"
-                            android:fontFamily="@font/jetbrains_mono" android:gravity="end" />
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="+₹6,346 (9.86%)" android:textSize="10.5sp" android:textColor="@color/positive"
-                            android:fontFamily="@font/jetbrains_mono" android:layout_marginTop="3dp" android:gravity="end" />
-                    </LinearLayout>
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:orientation="vertical">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="Invested" android:textSize="11sp" android:textColor="@color/t700"/>
+                    <!-- tvStat1Value — total invested amount -->
+                    <TextView android:id="@+id/tvStat1Value"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="₹0.00" android:textSize="14sp"
+                        android:textStyle="bold" android:textColor="@color/t100"
+                        android:fontFamily="@font/jetbrains_mono"/>
                 </LinearLayout>
-                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/div06"/>
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                    android:orientation="horizontal" android:gravity="center_vertical"
-                    android:paddingStart="14dp" android:paddingEnd="14dp"
-                    android:paddingTop="13dp" android:paddingBottom="13dp"
-                    android:background="@drawable/bg_row">
-                    <TextView android:layout_width="34dp" android:layout_height="34dp"
-                        android:gravity="center" android:text="HD"
-                        android:textSize="11.5sp" android:textStyle="bold"
-                        android:textColor="@color/t400" android:background="@drawable/bg_logo"
-                        android:layout_marginEnd="12dp" />
-                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
-                        android:layout_weight="1" android:orientation="vertical">
-                        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:orientation="horizontal" android:gravity="center_vertical">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                                android:text="HDFC Bank" android:textSize="13sp" android:textColor="@color/t200"
-                                android:maxLines="1" android:ellipsize="end" />
-                        </LinearLayout>
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="40 qty · avg ₹1,512.40" android:textSize="10.5sp" android:textColor="@color/t800"
-                            android:fontFamily="@font/jetbrains_mono" android:layout_marginTop="3dp" />
-                    </LinearLayout>
-                    <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:orientation="vertical" android:gravity="end">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="₹67,368" android:textSize="13sp" android:textColor="@color/t200"
-                            android:fontFamily="@font/jetbrains_mono" android:gravity="end" />
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="+₹6,872 (11.3%)" android:textSize="10.5sp" android:textColor="@color/positive"
-                            android:fontFamily="@font/jetbrains_mono" android:layout_marginTop="3dp" android:gravity="end" />
-                    </LinearLayout>
-                </LinearLayout>
-                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/div06"/>
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                    android:orientation="horizontal" android:gravity="center_vertical"
-                    android:paddingStart="14dp" android:paddingEnd="14dp"
-                    android:paddingTop="13dp" android:paddingBottom="13dp"
-                    android:background="@drawable/bg_row">
-                    <TextView android:layout_width="34dp" android:layout_height="34dp"
-                        android:gravity="center" android:text="IN"
-                        android:textSize="11.5sp" android:textStyle="bold"
-                        android:textColor="@color/t400" android:background="@drawable/bg_logo"
-                        android:layout_marginEnd="12dp" />
-                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
-                        android:layout_weight="1" android:orientation="vertical">
-                        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:orientation="horizontal" android:gravity="center_vertical">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                                android:text="Infosys" android:textSize="13sp" android:textColor="@color/t200"
-                                android:maxLines="1" android:ellipsize="end" />
-                        </LinearLayout>
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="18 qty · avg ₹1,948.60" android:textSize="10.5sp" android:textColor="@color/t800"
-                            android:fontFamily="@font/jetbrains_mono" android:layout_marginTop="3dp" />
-                    </LinearLayout>
-                    <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:orientation="vertical" android:gravity="end">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="₹32,837" android:textSize="13sp" android:textColor="@color/t200"
-                            android:fontFamily="@font/jetbrains_mono" android:gravity="end" />
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="-₹2,238 (6.38%)" android:textSize="10.5sp" android:textColor="@color/negative"
-                            android:fontFamily="@font/jetbrains_mono" android:layout_marginTop="3dp" android:gravity="end" />
-                    </LinearLayout>
-                </LinearLayout>
-                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/div06"/>
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                    android:orientation="horizontal" android:gravity="center_vertical"
-                    android:paddingStart="14dp" android:paddingEnd="14dp"
-                    android:paddingTop="13dp" android:paddingBottom="13dp"
-                    android:background="@drawable/bg_row">
-                    <TextView android:layout_width="34dp" android:layout_height="34dp"
-                        android:gravity="center" android:text="TS"
-                        android:textSize="11.5sp" android:textStyle="bold"
-                        android:textColor="@color/t400" android:background="@drawable/bg_logo"
-                        android:layout_marginEnd="12dp" />
-                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
-                        android:layout_weight="1" android:orientation="vertical">
-                        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:orientation="horizontal" android:gravity="center_vertical">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                                android:text="Tata Steel" android:textSize="13sp" android:textColor="@color/t200"
-                                android:maxLines="1" android:ellipsize="end" />
-                        </LinearLayout>
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="300 qty · avg ₹128.40" android:textSize="10.5sp" android:textColor="@color/t800"
-                            android:fontFamily="@font/jetbrains_mono" android:layout_marginTop="3dp" />
-                    </LinearLayout>
-                    <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:orientation="vertical" android:gravity="end">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="₹45,855" android:textSize="13sp" android:textColor="@color/t200"
-                            android:fontFamily="@font/jetbrains_mono" android:gravity="end" />
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="+₹7,335 (19.0%)" android:textSize="10.5sp" android:textColor="@color/positive"
-                            android:fontFamily="@font/jetbrains_mono" android:layout_marginTop="3dp" android:gravity="end" />
-                    </LinearLayout>
-                </LinearLayout>
-                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/div06"/>
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                    android:orientation="horizontal" android:gravity="center_vertical"
-                    android:paddingStart="14dp" android:paddingEnd="14dp"
-                    android:paddingTop="13dp" android:paddingBottom="13dp"
-                    android:background="@drawable/bg_row">
-                    <TextView android:layout_width="34dp" android:layout_height="34dp"
-                        android:gravity="center" android:text="SB"
-                        android:textSize="11.5sp" android:textStyle="bold"
-                        android:textColor="@color/t400" android:background="@drawable/bg_logo"
-                        android:layout_marginEnd="12dp" />
-                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
-                        android:layout_weight="1" android:orientation="vertical">
-                        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:orientation="horizontal" android:gravity="center_vertical">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                                android:text="SBI" android:textSize="13sp" android:textColor="@color/t200"
-                                android:maxLines="1" android:ellipsize="end" />
-                        </LinearLayout>
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="55 qty · avg ₹684.20" android:textSize="10.5sp" android:textColor="@color/t800"
-                            android:fontFamily="@font/jetbrains_mono" android:layout_marginTop="3dp" />
-                    </LinearLayout>
-                    <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:orientation="vertical" android:gravity="end">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="₹45,339" android:textSize="13sp" android:textColor="@color/t200"
-                            android:fontFamily="@font/jetbrains_mono" android:gravity="end" />
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="+₹7,708 (20.4%)" android:textSize="10.5sp" android:textColor="@color/positive"
-                            android:fontFamily="@font/jetbrains_mono" android:layout_marginTop="3dp" android:gravity="end" />
-                    </LinearLayout>
+
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:orientation="vertical">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="Overall returns" android:textSize="11sp" android:textColor="@color/t700"/>
+                    <!-- tvStat2Value — total P&L percentage -->
+                    <TextView android:id="@+id/tvStat2Value"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="+0.00%" android:textSize="14sp"
+                        android:textStyle="bold" android:textColor="@color/positive"
+                        android:fontFamily="@font/jetbrains_mono"/>
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
+
+        <!-- Holdings list — RecyclerView populated by adapter -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvHoldings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nestedScrollingEnabled="false"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            android:padding="8dp"/>
+
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

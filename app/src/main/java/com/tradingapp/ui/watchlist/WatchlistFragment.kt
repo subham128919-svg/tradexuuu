@@ -17,7 +17,7 @@ class WatchlistFragment : Fragment() {
 
     override fun onViewCreated(v: View, s: Bundle?) {
         super.onViewCreated(v, s)
-        adapter = RowAdapter { row -> startActivity(Intent(requireContext(), ChartActivity::class.java).also { it.putExtra(Constants.EXTRA_SYMBOL, row.symbol); it.putExtra(Constants.EXTRA_EXCHANGE, row.exchange) }) }
+        adapter = RowAdapter { row -> startActivity(Intent(requireContext(), ChartActivity::class.java).also { it.putExtra(EXTRA_SYMBOL, row.symbol); it.putExtra(EXTRA_EXCHANGE, row.exchange) }) }
         vm.load()
         launchOnStarted { vm.watchlist.collect { items ->
             adapter.submitList(items.map { w ->

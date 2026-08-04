@@ -1,13 +1,23 @@
 package com.tradingapp.ui.chart
 
-import android.annotation.SuppressLint; import android.content.Intent; import android.graphics.Color
-import android.os.Bundle; import android.webkit.*; import android.widget.TextView
-import androidx.activity.viewModels; import androidx.appcompat.app.AppCompatActivity; import androidx.lifecycle.lifecycleScope
+import android.annotation.SuppressLint
+import android.content.Intent
+import android.graphics.Color
+import android.os.Bundle
+import android.webkit.*
+import android.widget.TextView
+import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.tradingapp.R
-import com.tradingapp.data.model.toChartJson; import com.tradingapp.databinding.ScreenChartBinding
-import com.tradingapp.ui.trade.TradeActivity; import com.tradingapp.util.Constants.*; import com.tradingapp.util.Resource
-import com.tradingapp.util.setChange; import com.tradingapp.util.toRupee; import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collectLatest; import kotlinx.coroutines.launch
+import com.tradingapp.data.model.toChartJson
+import com.tradingapp.databinding.ScreenChartBinding
+import com.tradingapp.ui.trade.TradeActivity
+import com.tradingapp.util.*        // ← fixed: package star import works; object star import does NOT
+import com.tradingapp.util.Resource
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class ChartActivity : AppCompatActivity() {
@@ -17,10 +27,9 @@ class ChartActivity : AppCompatActivity() {
 
     private val symbol   by lazy { intent.getStringExtra(EXTRA_SYMBOL)   ?: "" }
     private val exchange by lazy { intent.getStringExtra(EXTRA_EXCHANGE) ?: "NSE" }
-    private val name     by lazy { intent.getStringExtra(EXTRA_NAME)     ?: symbol }
 
     private var chartReady    = false
-    private var pendingJson   = ""          // candles loaded before chart was ready
+    private var pendingJson   = ""
     private var currentPeriod = "1M"
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -36,7 +45,6 @@ class ChartActivity : AppCompatActivity() {
         observeCandles()
         observeQuote()
         observeLiveTick()
-
         viewModel.loadChart(symbol, exchange, currentPeriod)
     }
 
@@ -57,10 +65,7 @@ class ChartActivity : AppCompatActivity() {
             displayZoomControls  = false
             cacheMode            = WebSettings.LOAD_NO_CACHE
         }
-
-        // Android ↔ JavaScript bridge
         binding.chartWebView.addJavascriptInterface(object {
-            // JS calls this when chart.html has finished initializing
             @JavascriptInterface
             fun onChartReady() {
                 chartReady = true
@@ -82,14 +87,11 @@ class ChartActivity : AppCompatActivity() {
                 }
             }
         }
-
-        // Load from assets/chart.html (no internet needed for the HTML itself)
         binding.chartWebView.loadUrl("file:///android_asset/chart.html")
     }
 
     private fun setupPeriodButtons() {
-        val periods = listOf("1D", "1W", "1M", "3M", "1Y", "5Y")
-        periods.forEach { period ->
+        listOf("1D","1W","1M","3M","1Y","5Y").forEach { period ->
             binding.periodContainer.findViewWithTag<TextView>(period)?.setOnClickListener {
                 if (period == currentPeriod) return@setOnClickListener
                 currentPeriod = period
@@ -103,10 +105,9 @@ class ChartActivity : AppCompatActivity() {
     private fun updatePeriodHighlight(active: String) {
         listOf("1D","1W","1M","3M","1Y","5Y").forEach { p ->
             binding.periodContainer.findViewWithTag<TextView>(p)?.let { tv ->
-                val isActive = p == active
-                tv.setTextColor(if (isActive) Color.parseColor("#6D5EF8") else Color.parseColor("#6E7681"))
-                tv.setTypeface(tv.typeface, if (isActive) android.graphics.Typeface.BOLD else android.graphics.Typeface.NORMAL)
-                tv.setBackgroundResource(if (isActive) R.drawable.bg_chip_on else R.drawable.bg_chip_off)
+                tv.setTextColor(if (p == active) Color.parseColor("#6D5EF8") else Color.parseColor("#6E7681"))
+                tv.setTypeface(tv.typeface, if (p == active) android.graphics.Typeface.BOLD else android.graphics.Typeface.NORMAL)
+                tv.setBackgroundResource(if (p == active) R.drawable.bg_chip_on else R.drawable.bg_chip_off)
             }
         }
     }
@@ -118,7 +119,8 @@ class ChartActivity : AppCompatActivity() {
 
     private fun openTrade(type: String) {
         startActivity(Intent(this, TradeActivity::class.java).also {
-            it.putExtra(EXTRA_SYMBOL, symbol); it.putExtra(EXTRA_EXCHANGE, exchange)
+            it.putExtra(EXTRA_SYMBOL, symbol)
+            it.putExtra(EXTRA_EXCHANGE, exchange)
             it.putExtra("transactionType", type)
         })
     }
@@ -126,16 +128,14 @@ class ChartActivity : AppCompatActivity() {
     private fun observeCandles() = lifecycleScope.launch {
         viewModel.candles.collectLatest { res ->
             when (res) {
-                is Resource.Loading -> { /* show spinner */ }
+                is Resource.Loading -> { }
                 is Resource.Success -> pushCandlesToChart(res.data.toChartJson())
-                is Resource.Error   -> { /* show toast */ }
+                is Resource.Error   -> { }
             }
         }
     }
 
-    // Safely push JSON to chart — waits for page ready
     private fun pushCandlesToChart(json: String) {
-        // Escape single quotes so JS string injection is safe
         val safe = json.replace("'", "\'")
         if (chartReady) {
             binding.chartWebView.post {
@@ -155,7 +155,6 @@ class ChartActivity : AppCompatActivity() {
         }
     }
 
-    // Real-time tick: update header price + push to chart's addTick()
     private fun observeLiveTick() = lifecycleScope.launch {
         viewModel.liveTicks.collectLatest { tick ->
             if (tick.symbol != "$exchange:$symbol") return@collectLatest

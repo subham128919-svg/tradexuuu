@@ -58,9 +58,9 @@ class ExploreFragment : Fragment() {
 
     private fun openChart(quote: Quote) {
         Intent(requireContext(), ChartActivity::class.java).also {
-            it.putExtra(Constants.EXTRA_SYMBOL,   quote.symbol.substringAfter(":"))
-            it.putExtra(Constants.EXTRA_EXCHANGE, quote.exchange)
-            it.putExtra(Constants.EXTRA_NAME,     quote.name)
+            it.putExtra(EXTRA_SYMBOL,   quote.symbol.substringAfter(":"))
+            it.putExtra(EXTRA_EXCHANGE, quote.exchange)
+            it.putExtra(EXTRA_NAME,     quote.name)
             startActivity(it)
         }
     }
