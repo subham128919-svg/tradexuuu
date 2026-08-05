@@ -7,8 +7,8 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.tradingapp.R
-import com.tradingapp.databinding.ActivityMainBinding
 import com.tradingapp.data.model.Quote
+import com.tradingapp.databinding.ActivityMainBinding
 import com.tradingapp.ui.explore.ExploreFragment
 import com.tradingapp.ui.holdings.HoldingsFragment
 import com.tradingapp.ui.orders.OrdersFragment
@@ -50,7 +50,6 @@ class MainActivity : AppCompatActivity() {
         switchSegment(SEG_EQUITY)
     }
 
-    // FIX: ivSearch had no click listener — search screen was unreachable
     private fun setupSearch() {
         binding.ivSearch.setOnClickListener {
             startActivity(Intent(this, SearchActivity::class.java))
@@ -68,24 +67,34 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // FIX: viewModel.indices is now a plain StateFlow<List<Quote>>
+    // (Room-backed, always has bundled+cached data) instead of a
+    // Resource-wrapped one-shot network result — so this always has
+    // something to render, even before any successful sync today.
     private fun observeIndices() = lifecycleScope.launchWhenStarted {
-        viewModel.indices.collectLatest { res ->
-            if (res is Resource.Success) buildIndexTicker(res.data)
-            // Note: index errors are non-fatal to app usage, so no error UI here.
-            // If indices never load, it usually means the Kite token expired —
-            // re-login at https://tradingstock.online/api/v1/auth/kite-login
-        }
+        viewModel.indices.collectLatest { list -> buildIndexTicker(list) }
     }
 
     private fun buildIndexTicker(indices: List<Quote>) {
         binding.llIndices.removeAllViews()
         indices.forEach { q ->
             val view = layoutInflater.inflate(R.layout.item_index, binding.llIndices, false)
-            view.findViewById<TextView>(R.id.tvName).text  = q.symbol.substringAfter(":")
-            view.findViewById<TextView>(R.id.tvValue).text = "%.2f".format(q.ltp)
+            view.findViewById<TextView>(R.id.tvName).text = q.symbol.substringAfter(":")
+
+            val valueTv  = view.findViewById<TextView>(R.id.tvValue)
             val changeTv = view.findViewById<TextView>(R.id.tvChange)
-            changeTv.text = if (q.changePct >= 0) "+%.2f%%".format(q.changePct) else "%.2f%%".format(q.changePct)
-            changeTv.setTextColor(if (q.isPositive) 0xFF2FBF71.toInt() else 0xFFFF5C5C.toInt())
+
+            if (q.ltp <= 0.0) {
+                // Not cached/synced yet — show a neutral placeholder
+                // instead of "0.00", which would look like a real price.
+                valueTv.text = "—"
+                changeTv.text = "…"
+                changeTv.setTextColor(0xFF6E7681.toInt())
+            } else {
+                valueTv.text = "%.2f".format(q.ltp)
+                changeTv.text = if (q.changePct >= 0) "+%.2f%%".format(q.changePct) else "%.2f%%".format(q.changePct)
+                changeTv.setTextColor(if (q.isPositive) 0xFF2FBF71.toInt() else 0xFFFF5C5C.toInt())
+            }
             binding.llIndices.addView(view)
         }
     }

@@ -2,7 +2,9 @@ package com.tradingapp.ui.watchlist
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -10,7 +12,9 @@ import com.tradingapp.databinding.ScreenEquityWatchlistBinding
 import com.tradingapp.ui.adapter.RowAdapter
 import com.tradingapp.ui.adapter.RowItem
 import com.tradingapp.ui.chart.ChartActivity
-import com.tradingapp.util.*
+import com.tradingapp.util.EXTRA_EXCHANGE
+import com.tradingapp.util.EXTRA_SYMBOL
+import com.tradingapp.util.launchOnStarted
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -40,25 +44,29 @@ class WatchlistFragment : Fragment() {
                 it.putExtra(EXTRA_EXCHANGE, row.exchange)
             })
         }
-
-        // FIX: adapter was created but never attached to rvWatchlist
         b.rvWatchlist.layoutManager = LinearLayoutManager(requireContext())
         b.rvWatchlist.adapter = adapter
 
         vm.load()
         launchOnStarted {
-            vm.watchlist.collect { items ->
-                adapter.submitList(items.map { w ->
+            vm.rows.collect { rows ->
+                adapter.submitList(rows.map { w ->
                     RowItem(
-                        w.symbol.take(2), w.symbol, w.exchange,
-                        "Rs.%.2f".format(w.ltp),
-                        "${if (w.changePct >= 0) "+" else ""}%.2f%%".format(w.changePct),
-                        symbol = w.symbol, exchange = w.exchange
+                        logo    = w.symbol.take(2),
+                        name    = w.symbol,
+                        sub     = w.exchange,
+                        right   = "Rs.%.2f".format(w.ltp),
+                        rightSub = "${if (w.changePct >= 0) "+" else ""}%.2f%%".format(w.changePct),
+                        symbol  = w.symbol,
+                        exchange = w.exchange
                     )
                 })
             }
         }
     }
 
-    override fun onDestroyView() { super.onDestroyView(); _b = null }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _b = null
+    }
 }

@@ -74,9 +74,9 @@ class SearchActivity : AppCompatActivity() {
                     adapter.submitList(res.data.map { q ->
                         RowItem(
                             logo = q.symbol.take(2), name = q.symbol,
-                            sub = q.name.ifEmpty { q.exchange },
+                            sub = (q.name ?: "").ifEmpty { q.exchange ?: "NSE" },
                             right = "", rightSub = "",
-                            symbol = q.symbol, exchange = q.exchange
+                            symbol = q.symbol, exchange = q.exchange ?: "NSE"
                         )
                     })
                     binding.tvEmpty.visibility =
