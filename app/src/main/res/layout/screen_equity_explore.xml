@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Explore screen — 2-column grid of stock cards. rvCards is required by ExploreFragment.kt -->
 <androidx.core.widget.NestedScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -14,7 +13,6 @@
         android:orientation="vertical"
         android:paddingBottom="16dp">
 
-        <!-- Filter chips -->
         <HorizontalScrollView
             android:layout_width="match_parent" android:layout_height="wrap_content"
             android:scrollbars="none"
@@ -45,7 +43,20 @@
             </LinearLayout>
         </HorizontalScrollView>
 
-        <!-- rvCards — REQUIRED ID, bound by GridLayoutManager(2) in ExploreFragment.kt -->
+        <!-- tvError — REQUIRED ID. Shows real error message + tap-to-retry
+             instead of leaving the screen blank when data fails to load. -->
+        <TextView
+            android:id="@+id/tvError"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:text=""
+            android:textSize="13sp" android:textColor="@color/negative"
+            android:gravity="center"
+            android:padding="24dp"
+            android:background="@drawable/bg_card"
+            android:layout_margin="16dp"/>
+
+        <!-- rvCards — 2-column grid, bound by GridLayoutManager(2) in ExploreFragment.kt -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvCards"
             android:layout_width="match_parent"

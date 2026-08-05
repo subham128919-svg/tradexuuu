@@ -43,7 +43,6 @@ class ExploreFragment : Fragment() {
         loadData()
     }
 
-    // FIX: RecyclerView was created but never attached — nothing rendered, nothing clickable
     private fun setupCardGrid() {
         cardAdapter = StockCardAdapter { quote -> openChart(quote) }
         binding.rvCards.layoutManager = GridLayoutManager(requireContext(), 2)
@@ -52,20 +51,34 @@ class ExploreFragment : Fragment() {
 
     private fun loadData() = viewModel.load(segment, chipType)
 
+    // FIX: errors were silently swallowed — screen just stayed blank with no clue why.
+    // Now shows the real error text and a Retry button. Most common cause: the Kite
+    // access token expired overnight — re-login at
+    // https://tradingstock.online/api/v1/auth/kite-login and try again.
     private fun observeExplore() = launchOnStarted {
         viewModel.exploreItems.collect { res ->
             when (res) {
-                is Resource.Loading -> { }
-                is Resource.Success -> {
-                    cardAdapter.submitList(res.data)
-                    viewModel.subscribeSymbols(res.data.map { it.symbol })
+                is Resource.Loading -> {
+                    binding.tvError.visibility = View.GONE
                 }
-                is Resource.Error -> { }
+                is Resource.Success -> {
+                    binding.tvError.visibility = View.GONE
+                    cardAdapter.submitList(res.data)
+                    if (res.data.isNotEmpty()) {
+                        viewModel.subscribeSymbols(res.data.map { it.symbol })
+                    }
+                }
+                is Resource.Error -> {
+                    binding.tvError.visibility = View.VISIBLE
+                    binding.tvError.text =
+                        "Couldn't load data: ${res.message}\n\nMost likely your Zerodha login expired. " +
+                        "Tap to retry, or re-login via the server link."
+                    binding.tvError.setOnClickListener { loadData() }
+                }
             }
         }
     }
 
-    // FIX: live ticks were collected into state but never applied to the visible list
     private fun observeLiveTicks() = launchOnStarted {
         viewModel.liveTick.collect { tickMap ->
             if (tickMap.isEmpty()) return@collect

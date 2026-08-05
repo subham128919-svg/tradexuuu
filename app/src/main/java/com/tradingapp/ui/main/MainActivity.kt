@@ -1,5 +1,6 @@
 package com.tradingapp.ui.main
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.TextView
 import androidx.activity.viewModels
@@ -12,8 +13,9 @@ import com.tradingapp.ui.explore.ExploreFragment
 import com.tradingapp.ui.holdings.HoldingsFragment
 import com.tradingapp.ui.orders.OrdersFragment
 import com.tradingapp.ui.positions.PositionsFragment
+import com.tradingapp.ui.search.SearchActivity
 import com.tradingapp.ui.watchlist.WatchlistFragment
-import com.tradingapp.util.*          // ← fixed: package star import, not object star import
+import com.tradingapp.util.*
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 
@@ -42,9 +44,17 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setupBottomNav()
+        setupSearch()
         observeSegment()
         observeIndices()
         switchSegment(SEG_EQUITY)
+    }
+
+    // FIX: ivSearch had no click listener — search screen was unreachable
+    private fun setupSearch() {
+        binding.ivSearch.setOnClickListener {
+            startActivity(Intent(this, SearchActivity::class.java))
+        }
     }
 
     private fun observeSegment() = lifecycleScope.launchWhenStarted {
@@ -61,6 +71,9 @@ class MainActivity : AppCompatActivity() {
     private fun observeIndices() = lifecycleScope.launchWhenStarted {
         viewModel.indices.collectLatest { res ->
             if (res is Resource.Success) buildIndexTicker(res.data)
+            // Note: index errors are non-fatal to app usage, so no error UI here.
+            // If indices never load, it usually means the Kite token expired —
+            // re-login at https://tradingstock.online/api/v1/auth/kite-login
         }
     }
 
