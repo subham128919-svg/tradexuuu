@@ -1,8 +1,14 @@
 package com.tradingapp.ui.orders
 
-import android.os.Bundle; import android.view.*; import androidx.fragment.app.Fragment; import androidx.fragment.app.viewModels
-import com.tradingapp.data.model.Order; import com.tradingapp.databinding.ScreenEquityOrdersOpenBinding
-import com.tradingapp.ui.adapter.RowAdapter; import com.tradingapp.ui.adapter.RowItem; import com.tradingapp.util.*
+import android.os.Bundle
+import android.view.*
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.tradingapp.databinding.ScreenEquityOrdersOpenBinding
+import com.tradingapp.ui.adapter.RowAdapter
+import com.tradingapp.ui.adapter.RowItem
+import com.tradingapp.util.*
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -14,23 +20,40 @@ class OrdersFragment : Fragment() {
     private val segment by lazy { arguments?.getString("segment") ?: "equity" }
     private var currentFilter = "open"
 
-    companion object { fun newInstance(seg: String) = OrdersFragment().apply { arguments = Bundle().also { it.putString("segment", seg) } } }
+    companion object {
+        fun newInstance(seg: String) = OrdersFragment().apply {
+            arguments = Bundle().also { it.putString("segment", seg) }
+        }
+    }
 
-    override fun onCreateView(i: LayoutInflater, c: ViewGroup?, s: Bundle?): View { _b = ScreenEquityOrdersOpenBinding.inflate(i, c, false); return b.root }
+    override fun onCreateView(i: LayoutInflater, c: ViewGroup?, s: Bundle?): View {
+        _b = ScreenEquityOrdersOpenBinding.inflate(i, c, false)
+        return b.root
+    }
 
     override fun onViewCreated(v: View, s: Bundle?) {
         super.onViewCreated(v, s)
-        adapter = RowAdapter { /* order tapped */ }
+        adapter = RowAdapter { }
+
+        // FIX: adapter was created but never attached to rvOrders
+        b.rvOrders.layoutManager = LinearLayoutManager(requireContext())
+        b.rvOrders.adapter = adapter
+
         vm.load(currentFilter)
-        launchOnStarted { vm.orders.collect { res ->
-            if (res is Resource.Success) {
-                adapter.submitList(res.data.map { o ->
-                    RowItem(o.symbol.take(2), o.symbol,
-                        "${o.orderType} Rs.%.2f · ${o.product}".format(o.price),
-                        "${o.filledQuantity}/${o.quantity}", o.status, o.type)
-                })
+        launchOnStarted {
+            vm.orders.collect { res ->
+                if (res is Resource.Success) {
+                    adapter.submitList(res.data.map { o ->
+                        RowItem(
+                            o.symbol.take(2), o.symbol,
+                            "${o.orderType} Rs.%.2f · ${o.product}".format(o.price),
+                            "${o.filledQuantity}/${o.quantity}", o.status, o.type
+                        )
+                    })
+                }
             }
-        }}
+        }
     }
+
     override fun onDestroyView() { super.onDestroyView(); _b = null }
 }

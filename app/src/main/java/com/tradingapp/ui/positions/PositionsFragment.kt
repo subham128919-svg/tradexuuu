@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.tradingapp.databinding.ScreenEquityPositionsBinding
 import com.tradingapp.ui.adapter.RowAdapter
 import com.tradingapp.ui.adapter.RowItem
@@ -33,11 +34,14 @@ class PositionsFragment : Fragment() {
         super.onViewCreated(v, s)
         adapter = RowAdapter { }
 
+        // FIX: adapter was created but never attached to rvPositions
+        b.rvPositions.layoutManager = LinearLayoutManager(requireContext())
+        b.rvPositions.adapter = adapter
+
         vm.load(segment)
         launchOnStarted {
             vm.positions.collect { res ->
                 if (res is Resource.Success) {
-                    // Safely update summary — only if tvSummaryValue exists in XML
                     try {
                         val pnl = res.data.summary.dayPnl
                         b.tvSummaryValue.text = if (pnl >= 0) "+${pnl.toRupee()}" else pnl.toRupee()

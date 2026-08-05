@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.tradingapp.databinding.ScreenEquityHoldingsBinding
 import com.tradingapp.ui.adapter.RowAdapter
 import com.tradingapp.ui.adapter.RowItem
@@ -40,13 +41,15 @@ class HoldingsFragment : Fragment() {
             })
         }
 
+        // FIX: adapter was created but never attached to rvHoldings
+        b.rvHoldings.layoutManager = LinearLayoutManager(requireContext())
+        b.rvHoldings.adapter = adapter
+
         vm.load(segment)
         launchOnStarted {
             vm.holdings.collect { res ->
                 if (res is Resource.Success) {
                     val data = res.data
-
-                    // Safely update summary views — only if they exist in the XML
                     try { b.tvSummaryValue.text = data.summary.totalValue.toRupee() }      catch (_: Exception) {}
                     try { b.tvSummaryDelta.text = "+Rs.%.0f (%.2f%%) today".format(data.summary.totalPnl, data.summary.totalPnlPct.toDouble()) } catch (_: Exception) {}
                     try { b.tvStat1Value.text   = data.summary.totalInvested.toRupee() }  catch (_: Exception) {}

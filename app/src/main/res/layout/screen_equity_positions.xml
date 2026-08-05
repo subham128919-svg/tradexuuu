@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Positions screen — contains tvSummaryValue for day P&L -->
+<!-- Positions screen — rvPositions + tvSummaryValue required by PositionsFragment.kt -->
 <androidx.core.widget.NestedScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -13,10 +13,8 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- Day P&L summary bar -->
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:background="@color/bg_item"
             android:paddingStart="16dp" android:paddingEnd="16dp"
@@ -26,26 +24,22 @@
             <TextView
                 android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Day P&amp;L"
-                android:textSize="13sp" android:textColor="@color/t600"/>
+                android:text="Day P&amp;L" android:textSize="13sp" android:textColor="@color/t600"/>
 
-            <!-- tvSummaryValue — today's P&L amount -->
+            <!-- tvSummaryValue — REQUIRED ID -->
             <TextView
                 android:id="@+id/tvSummaryValue"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="+₹0.00"
-                android:textSize="15sp" android:textStyle="bold"
-                android:textColor="@color/positive"
-                android:fontFamily="@font/jetbrains_mono"/>
+                android:text="+₹0.00" android:textSize="15sp" android:textStyle="bold"
+                android:textColor="@color/positive" android:fontFamily="@font/jetbrains_mono"/>
         </LinearLayout>
 
-        <!-- Positions list -->
+        <!-- rvPositions — REQUIRED ID, bound by LinearLayoutManager in PositionsFragment.kt -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvPositions"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:nestedScrollingEnabled="false"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             android:padding="8dp"/>
 
     </LinearLayout>

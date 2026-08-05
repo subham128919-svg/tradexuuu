@@ -1,0 +1,11 @@
+Open app/build.gradle and find these two lines inside defaultConfig { }:
+
+    buildConfigField "String", "BASE_URL", '"http://tradingstock.online/api/v1/"'
+    buildConfigField "String", "WS_URL",   '"ws://tradingstock.online/ws/prices"'
+
+Change http:// to https:// and ws:// to wss:// — your domain now forces HTTPS
+(Certbot auto-redirects port 80 to 443), so plain http/ws requests are being
+redirected or silently blocked, which is the main reason data wasn't loading:
+
+    buildConfigField "String", "BASE_URL", '"https://tradingstock.online/api/v1/"'
+    buildConfigField "String", "WS_URL",   '"wss://tradingstock.online/ws/prices"'

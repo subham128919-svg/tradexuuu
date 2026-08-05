@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Holdings screen — contains summary card with tvSummaryValue, tvSummaryDelta, tvStat1Value, tvStat2Value -->
+<!-- Holdings screen — rvHoldings + summary IDs required by HoldingsFragment.kt -->
 <androidx.core.widget.NestedScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -13,77 +13,62 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- Summary card -->
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
             android:orientation="vertical"
             android:background="@drawable/bg_summary"
-            android:padding="20dp"
-            android:layout_margin="16dp">
+            android:padding="20dp" android:layout_margin="16dp">
 
-            <TextView
-                android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="Current value"
-                android:textSize="11sp" android:textColor="@color/t700" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="Current value" android:textSize="11sp" android:textColor="@color/t700"/>
 
-            <!-- tvSummaryValue — total portfolio value -->
-            <TextView
-                android:id="@+id/tvSummaryValue"
+            <!-- tvSummaryValue — REQUIRED ID -->
+            <TextView android:id="@+id/tvSummaryValue"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="₹0.00"
-                android:textSize="26sp" android:textStyle="bold"
-                android:textColor="@color/t100"
-                android:fontFamily="@font/jetbrains_mono"
+                android:text="₹0.00" android:textSize="26sp" android:textStyle="bold"
+                android:textColor="@color/t100" android:fontFamily="@font/jetbrains_mono"
                 android:layout_marginTop="4dp"/>
 
-            <!-- tvSummaryDelta — today's P&L change line -->
-            <TextView
-                android:id="@+id/tvSummaryDelta"
+            <!-- tvSummaryDelta — REQUIRED ID -->
+            <TextView android:id="@+id/tvSummaryDelta"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="+₹0.00 (0.00%) today"
-                android:textSize="12.5sp" android:textColor="@color/positive"
-                android:layout_marginTop="4dp"/>
+                android:text="+₹0.00 (0.00%) today" android:textSize="12.5sp"
+                android:textColor="@color/positive" android:layout_marginTop="4dp"/>
 
-            <!-- Stat row: Invested | Overall returns -->
             <LinearLayout
                 android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="18dp">
+                android:orientation="horizontal" android:layout_marginTop="18dp">
 
                 <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                     android:layout_weight="1" android:orientation="vertical">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:text="Invested" android:textSize="11sp" android:textColor="@color/t700"/>
-                    <!-- tvStat1Value — total invested amount -->
+                    <!-- tvStat1Value — REQUIRED ID -->
                     <TextView android:id="@+id/tvStat1Value"
                         android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="₹0.00" android:textSize="14sp"
-                        android:textStyle="bold" android:textColor="@color/t100"
-                        android:fontFamily="@font/jetbrains_mono"/>
+                        android:text="₹0.00" android:textSize="14sp" android:textStyle="bold"
+                        android:textColor="@color/t100" android:fontFamily="@font/jetbrains_mono"/>
                 </LinearLayout>
 
                 <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                     android:layout_weight="1" android:orientation="vertical">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:text="Overall returns" android:textSize="11sp" android:textColor="@color/t700"/>
-                    <!-- tvStat2Value — total P&L percentage -->
+                    <!-- tvStat2Value — REQUIRED ID -->
                     <TextView android:id="@+id/tvStat2Value"
                         android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="+0.00%" android:textSize="14sp"
-                        android:textStyle="bold" android:textColor="@color/positive"
-                        android:fontFamily="@font/jetbrains_mono"/>
+                        android:text="+0.00%" android:textSize="14sp" android:textStyle="bold"
+                        android:textColor="@color/positive" android:fontFamily="@font/jetbrains_mono"/>
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Holdings list — RecyclerView populated by adapter -->
+        <!-- rvHoldings — REQUIRED ID, bound by LinearLayoutManager in HoldingsFragment.kt -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvHoldings"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:nestedScrollingEnabled="false"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             android:padding="8dp"/>
 
     </LinearLayout>
