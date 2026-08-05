@@ -3,41 +3,29 @@
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.VIBRATE"/>
 
     <application
         android:name=".TradingApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:label="TradingApp"
+        android:label="TradeX"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="false"
         android:theme="@style/Theme.TradingApp"
-        android:usesCleartextTraffic="false">
+        android:usesCleartextTraffic="true">
 
-        <!-- Main screen -->
-        <activity
-            android:name=".ui.main.MainActivity"
-            android:exported="true"
-            android:windowSoftInputMode="adjustResize">
+        <!-- Main screen — launches directly, no login needed -->
+        <activity android:name=".ui.main.MainActivity" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
 
-        <!-- Chart screen (opened on stock/fund tap) -->
-        <activity
-            android:name=".ui.chart.ChartActivity"
-            android:exported="false"
-            android:screenOrientation="sensorLandscape"/>
-
-        <!-- Trade bottom sheet entry (if opened as activity) -->
-        <activity
-            android:name=".ui.trade.TradeActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize"
-            android:theme="@style/Theme.TradingApp.BottomSheet"/>
+        <activity android:name=".ui.chart.ChartActivity" android:exported="false"/>
+        <activity android:name=".ui.trade.TradeActivity" android:exported="false"
+            android:windowSoftInputMode="adjustResize"/>
+        <activity android:name=".ui.search.SearchActivity" android:exported="false"/>
 
     </application>
 </manifest>

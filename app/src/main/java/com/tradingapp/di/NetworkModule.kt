@@ -1,25 +1,35 @@
 package com.tradingapp.di
-import android.content.Context; import com.google.gson.GsonBuilder; import com.tradingapp.BuildConfig; import com.tradingapp.data.api.ApiService; import com.tradingapp.data.db.*; import dagger.Module; import dagger.Provides; import dagger.hilt.InstallIn; import dagger.hilt.android.qualifiers.ApplicationContext; import dagger.hilt.components.SingletonComponent; import okhttp3.Interceptor; import okhttp3.OkHttpClient; import okhttp3.logging.HttpLoggingInterceptor; import retrofit2.Retrofit; import retrofit2.converter.gson.GsonConverterFactory; import javax.inject.Singleton
 
-@Module @InstallIn(SingletonComponent::class)
+import android.content.Context
+import com.google.gson.GsonBuilder
+import com.tradingapp.BuildConfig
+import com.tradingapp.data.api.ApiService
+import com.tradingapp.data.db.*
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
+import javax.inject.Singleton
+
+@Module
+@InstallIn(SingletonComponent::class)
 object NetworkModule {
 
-    // Reads JWT token from SharedPreferences and attaches to every request
+    // No auth interceptor — market data endpoints are public, no JWT needed.
+    // The server authenticates with Zerodha using its own stored token.
     @Provides @Singleton
-    fun provideAuthInterceptor(@ApplicationContext ctx: Context): Interceptor = Interceptor { chain ->
-        val prefs = ctx.getSharedPreferences("tradingapp_prefs", Context.MODE_PRIVATE)
-        val token = prefs.getString("jwt_token", null)
-        val req = if (token != null)
-            chain.request().newBuilder().addHeader("Authorization", "Bearer " + token).build()
-        else chain.request()
-        chain.proceed(req)
-    }
-
-    @Provides @Singleton
-    fun provideOkHttp(authInterceptor: Interceptor): OkHttpClient = OkHttpClient.Builder()
-        .addInterceptor(authInterceptor)
+    fun provideOkHttp(): OkHttpClient = OkHttpClient.Builder()
+        .connectTimeout(15, TimeUnit.SECONDS)
+        .readTimeout(15, TimeUnit.SECONDS)
         .addInterceptor(HttpLoggingInterceptor().apply {
-            level = if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY else HttpLoggingInterceptor.Level.NONE
+            level = if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY
+                    else HttpLoggingInterceptor.Level.NONE
         })
         .build()
 
@@ -31,10 +41,12 @@ object NetworkModule {
         .build()
 
     @Provides @Singleton
-    fun provideApiService(retrofit: Retrofit): ApiService = retrofit.create(ApiService::class.java)
+    fun provideApiService(retrofit: Retrofit): ApiService =
+        retrofit.create(ApiService::class.java)
 
     @Provides @Singleton
-    fun provideDatabase(@ApplicationContext ctx: Context): AppDatabase = AppDatabase.getInstance(ctx)
+    fun provideDatabase(@ApplicationContext ctx: Context): AppDatabase =
+        AppDatabase.getInstance(ctx)
 
     @Provides fun provideQuoteDao(db: AppDatabase): QuoteDao = db.quoteDao()
     @Provides fun provideWatchlistDao(db: AppDatabase): WatchlistDao = db.watchlistDao()

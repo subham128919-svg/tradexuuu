@@ -3,363 +3,96 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>TradingApp Chart</title>
-
-<!--
-  ═══════════════════════════════════════════════════════════════
-  CHART MODE — TWO OPTIONS (choose one):
-
-  MODE A: TradingView Charting Library (full TradingView experience)
-  ───────────────────────────────────────────────────────────────
-  1. Apply (free) at: tradingview.com/HTML5-stock-forex-bitcoin-charting-library/
-  2. You'll get a ZIP with the /charting_library/ folder
-  3. Copy that folder into: android/app/src/main/assets/charting_library/
-  4. Uncomment MODE A below and comment out MODE B
-
-  MODE B: TradingView Lightweight Charts (active, works right now)
-  ───────────────────────────────────────────────────────────────
-  Open source, no approval needed. Used by TradingView.com itself.
-  Loads from CDN — so device needs internet.
-  ═══════════════════════════════════════════════════════════════
--->
-
-<!-- MODE B: Lightweight Charts (active) -->
-<script src="https://unpkg.com/lightweight-charts@4.1.0/dist/lightweight-charts.standalone.production.js"></script>
-
+<title>Chart</title>
 <style>
-* { margin:0; padding:0; box-sizing:border-box; }
-html, body { width:100%; height:100%; background:#07080A; overflow:hidden; }
-
-/* ── Top info bar ── */
-#infoBar {
-  position:absolute; top:0; left:0; right:0;
-  display:flex; align-items:center; justify-content:space-between;
-  padding:10px 14px 8px;
-  background:rgba(7,8,10,.95);
-  z-index:20;
-  font-family:'JetBrains Mono','Courier New',monospace;
-}
-#ohlcInfo { font-size:10.5px; color:#8A93A0; letter-spacing:.01em; }
-#ohlcInfo span { margin-right:10px; }
-#ohlcInfo .vUp   { color:#2FBF71; }
-#ohlcInfo .vDown { color:#FF5C5C; }
-#ohlcInfo .vNeu  { color:#E8EBF0; }
-
-/* ── Chart type buttons ── */
-#chartTypeBtns {
-  display:flex; gap:6px;
-}
-.ctBtn {
-  background:rgba(255,255,255,.06); border:none; border-radius:6px;
-  color:#6E7681; font-size:10px; padding:4px 8px; cursor:pointer;
-  font-family:inherit;
-}
-.ctBtn.active { background:#6D5EF8; color:#fff; }
-
-/* ── Main chart ── */
-#chartContainer {
-  position:absolute; top:40px; left:0; right:0; bottom:56px;
-}
-
-/* ── Indicator panels (RSI/MACD below chart) ── */
-#rsiPanel {
-  position:absolute; bottom:0; left:0; right:0; height:56px;
-  border-top:1px solid rgba(255,255,255,.06);
-  background:#07080A;
-}
-#rsiLabel {
-  position:absolute; top:4px; left:10px;
-  font-family:'JetBrains Mono',monospace; font-size:9px; color:#6E7681;
-}
-
-/* ── Crosshair tooltip ── */
-#tooltip {
-  position:absolute; left:12px; top:48px;
-  background:rgba(14,17,22,.96); border:1px solid rgba(255,255,255,.08);
-  border-radius:8px; padding:6px 11px;
-  font-family:'JetBrains Mono',monospace; font-size:10.5px; color:#E8EBF0;
-  pointer-events:none; display:none; z-index:30; white-space:nowrap;
-}
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { width:100%; height:100%; background:#07080A; overflow:hidden; }
+  #tv_container { width:100%; height:100%; }
 </style>
 </head>
 <body>
-
-<div id="infoBar">
-  <div id="ohlcInfo">
-    O <span id="vO" class="vNeu">—</span>
-    H <span id="vH" class="vUp">—</span>
-    L <span id="vL" class="vDown">—</span>
-    C <span id="vC" class="vNeu">—</span>
-    V <span id="vV" class="vNeu">—</span>
-  </div>
-  <div id="chartTypeBtns">
-    <button class="ctBtn active" onclick="setChartType('candle')">Cndl</button>
-    <button class="ctBtn"       onclick="setChartType('line')">Line</button>
-    <button class="ctBtn"       onclick="setChartType('area')">Area</button>
-  </div>
-</div>
-
-<div id="chartContainer"></div>
-<div id="rsiPanel"><span id="rsiLabel">RSI(14)</span></div>
+<div id="tv_container"></div>
 
 <script>
 // ══════════════════════════════════════════════════════════════════
-//  TradingApp Chart — TradingView Lightweight Charts v4
-//  Full indicator suite: EMA 9/21, Volume, RSI(14)
-//  Chart types: Candlestick / Line / Area
-//  Android bridge: setCandles(json), addTick(time, price)
+//  TradingView Advanced Chart Widget (FREE, no license needed)
+//  This is the REAL TradingView chart with all indicators, drawing
+//  tools, chart types etc. — the same widget used on financial sites.
+//
+//  Called from Android:
+//    setSymbol('NSE', 'RELIANCE')  — loads a new stock
+//    setInterval('D')               — changes timeframe
 // ══════════════════════════════════════════════════════════════════
 
-const C = {
-  bg:       '#07080A',
-  bgCard:   '#0B0D10',
-  accent:   '#6D5EF8',
-  up:       '#2FBF71',
-  down:     '#FF5C5C',
-  upFill:   'rgba(47,191,113,.18)',
-  downFill: 'rgba(255,92,92,.18)',
-  grid:     '#10141A',
-  border:   'rgba(255,255,255,.06)',
-  text:     '#6E7681',
-  ema9:     '#F5A623',    // orange
-  ema21:    '#6D5EF8',    // accent purple
-  vol:      '#2A3140',
-  rsi:      '#00BCD4',
-};
+let currentSymbol   = 'NSE:RELIANCE';
+let currentInterval = 'D';
+let widget          = null;
 
-// ── Main chart ────────────────────────────────────────────────────
-const mainChart = LightweightCharts.createChart(
-  document.getElementById('chartContainer'), {
-  layout: {
-    background: { type: 'solid', color: C.bg },
-    textColor:  C.text, fontSize: 10,
-    fontFamily: "'JetBrains Mono','Courier New',monospace",
-  },
-  grid: { vertLines: { color: C.grid }, horzLines: { color: C.grid } },
-  crosshair: {
-    mode: LightweightCharts.CrosshairMode.Normal,
-    vertLine: { color: C.accent, labelBackgroundColor: C.accent, width:1, style:1 },
-    horzLine: { color: C.accent, labelBackgroundColor: C.accent, width:1, style:1 },
-  },
-  rightPriceScale: { borderColor: C.border, textColor: C.text, scaleMargins: { top:.06, bottom:.24 } },
-  timeScale: {
-    borderColor: C.border, timeVisible:true, secondsVisible:false,
-    tickMarkFormatter: (t) => {
-      const d = new Date(t*1000);
-      return d.toLocaleDateString('en-IN',{day:'numeric',month:'short'});
-    }
-  },
-  handleScroll: { mouseWheel:true, pressedMouseMove:true, horzTouchDrag:true },
-  handleScale:  { axisPressedMouseMove:true, mouseWheel:true, pinch:true },
-});
+function createWidget(symbol, interval) {
+  // Clear previous
+  document.getElementById('tv_container').innerHTML = '';
 
-// ── RSI sub-chart ─────────────────────────────────────────────────
-const rsiChart = LightweightCharts.createChart(
-  document.getElementById('rsiPanel'), {
-  layout:     { background:{type:'solid',color:C.bg}, textColor:C.text, fontSize:9 },
-  grid:       { vertLines:{color:'transparent'}, horzLines:{color:C.grid} },
-  crosshair:  { mode: LightweightCharts.CrosshairMode.Hidden },
-  rightPriceScale: {
-    borderColor: C.border, textColor: C.text,
-    scaleMargins: { top:.05, bottom:.05 },
-    minimumWidth: 46,
-  },
-  timeScale:  { borderColor:C.border, timeVisible:true, visible:false },
-  handleScroll: false, handleScale: false,
-});
-
-// ── Series ────────────────────────────────────────────────────────
-let candleSeries, lineSeries, areaSeries, activeSeriesType = 'candle';
-
-function createSeries() {
-  if (candleSeries) mainChart.removeSeries(candleSeries);
-  if (lineSeries)   mainChart.removeSeries(lineSeries);
-  if (areaSeries)   mainChart.removeSeries(areaSeries);
-
-  candleSeries = mainChart.addCandlestickSeries({
-    upColor:C.up, downColor:C.down,
-    borderUpColor:C.up, borderDownColor:C.down,
-    wickUpColor:C.up, wickDownColor:C.down,
-    visible: activeSeriesType === 'candle',
+  const script = document.createElement('script');
+  script.src   = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
+  script.type  = 'text/javascript';
+  script.async = true;
+  script.innerHTML = JSON.stringify({
+    "autosize":          true,
+    "symbol":            symbol,
+    "interval":          interval,
+    "timezone":          "Asia/Kolkata",
+    "theme":             "dark",
+    "style":             "1",          // 1=candles
+    "locale":            "en",
+    "backgroundColor":   "#07080A",
+    "gridColor":         "rgba(255,255,255,0.04)",
+    "hide_top_toolbar":  false,
+    "hide_legend":       false,
+    "save_image":        false,
+    "withdateranges":    true,
+    "hide_side_toolbar": false,
+    "allow_symbol_change": true,
+    "details":           true,
+    "hotlist":           false,
+    "calendar":          false,
+    "studies": [
+      "STD;EMA",
+      "STD;RSI"
+    ],
+    "support_host":      "https://www.tradingview.com"
   });
-  lineSeries = mainChart.addLineSeries({
-    color: C.ema9, lineWidth:2, priceLineVisible:false,
-    visible: activeSeriesType === 'line',
-  });
-  areaSeries = mainChart.addAreaSeries({
-    topColor: 'rgba(109,94,248,.35)', bottomColor: 'rgba(109,94,248,.02)',
-    lineColor: C.accent, lineWidth:2, priceLineVisible:false,
-    visible: activeSeriesType === 'area',
-  });
+
+  const container = document.createElement('div');
+  container.className = 'tradingview-widget-container';
+  container.style.cssText = 'width:100%;height:100%';
+
+  const inner = document.createElement('div');
+  inner.className = 'tradingview-widget-container__widget';
+  inner.style.cssText = 'width:100%;height:100%';
+
+  container.appendChild(inner);
+  container.appendChild(script);
+  document.getElementById('tv_container').appendChild(container);
 }
 
-// Volume bars
-const volSeries = mainChart.addHistogramSeries({
-  priceFormat:{type:'volume'}, priceScaleId:'vol',
-  lastValueVisible:false, priceLineVisible:false,
-});
-mainChart.priceScale('vol').applyOptions({ scaleMargins:{top:.82,bottom:0} });
-
-// EMA lines
-const ema9Series = mainChart.addLineSeries({
-  color:C.ema9, lineWidth:1, lineStyle:0,
-  priceLineVisible:false, crossHairMarkerVisible:false, lastValueVisible:false,
-});
-const ema21Series = mainChart.addLineSeries({
-  color:C.ema21, lineWidth:1, lineStyle:0,
-  priceLineVisible:false, crossHairMarkerVisible:false, lastValueVisible:false,
-});
-
-// RSI line + overbought/oversold bands
-const rsiSeries = rsiChart.addLineSeries({
-  color:C.rsi, lineWidth:1.5, priceLineVisible:false, lastValueVisible:true,
-});
-// Horizontal reference lines for RSI
-[70, 30].forEach(val => {
-  rsiChart.addLineSeries({
-    color:'rgba(255,255,255,.12)', lineWidth:1,
-    lineStyle:LightweightCharts.LineStyle.Dashed,
-    priceLineVisible:false, lastValueVisible:false,
-  });
-});
-
-createSeries();
-
-// ── Store last candle data ────────────────────────────────────────
-let lastCandles = [];
-
-// ── Android → JS: set full candle dataset ────────────────────────
-function setCandles(jsonStr) {
-  try {
-    const candles = JSON.parse(jsonStr);
-    if (!candles.length) return;
-    lastCandles = candles;
-
-    // OHLCV
-    const ohlc  = candles.map(c=>({time:c.time,open:c.open,high:c.high,low:c.low,close:c.close}));
-    const close = candles.map(c=>({time:c.time,value:c.close}));
-    candleSeries.setData(ohlc);
-    lineSeries.setData(close);
-    areaSeries.setData(close);
-
-    // Volume
-    volSeries.setData(candles.map(c=>({
-      time:c.time, value:c.volume,
-      color: c.close >= c.open ? 'rgba(47,191,113,.28)' : 'rgba(255,92,92,.28)'
-    })));
-
-    // Indicators
-    ema9Series.setData(computeEma(candles, 9));
-    ema21Series.setData(computeEma(candles, 21));
-    rsiSeries.setData(computeRsi(candles, 14));
-
-    mainChart.timeScale().fitContent();
-    rsiChart.timeScale().fitContent();
-
-    // Sync time scales
-    mainChart.timeScale().subscribeVisibleLogicalRangeChange(range => {
-      if (range) rsiChart.timeScale().setVisibleLogicalRange(range);
-    });
-
-    if (typeof Android !== 'undefined') Android.onChartReady();
-  } catch(e) { console.error('setCandles:', e); }
+// Called from Android via evaluateJavascript
+function setSymbol(exchange, symbol) {
+  currentSymbol = exchange + ':' + symbol;
+  createWidget(currentSymbol, currentInterval);
 }
 
-// ── Android → JS: single live tick ──────────────────────────────
-function addTick(time, price) {
-  try {
-    if (activeSeriesType === 'candle') {
-      candleSeries.update({time, close:price, open:price, high:price, low:price});
-    } else {
-      lineSeries.update({time, value:price});
-      areaSeries.update({time, value:price});
-    }
-  } catch {}
+function setInterval(interval) {
+  currentInterval = interval;
+  createWidget(currentSymbol, currentInterval);
 }
 
-// ── Chart type switching ─────────────────────────────────────────
-function setChartType(type) {
-  activeSeriesType = type;
-  candleSeries.applyOptions({visible: type==='candle'});
-  lineSeries.applyOptions({visible: type==='line'});
-  areaSeries.applyOptions({visible: type==='area'});
-  // Show EMAs only on candle view
-  ema9Series.applyOptions({visible: type==='candle'});
-  ema21Series.applyOptions({visible: type==='candle'});
-  // Update button styles
-  document.querySelectorAll('.ctBtn').forEach(b => {
-    const t = b.textContent.trim().toLowerCase().replace('cndl','candle');
-    b.classList.toggle('active', t === type || (type==='candle' && b.textContent==='Cndl'));
-  });
+// Initial load — Android will call setSymbol() to override
+createWidget(currentSymbol, currentInterval);
+
+// Notify Android that chart is ready
+if (typeof Android !== 'undefined') {
+  setTimeout(function() { Android.onChartReady(); }, 2000);
 }
-
-// ── Crosshair tooltip ─────────────────────────────────────────────
-mainChart.subscribeCrosshairMove(param => {
-  if (!param.point || !param.time) {
-    document.getElementById('ohlcInfo').querySelectorAll('span').forEach(s=>{s.textContent='—';});
-    return;
-  }
-  const d = param.seriesData.get(candleSeries);
-  if (!d) return;
-  const v   = param.seriesData.get(volSeries);
-  const up  = d.close >= d.open;
-  const fmt = n => n?.toFixed ? n.toFixed(2) : '—';
-  const fmtV = v => v?.value ? (v.value/1e5).toFixed(1)+'L' : '—';
-
-  document.getElementById('vO').textContent = fmt(d.open);  document.getElementById('vO').className='vNeu';
-  document.getElementById('vH').textContent = fmt(d.high);  document.getElementById('vH').className='vUp';
-  document.getElementById('vL').textContent = fmt(d.low);   document.getElementById('vL').className='vDown';
-  document.getElementById('vC').textContent = fmt(d.close); document.getElementById('vC').className=up?'vUp':'vDown';
-  document.getElementById('vV').textContent = fmtV(v);      document.getElementById('vV').className='vNeu';
-
-  // Update RSI label
-  const rsiD = param.seriesData.get(rsiSeries);
-  if (rsiD) document.getElementById('rsiLabel').textContent = 'RSI ' + rsiD.value?.toFixed(1);
-});
-
-// ── Indicators ────────────────────────────────────────────────────
-function computeEma(candles, period) {
-  if (candles.length < period) return [];
-  const k  = 2 / (period + 1);
-  const res = [];
-  let ema   = candles.slice(0, period).reduce((s,c) => s + c.close, 0) / period;
-  res.push({time: candles[period-1].time, value: parseFloat(ema.toFixed(2))});
-  for (let i = period; i < candles.length; i++) {
-    ema = candles[i].close * k + ema * (1-k);
-    res.push({time: candles[i].time, value: parseFloat(ema.toFixed(2))});
-  }
-  return res;
-}
-
-function computeRsi(candles, period) {
-  if (candles.length < period + 1) return [];
-  const res = []; let gains = 0, losses = 0;
-  for (let i = 1; i <= period; i++) {
-    const diff = candles[i].close - candles[i-1].close;
-    if (diff > 0) gains += diff; else losses -= diff;
-  }
-  let avgGain = gains / period, avgLoss = losses / period;
-  const rsi0 = avgLoss === 0 ? 100 : 100 - (100/(1 + avgGain/avgLoss));
-  res.push({time: candles[period].time, value: parseFloat(rsi0.toFixed(2))});
-  for (let i = period+1; i < candles.length; i++) {
-    const diff = candles[i].close - candles[i-1].close;
-    avgGain = (avgGain * (period-1) + Math.max(diff, 0)) / period;
-    avgLoss = (avgLoss * (period-1) + Math.max(-diff, 0)) / period;
-    const rsi = avgLoss === 0 ? 100 : 100 - (100/(1 + avgGain/avgLoss));
-    res.push({time: candles[i].time, value: parseFloat(rsi.toFixed(2))});
-  }
-  return res;
-}
-
-// ── Resize handler ────────────────────────────────────────────────
-function resizeAll() {
-  const w = window.innerWidth, h = window.innerHeight;
-  const topH = 40, rsiH = 56;
-  mainChart.resize(w, h - topH - rsiH);
-  rsiChart.resize(w, rsiH);
-}
-window.addEventListener('resize', resizeAll);
-resizeAll();
 </script>
 </body>
 </html>

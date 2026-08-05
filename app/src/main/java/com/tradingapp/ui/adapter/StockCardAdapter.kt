@@ -1,7 +1,12 @@
 package com.tradingapp.ui.adapter
 
-import android.graphics.Color; import android.view.*; import androidx.recyclerview.widget.DiffUtil; import androidx.recyclerview.widget.ListAdapter; import androidx.recyclerview.widget.RecyclerView
-import com.tradingapp.data.model.Quote; import com.tradingapp.databinding.ItemStockCardBinding
+import android.graphics.Color
+import android.view.*
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
+import com.tradingapp.data.model.Quote
+import com.tradingapp.databinding.ItemStockCardBinding
 
 class StockCardAdapter(private val onItemClick: (Quote) -> Unit) :
     ListAdapter<Quote, StockCardAdapter.ViewHolder>(DIFF) {
@@ -14,8 +19,8 @@ class StockCardAdapter(private val onItemClick: (Quote) -> Unit) :
 
     inner class ViewHolder(private val b: ItemStockCardBinding) : RecyclerView.ViewHolder(b.root) {
         fun bind(q: Quote) {
-            b.tvLogo.text  = q.symbol.take(2).uppercase()
-            b.tvName.text  = if (q.name.isNotEmpty()) q.name else q.symbol.substringAfter(":")
+            b.tvLogo.text  = q.symbol.substringAfter(":").take(2).uppercase()
+            b.tvName.text  = q.safeName
             b.tvPrice.text = "Rs.%.2f".format(q.ltp)
             val chg = "%.2f (%.2f%%)".format(q.change, q.changePct)
             b.tvChange.text = if (q.isPositive) "+$chg" else chg

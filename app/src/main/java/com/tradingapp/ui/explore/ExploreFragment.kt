@@ -51,10 +51,6 @@ class ExploreFragment : Fragment() {
 
     private fun loadData() = viewModel.load(segment, chipType)
 
-    // FIX: errors were silently swallowed — screen just stayed blank with no clue why.
-    // Now shows the real error text and a Retry button. Most common cause: the Kite
-    // access token expired overnight — re-login at
-    // https://tradingstock.online/api/v1/auth/kite-login and try again.
     private fun observeExplore() = launchOnStarted {
         viewModel.exploreItems.collect { res ->
             when (res) {
@@ -70,22 +66,37 @@ class ExploreFragment : Fragment() {
                 }
                 is Resource.Error -> {
                     binding.tvError.visibility = View.VISIBLE
-                    binding.tvError.text =
-                        "Couldn't load data: ${res.message}\n\nMost likely your Zerodha login expired. " +
-                        "Tap to retry, or re-login via the server link."
+                    binding.tvError.text = "Couldn't load data: ${res.message}"
                     binding.tvError.setOnClickListener { loadData() }
                 }
             }
         }
     }
 
+    // FIX: use explicit Quote constructor instead of copy() — avoids NPE when
+    // Gson has set nullable fields to null behind Kotlin's back
     private fun observeLiveTicks() = launchOnStarted {
         viewModel.liveTick.collect { tickMap ->
             if (tickMap.isEmpty()) return@collect
             val current = cardAdapter.currentList
             val updated = current.map { q ->
                 val newLtp = tickMap[q.symbol]
-                if (newLtp != null && newLtp != q.ltp) q.copy(ltp = newLtp) else q
+                if (newLtp != null && newLtp != q.ltp) {
+                    Quote(
+                        symbol    = q.symbol,
+                        exchange  = q.exchange ?: "NSE",
+                        name      = q.name ?: "",
+                        ltp       = newLtp,
+                        open      = q.open,
+                        high      = q.high,
+                        low       = q.low,
+                        close     = q.close,
+                        change    = q.change,
+                        changePct = q.changePct,
+                        volume    = q.volume,
+                        updatedAt = System.currentTimeMillis()
+                    )
+                } else q
             }
             cardAdapter.submitList(updated)
         }
@@ -94,8 +105,8 @@ class ExploreFragment : Fragment() {
     private fun openChart(quote: Quote) {
         Intent(requireContext(), ChartActivity::class.java).also {
             it.putExtra(EXTRA_SYMBOL,   quote.symbol.substringAfter(":"))
-            it.putExtra(EXTRA_EXCHANGE, quote.exchange)
-            it.putExtra(EXTRA_NAME,     quote.name)
+            it.putExtra(EXTRA_EXCHANGE, quote.safeExchange)
+            it.putExtra(EXTRA_NAME,     quote.safeName)
             startActivity(it)
         }
     }
