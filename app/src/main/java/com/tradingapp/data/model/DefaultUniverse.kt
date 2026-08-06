@@ -1,18 +1,5 @@
 package com.tradingapp.data.model
 
-// ─────────────────────────────────────────────────────────────────
-//  DefaultUniverse — bundled, offline-available instrument list.
-//
-//  This is what fixes "blank screen when market is closed / first
-//  launch / token expired": the app no longer needs a successful
-//  network call to know WHICH stocks to display. It always knows the
-//  universe; it only needs the network (or Room cache) to know their
-//  current PRICES. If neither is available yet, a placeholder card
-//  ("—" / "Fetching…") shows instead of the stock disappearing.
-//
-//  Mirrors the backend's hardcoded NIFTY50 list in market.js — keep
-//  both in sync if you change one.
-// ─────────────────────────────────────────────────────────────────
 object DefaultUniverse {
 
     data class Instrument(val symbol: String, val name: String)
@@ -41,20 +28,26 @@ object DefaultUniverse {
     )
 
     val INDICES: List<Instrument> = listOf(
-        Instrument("NSE:NIFTY 50",   "NIFTY 50"),
-        Instrument("BSE:SENSEX",     "SENSEX"),
-        Instrument("NSE:NIFTY BANK", "NIFTY BANK"),
-        Instrument("NSE:INDIA VIX",  "INDIA VIX"),
+        Instrument("NSE:NIFTY 50",       "NIFTY 50"),
+        Instrument("BSE:SENSEX",          "SENSEX"),
+        Instrument("NSE:NIFTY BANK",      "NIFTY BANK"),
+        Instrument("NSE:INDIA VIX",       "INDIA VIX"),
+        Instrument("NSE:NIFTY IT",        "NIFTY IT"),
+        Instrument("NSE:NIFTY PHARMA",    "NIFTY PHARMA"),
+        Instrument("NSE:NIFTY FMCG",      "NIFTY FMCG"),
+        Instrument("NSE:NIFTY AUTO",      "NIFTY AUTO"),
+        Instrument("NSE:NIFTY METAL",     "NIFTY METAL"),
+        Instrument("NSE:NIFTY MIDCAP 100","NIFTY MIDCAP 100"),
     )
 
     fun symbols(): List<String> = NIFTY50.map { it.symbol }
+
+    fun indexSymbols(): List<String> = INDICES.map { it.symbol }
 
     fun nameFor(symbol: String): String =
         (NIFTY50 + INDICES).firstOrNull { it.symbol == symbol }?.name
             ?: symbol.substringAfter(":")
 
-    // Placeholder shown until a real price is cached — never hides the
-    // stock, just shows it's "not priced yet" rather than making it vanish.
     fun placeholder(symbol: String): Quote = Quote(
         symbol   = symbol,
         exchange = symbol.substringBefore(":", "NSE"),

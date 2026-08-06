@@ -4,15 +4,13 @@ import android.content.Context
 import com.google.gson.GsonBuilder
 import com.tradingapp.BuildConfig
 import com.tradingapp.data.api.ApiService
-import com.tradingapp.data.db.AppDatabase
-import com.tradingapp.data.db.QuoteDao
-import com.tradingapp.data.db.RecentViewedDao
-import com.tradingapp.data.db.WatchlistDao
+import com.tradingapp.data.db.*
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -24,14 +22,24 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
-    // No auth interceptor — market data endpoints are public. The server
-    // authenticates with Zerodha using its own stored token; app users
-    // never need to log in just to view prices/charts.
+    // Attaches JWT to every request so /app-orders/positions and
+    // other protected endpoints work after login.
     @Provides @Singleton
-    fun provideOkHttp(): OkHttpClient = OkHttpClient.Builder()
+    fun provideAuthInterceptor(@ApplicationContext ctx: Context): Interceptor = Interceptor { chain ->
+        val prefs = ctx.getSharedPreferences("tradingapp_prefs", Context.MODE_PRIVATE)
+        val token = prefs.getString("jwt_token", null)
+        val req   = if (!token.isNullOrEmpty())
+            chain.request().newBuilder().addHeader("Authorization", "Bearer $token").build()
+        else chain.request()
+        chain.proceed(req)
+    }
+
+    @Provides @Singleton
+    fun provideOkHttp(authInterceptor: Interceptor): OkHttpClient = OkHttpClient.Builder()
         .connectTimeout(15, TimeUnit.SECONDS)
         .readTimeout(15, TimeUnit.SECONDS)
-        .pingInterval(20, TimeUnit.SECONDS)   // keeps the WS TCP connection alive at the OkHttp layer too
+        .pingInterval(20, TimeUnit.SECONDS)
+        .addInterceptor(authInterceptor)
         .addInterceptor(HttpLoggingInterceptor().apply {
             level = if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY
                     else HttpLoggingInterceptor.Level.NONE

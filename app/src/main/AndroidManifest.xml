@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-
     <application
         android:name=".TradingApp"
         android:allowBackup="true"
@@ -14,17 +12,30 @@
         android:theme="@style/Theme.TradingApp"
         android:usesCleartextTraffic="true">
 
-        <!-- Main screen — launches directly, no login needed -->
-        <activity android:name=".ui.main.MainActivity" android:exported="true">
+        <!-- Splash — app entry point -->
+        <activity android:name=".ui.splash.SplashActivity" android:exported="true"
+            android:theme="@style/Theme.TradingApp">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
 
+        <!-- Auth screens -->
+        <activity android:name=".ui.auth.LoginActivity"  android:exported="false"/>
+        <activity android:name=".ui.auth.SignupActivity" android:exported="false"/>
+
+        <!-- Main trading screen (after login) -->
+        <activity android:name=".ui.main.MainActivity" android:exported="false"/>
+
+        <!-- Chart / Stock detail -->
         <activity android:name=".ui.chart.ChartActivity" android:exported="false"/>
-        <activity android:name=".ui.trade.TradeActivity" android:exported="false"
+
+        <!-- Order screen -->
+        <activity android:name=".ui.order.OrderActivity" android:exported="false"
             android:windowSoftInputMode="adjustResize"/>
+
+        <!-- Search -->
         <activity android:name=".ui.search.SearchActivity" android:exported="false"/>
 
     </application>

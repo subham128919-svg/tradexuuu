@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Single card in the gainers/losers horizontal strip -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="120dp"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/bg_card"
+    android:padding="10dp"
+    android:layout_marginEnd="8dp">
+
+    <TextView
+        android:id="@+id/tvMoverLogo"
+        android:layout_width="32dp" android:layout_height="32dp"
+        android:gravity="center"
+        android:textSize="11sp" android:textStyle="bold"
+        android:textColor="@color/t100"
+        android:background="@drawable/bg_logo"
+        android:layout_marginBottom="6dp"/>
+
+    <TextView
+        android:id="@+id/tvMoverSymbol"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:textSize="11sp" android:textStyle="bold"
+        android:textColor="@color/t100"
+        android:singleLine="true" android:ellipsize="end"
+        android:layout_marginBottom="2dp"/>
+
+    <TextView
+        android:id="@+id/tvMoverPrice"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:textSize="12sp"
+        android:textColor="@color/t200"
+        android:fontFamily="@font/jetbrains_mono"
+        android:layout_marginBottom="2dp"/>
+
+    <TextView
+        android:id="@+id/tvMoverChange"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:textSize="11sp" android:textStyle="bold"
+        android:fontFamily="@font/jetbrains_mono"/>
+</LinearLayout>

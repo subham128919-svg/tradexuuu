@@ -4,95 +4,265 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>Chart</title>
+<script src="https://unpkg.com/lightweight-charts@4.1.0/dist/lightweight-charts.standalone.production.js"></script>
 <style>
-  * { margin:0; padding:0; box-sizing:border-box; }
-  html, body { width:100%; height:100%; background:#07080A; overflow:hidden; }
-  #tv_container { width:100%; height:100%; }
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { width:100%; height:100%; background:#07080A; overflow:hidden; }
+#infoBar {
+  position:absolute; top:0; left:0; right:0;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:8px 14px;
+  background:rgba(7,8,10,.97);
+  z-index:20;
+  font-family:'JetBrains Mono','Courier New',monospace;
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+#ohlcInfo { font-size:10px; color:#8A93A0; }
+#ohlcInfo .up   { color:#2FBF71; }
+#ohlcInfo .down { color:#FF5C5C; }
+#ohlcInfo .neu  { color:#E8EBF0; }
+#chartContainer { position:absolute; top:36px; left:0; right:0; bottom:48px; }
+#rsiPanel {
+  position:absolute; bottom:0; left:0; right:0; height:48px;
+  border-top:1px solid rgba(255,255,255,.06);
+  background:#07080A;
+}
+#rsiLabel {
+  position:absolute; top:3px; left:8px;
+  font-family:'JetBrains Mono',monospace; font-size:9px; color:#6E7681;
+}
+#loading {
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  color:#6E7681; font-family:'JetBrains Mono',monospace; font-size:13px;
+}
+#error {
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  color:#FF5C5C; font-family:'JetBrains Mono',monospace; font-size:12px;
+  text-align:center; max-width:280px; display:none;
+}
 </style>
 </head>
 <body>
-<div id="tv_container"></div>
+<div id="infoBar">
+  <div id="ohlcInfo">
+    O <span id="vO" class="neu">—</span>
+    H <span id="vH" class="up">—</span>
+    L <span id="vL" class="down">—</span>
+    C <span id="vC" class="neu">—</span>
+    V <span id="vV" class="neu">—</span>
+  </div>
+  <div id="chartTypeBtns" style="display:flex;gap:5px">
+    <button onclick="setChartType('candle')" id="btnCandle"
+      style="background:#6D5EF8;border:none;border-radius:5px;color:#fff;font-size:9px;padding:3px 7px;cursor:pointer">Cndl</button>
+    <button onclick="setChartType('line')" id="btnLine"
+      style="background:rgba(255,255,255,.08);border:none;border-radius:5px;color:#6E7681;font-size:9px;padding:3px 7px;cursor:pointer">Line</button>
+    <button onclick="setChartType('area')" id="btnArea"
+      style="background:rgba(255,255,255,.08);border:none;border-radius:5px;color:#6E7681;font-size:9px;padding:3px 7px;cursor:pointer">Area</button>
+  </div>
+</div>
+<div id="chartContainer"></div>
+<div id="rsiPanel"><span id="rsiLabel">RSI(14) —</span></div>
+<div id="loading">Loading chart…</div>
+<div id="error">Could not load chart data.<br>Check your connection.</div>
 
 <script>
-// ══════════════════════════════════════════════════════════════════
-//  TradingView Advanced Chart Widget (FREE, no license needed)
-//  This is the REAL TradingView chart with all indicators, drawing
-//  tools, chart types etc. — the same widget used on financial sites.
-//
-//  Called from Android:
-//    setSymbol('NSE', 'RELIANCE')  — loads a new stock
-//    setInterval('D')               — changes timeframe
-// ══════════════════════════════════════════════════════════════════
+var activeType = 'candle';
 
-let currentSymbol   = 'NSE:RELIANCE';
-let currentInterval = 'D';
-let widget          = null;
+// ── Main chart ────────────────────────────────────────────────
+var mainChart = LightweightCharts.createChart(document.getElementById('chartContainer'), {
+  layout: {
+    background: { type: 'solid', color: '#07080A' },
+    textColor: '#6E7681', fontSize: 10,
+    fontFamily: "'JetBrains Mono','Courier New',monospace"
+  },
+  grid: { vertLines: { color: '#0E1218' }, horzLines: { color: '#0E1218' } },
+  crosshair: {
+    mode: LightweightCharts.CrosshairMode.Normal,
+    vertLine: { color: '#6D5EF8', labelBackgroundColor: '#6D5EF8', width:1 },
+    horzLine: { color: '#6D5EF8', labelBackgroundColor: '#6D5EF8', width:1 },
+  },
+  rightPriceScale: { borderColor: 'rgba(255,255,255,.06)', scaleMargins: { top:.06, bottom:.22 } },
+  timeScale: {
+    borderColor: 'rgba(255,255,255,.06)', timeVisible: true, secondsVisible: false,
+    tickMarkFormatter: function(t) {
+      var d = new Date(t*1000);
+      return d.toLocaleDateString('en-IN', { day:'numeric', month:'short' });
+    }
+  },
+  handleScroll: { mouseWheel:true, pressedMouseMove:true, horzTouchDrag:true },
+  handleScale:  { axisPressedMouseMove:true, mouseWheel:true, pinch:true },
+});
 
-function createWidget(symbol, interval) {
-  // Clear previous
-  document.getElementById('tv_container').innerHTML = '';
+// ── RSI sub-chart ────────────────────────────────────────────
+var rsiChart = LightweightCharts.createChart(document.getElementById('rsiPanel'), {
+  layout: { background:{type:'solid',color:'#07080A'}, textColor:'#6E7681', fontSize:9 },
+  grid:   { vertLines:{color:'transparent'}, horzLines:{color:'#0E1218'} },
+  crosshair: { mode: LightweightCharts.CrosshairMode.Hidden },
+  rightPriceScale: { borderColor:'rgba(255,255,255,.06)', scaleMargins:{top:.05,bottom:.05}, minimumWidth:44 },
+  timeScale: { borderColor:'rgba(255,255,255,.06)', visible:false },
+  handleScroll: false, handleScale: false,
+});
 
-  const script = document.createElement('script');
-  script.src   = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
-  script.type  = 'text/javascript';
-  script.async = true;
-  script.innerHTML = JSON.stringify({
-    "autosize":          true,
-    "symbol":            symbol,
-    "interval":          interval,
-    "timezone":          "Asia/Kolkata",
-    "theme":             "dark",
-    "style":             "1",          // 1=candles
-    "locale":            "en",
-    "backgroundColor":   "#07080A",
-    "gridColor":         "rgba(255,255,255,0.04)",
-    "hide_top_toolbar":  false,
-    "hide_legend":       false,
-    "save_image":        false,
-    "withdateranges":    true,
-    "hide_side_toolbar": false,
-    "allow_symbol_change": true,
-    "details":           true,
-    "hotlist":           false,
-    "calendar":          false,
-    "studies": [
-      "STD;EMA",
-      "STD;RSI"
-    ],
-    "support_host":      "https://www.tradingview.com"
+// ── Series ───────────────────────────────────────────────────
+var candleSeries, lineSeries, areaSeries, volSeries, ema9Series, ema21Series, rsiSeries;
+
+function buildSeries() {
+  if (candleSeries) try { mainChart.removeSeries(candleSeries); } catch(e){}
+  if (lineSeries)   try { mainChart.removeSeries(lineSeries);   } catch(e){}
+  if (areaSeries)   try { mainChart.removeSeries(areaSeries);   } catch(e){}
+  if (volSeries)    try { mainChart.removeSeries(volSeries);     } catch(e){}
+  if (ema9Series)   try { mainChart.removeSeries(ema9Series);   } catch(e){}
+  if (ema21Series)  try { mainChart.removeSeries(ema21Series);  } catch(e){}
+
+  candleSeries = mainChart.addCandlestickSeries({
+    upColor:'#2FBF71', downColor:'#FF5C5C',
+    borderUpColor:'#2FBF71', borderDownColor:'#FF5C5C',
+    wickUpColor:'#2FBF71', wickDownColor:'#FF5C5C',
+    visible: activeType === 'candle'
   });
+  lineSeries = mainChart.addLineSeries({
+    color:'#6D5EF8', lineWidth:2, priceLineVisible:false, visible: activeType === 'line'
+  });
+  areaSeries = mainChart.addAreaSeries({
+    topColor:'rgba(109,94,248,.35)', bottomColor:'rgba(109,94,248,.02)',
+    lineColor:'#6D5EF8', lineWidth:2, priceLineVisible:false, visible: activeType === 'area'
+  });
+  volSeries = mainChart.addHistogramSeries({
+    priceFormat:{type:'volume'}, priceScaleId:'vol', lastValueVisible:false, priceLineVisible:false
+  });
+  mainChart.priceScale('vol').applyOptions({ scaleMargins:{top:.82,bottom:0} });
+  ema9Series  = mainChart.addLineSeries({ color:'#F5A623', lineWidth:1, priceLineVisible:false, crossHairMarkerVisible:false, lastValueVisible:false, visible: activeType==='candle' });
+  ema21Series = mainChart.addLineSeries({ color:'#6D5EF8', lineWidth:1, priceLineVisible:false, crossHairMarkerVisible:false, lastValueVisible:false, visible: activeType==='candle' });
 
-  const container = document.createElement('div');
-  container.className = 'tradingview-widget-container';
-  container.style.cssText = 'width:100%;height:100%';
-
-  const inner = document.createElement('div');
-  inner.className = 'tradingview-widget-container__widget';
-  inner.style.cssText = 'width:100%;height:100%';
-
-  container.appendChild(inner);
-  container.appendChild(script);
-  document.getElementById('tv_container').appendChild(container);
+  if (rsiSeries) try { rsiChart.removeSeries(rsiSeries); } catch(e){}
+  rsiSeries = rsiChart.addLineSeries({ color:'#00BCD4', lineWidth:1.5, priceLineVisible:false, lastValueVisible:true });
 }
 
-// Called from Android via evaluateJavascript
-function setSymbol(exchange, symbol) {
-  currentSymbol = exchange + ':' + symbol;
-  createWidget(currentSymbol, currentInterval);
+buildSeries();
+
+// ── Data loading — called from Android via evaluateJavascript ─
+function setCandles(jsonStr) {
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('error').style.display   = 'none';
+  try {
+    var candles = JSON.parse(jsonStr);
+    if (!candles || candles.length === 0) {
+      document.getElementById('error').style.display = 'block';
+      document.getElementById('error').textContent    = 'No data for this period.';
+      return;
+    }
+    var ohlc  = candles.map(function(c){ return {time:c.time, open:c.open, high:c.high, low:c.low, close:c.close}; });
+    var close = candles.map(function(c){ return {time:c.time, value:c.close}; });
+    var vols  = candles.map(function(c){ return {time:c.time, value:c.volume, color:c.close>=c.open?'rgba(47,191,113,.25)':'rgba(255,92,92,.25)'}; });
+    candleSeries.setData(ohlc);
+    lineSeries.setData(close);
+    areaSeries.setData(close);
+    volSeries.setData(vols);
+    ema9Series.setData(computeEma(candles, 9));
+    ema21Series.setData(computeEma(candles, 21));
+    rsiSeries.setData(computeRsi(candles, 14));
+    mainChart.timeScale().fitContent();
+    rsiChart.timeScale().fitContent();
+    // Sync RSI scroll with main
+    mainChart.timeScale().subscribeVisibleLogicalRangeChange(function(r){ if(r) rsiChart.timeScale().setVisibleLogicalRange(r); });
+  } catch(e) {
+    document.getElementById('error').style.display = 'block';
+    document.getElementById('error').textContent   = 'Chart error: ' + e.message;
+  }
 }
 
-function setInterval(interval) {
-  currentInterval = interval;
-  createWidget(currentSymbol, currentInterval);
+function showLoading() {
+  document.getElementById('loading').style.display = 'block';
+  document.getElementById('error').style.display   = 'none';
 }
 
-// Initial load — Android will call setSymbol() to override
-createWidget(currentSymbol, currentInterval);
-
-// Notify Android that chart is ready
-if (typeof Android !== 'undefined') {
-  setTimeout(function() { Android.onChartReady(); }, 2000);
+// Live tick update (during market hours)
+function addTick(time, price) {
+  try {
+    if (activeType === 'candle') candleSeries.update({time:time, open:price, high:price, low:price, close:price});
+    lineSeries.update({time:time, value:price});
+    areaSeries.update({time:time, value:price});
+  } catch(e){}
 }
+
+// Chart type switch (Candle/Line/Area)
+function setChartType(type) {
+  activeType = type;
+  candleSeries.applyOptions({visible: type==='candle'});
+  lineSeries.applyOptions({visible:   type==='line'});
+  areaSeries.applyOptions({visible:   type==='area'});
+  ema9Series.applyOptions({visible:   type==='candle'});
+  ema21Series.applyOptions({visible:  type==='candle'});
+  var btns = {candle:'btnCandle', line:'btnLine', area:'btnArea'};
+  Object.keys(btns).forEach(function(k){
+    var el = document.getElementById(btns[k]);
+    el.style.background = k===type ? '#6D5EF8' : 'rgba(255,255,255,.08)';
+    el.style.color      = k===type ? '#fff'    : '#6E7681';
+  });
+}
+
+// Crosshair info bar
+mainChart.subscribeCrosshairMove(function(param) {
+  if (!param.point || !param.time) return;
+  var d = param.seriesData.get(candleSeries);
+  if (!d) return;
+  var v = param.seriesData.get(volSeries);
+  var up = d.close >= d.open;
+  function fmt(n){ return n && n.toFixed ? n.toFixed(2) : '—'; }
+  document.getElementById('vO').textContent = fmt(d.open);
+  document.getElementById('vO').className = 'neu';
+  document.getElementById('vH').textContent = fmt(d.high);
+  document.getElementById('vH').className = 'up';
+  document.getElementById('vL').textContent = fmt(d.low);
+  document.getElementById('vL').className = 'down';
+  document.getElementById('vC').textContent = fmt(d.close);
+  document.getElementById('vC').className = up ? 'up' : 'down';
+  document.getElementById('vV').textContent = v ? (v.value/1e5).toFixed(1)+'L' : '—';
+  var rD = param.seriesData.get(rsiSeries);
+  if (rD) document.getElementById('rsiLabel').textContent = 'RSI(14) ' + rD.value.toFixed(1);
+});
+
+// Indicators
+function computeEma(candles, period) {
+  if (candles.length < period) return [];
+  var k   = 2 / (period + 1);
+  var res = [];
+  var ema = 0;
+  for (var i = 0; i < period; i++) ema += candles[i].close / period;
+  res.push({time: candles[period-1].time, value: parseFloat(ema.toFixed(2))});
+  for (var i = period; i < candles.length; i++) {
+    ema = candles[i].close * k + ema * (1-k);
+    res.push({time: candles[i].time, value: parseFloat(ema.toFixed(2))});
+  }
+  return res;
+}
+
+function computeRsi(candles, period) {
+  if (candles.length < period+1) return [];
+  var res = [], gains = 0, losses = 0;
+  for (var i = 1; i <= period; i++) {
+    var d = candles[i].close - candles[i-1].close;
+    if (d > 0) gains += d; else losses -= d;
+  }
+  var avgG = gains/period, avgL = losses/period;
+  res.push({time: candles[period].time, value: parseFloat((avgL===0?100:100-(100/(1+avgG/avgL))).toFixed(2))});
+  for (var i = period+1; i < candles.length; i++) {
+    var d = candles[i].close - candles[i-1].close;
+    avgG = (avgG*(period-1) + Math.max(d,0))  / period;
+    avgL = (avgL*(period-1) + Math.max(-d,0)) / period;
+    res.push({time: candles[i].time, value: parseFloat((avgL===0?100:100-(100/(1+avgG/avgL))).toFixed(2))});
+  }
+  return res;
+}
+
+// Resize
+function resizeAll() {
+  var w = window.innerWidth, h = window.innerHeight;
+  mainChart.resize(w, h - 36 - 48);
+  rsiChart.resize(w, 48);
+}
+window.addEventListener('resize', resizeAll);
+resizeAll();
 </script>
 </body>
 </html>

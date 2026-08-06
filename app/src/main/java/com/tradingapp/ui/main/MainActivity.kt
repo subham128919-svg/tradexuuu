@@ -10,6 +10,7 @@ import com.tradingapp.R
 import com.tradingapp.data.model.Quote
 import com.tradingapp.databinding.ActivityMainBinding
 import com.tradingapp.ui.explore.ExploreFragment
+import com.tradingapp.ui.explore.FnoExploreFragment
 import com.tradingapp.ui.holdings.HoldingsFragment
 import com.tradingapp.ui.orders.OrdersFragment
 import com.tradingapp.ui.positions.PositionsFragment
@@ -44,16 +45,10 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setupBottomNav()
-        setupSearch()
+        binding.ivSearch.setOnClickListener { startActivity(Intent(this, SearchActivity::class.java)) }
         observeSegment()
         observeIndices()
         switchSegment(SEG_EQUITY)
-    }
-
-    private fun setupSearch() {
-        binding.ivSearch.setOnClickListener {
-            startActivity(Intent(this, SearchActivity::class.java))
-        }
     }
 
     private fun observeSegment() = lifecycleScope.launchWhenStarted {
@@ -67,10 +62,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // FIX: viewModel.indices is now a plain StateFlow<List<Quote>>
-    // (Room-backed, always has bundled+cached data) instead of a
-    // Resource-wrapped one-shot network result — so this always has
-    // something to render, even before any successful sync today.
     private fun observeIndices() = lifecycleScope.launchWhenStarted {
         viewModel.indices.collectLatest { list -> buildIndexTicker(list) }
     }
@@ -80,16 +71,10 @@ class MainActivity : AppCompatActivity() {
         indices.forEach { q ->
             val view = layoutInflater.inflate(R.layout.item_index, binding.llIndices, false)
             view.findViewById<TextView>(R.id.tvName).text = q.symbol.substringAfter(":")
-
             val valueTv  = view.findViewById<TextView>(R.id.tvValue)
             val changeTv = view.findViewById<TextView>(R.id.tvChange)
-
             if (q.ltp <= 0.0) {
-                // Not cached/synced yet — show a neutral placeholder
-                // instead of "0.00", which would look like a real price.
-                valueTv.text = "—"
-                changeTv.text = "…"
-                changeTv.setTextColor(0xFF6E7681.toInt())
+                valueTv.text = "—"; changeTv.text = "…"; changeTv.setTextColor(0xFF6E7681.toInt())
             } else {
                 valueTv.text = "%.2f".format(q.ltp)
                 changeTv.text = if (q.changePct >= 0) "+%.2f%%".format(q.changePct) else "%.2f%%".format(q.changePct)
@@ -103,9 +88,7 @@ class MainActivity : AppCompatActivity() {
         binding.llTabs.removeAllViews()
         TABS[segment]?.forEach { tab ->
             val tv = TextView(this).apply {
-                text     = tab
-                setPadding(40, 52, 40, 44)
-                textSize = 13.5f
+                text = tab; setPadding(40, 52, 40, 44); textSize = 13.5f
                 setTextColor(if (tab == currentTab) 0xFFF2F4F7.toInt() else 0xFF7C848F.toInt())
                 setTypeface(typeface, if (tab == currentTab) android.graphics.Typeface.BOLD else android.graphics.Typeface.NORMAL)
                 setOnClickListener { switchTab(tab) }
@@ -118,13 +101,14 @@ class MainActivity : AppCompatActivity() {
     private fun switchTab(tab: String) {
         currentTab = tab
         updateTabHighlight()
-        val fragment = when (tab) {
-            TAB_EXPLORE   -> ExploreFragment.newInstance(currentSegment)
-            TAB_HOLDINGS  -> HoldingsFragment.newInstance(currentSegment)
-            TAB_POSITIONS -> PositionsFragment.newInstance(currentSegment)
-            TAB_ORDERS    -> OrdersFragment.newInstance(currentSegment)
-            TAB_WATCHLIST -> WatchlistFragment.newInstance(currentSegment)
-            else          -> ExploreFragment.newInstance(currentSegment)
+        val fragment = when {
+            tab == TAB_EXPLORE && currentSegment == SEG_FNO -> FnoExploreFragment.newInstance(currentSegment)
+            tab == TAB_EXPLORE   -> ExploreFragment.newInstance(currentSegment)
+            tab == TAB_HOLDINGS  -> HoldingsFragment.newInstance(currentSegment)
+            tab == TAB_POSITIONS -> PositionsFragment.newInstance(currentSegment)
+            tab == TAB_ORDERS    -> OrdersFragment.newInstance(currentSegment)
+            tab == TAB_WATCHLIST -> WatchlistFragment.newInstance(currentSegment)
+            else                 -> ExploreFragment.newInstance(currentSegment)
         }
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragmentHost, fragment)
@@ -134,9 +118,9 @@ class MainActivity : AppCompatActivity() {
     private fun updateTabHighlight() {
         for (i in 0 until binding.llTabs.childCount) {
             val tv = binding.llTabs.getChildAt(i) as? TextView ?: continue
-            val active = tv.tag == currentTab
-            tv.setTextColor(if (active) 0xFFF2F4F7.toInt() else 0xFF7C848F.toInt())
-            tv.setTypeface(tv.typeface, if (active) android.graphics.Typeface.BOLD else android.graphics.Typeface.NORMAL)
+            val a = tv.tag == currentTab
+            tv.setTextColor(if (a) 0xFFF2F4F7.toInt() else 0xFF7C848F.toInt())
+            tv.setTypeface(tv.typeface, if (a) android.graphics.Typeface.BOLD else android.graphics.Typeface.NORMAL)
         }
     }
 
