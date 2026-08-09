@@ -4,7 +4,6 @@ import com.tradingapp.data.model.*
 import retrofit2.Response
 import retrofit2.http.*
 
-// Response types
 data class ApiList<T>(val data: List<T>)
 data class ApiSingle<T>(val data: T)
 data class QuoteResponse(val data: List<Quote>)
@@ -13,24 +12,16 @@ data class PortfolioSummary(val totalValue: Double, val totalInvested: Double, v
 data class HoldingsResponse(val summary: PortfolioSummary, val data: List<Holding>)
 data class PositionSummary(val dayPnl: Double)
 data class PositionsResponse(val summary: PositionSummary, val data: List<Position>)
-
-// Auth
 data class AuthUserInfo(val id: Int, val name: String, val email: String, val phone: String? = null)
 data class AuthResponse(val token: String, val user: AuthUserInfo)
-
-// Top movers
 data class MoverItem(val symbol: String, val name: String, val ltp: Double = 0.0,
                      val prevClose: Double = 0.0, val changePct: Double = 0.0, val changeAbs: Double = 0.0)
 data class TopMoversResponse(val gainers: List<MoverItem>, val losers: List<MoverItem>, val indices: List<MoverItem>)
-
-// Fundamentals
 data class Fundamentals(val mktCap: String?, val peRatio: String?, val pbRatio: String?,
                         val eps: String?, val roe: String?, val divYield: String?,
                         val bookValue: String?, val debtEquity: String?,
                         val sector: String?, val industry: String?)
 data class FundamentalsResponse(val data: Fundamentals?)
-
-// Positions / Orders
 data class AppPosition(val symbol: String, val exchange: String, val name: String,
                        val qty: Int, val avgPrice: Double, val ltp: Double,
                        val currentValue: Double, val invested: Double,
@@ -38,18 +29,15 @@ data class AppPosition(val symbol: String, val exchange: String, val name: Strin
 data class AppPositionsResponse(val data: List<AppPosition>, val totalValue: Double,
                                 val totalInvested: Double, val totalPnl: Double, val totalPnlPct: Double)
 data class AppOrderResponse(val success: Boolean, val message: String)
+data class WalletResponse(val balance: Double, val transactions: List<Map<String, Any>>)
+data class TrackResponse(val ok: Boolean, val symbol: String, val tracked: Int)
 
 interface ApiService {
-    // ── Auth ─────────────────────────────────────────────────────
     @POST("users/login")
     suspend fun login(@Body body: Map<String, @JvmSuppressWildcards Any>): Response<AuthResponse>
 
     @POST("users/register")
     suspend fun register(@Body body: Map<String, @JvmSuppressWildcards Any>): Response<AuthResponse>
-
-    // ── Market data ───────────────────────────────────────────────
-    @GET("auth/kite-login")
-    suspend fun getKiteLoginUrl(): Response<Map<String, String>>
 
     @GET("market/quotes")
     suspend fun getQuotes(@Query("symbols") symbols: String): Response<QuoteResponse>
@@ -73,9 +61,20 @@ interface ApiService {
     suspend fun getTopMovers(): Response<TopMoversResponse>
 
     @GET("market/fundamentals/{exchange}/{symbol}")
-    suspend fun getFundamentals(@Path("exchange") exchange: String, @Path("symbol") symbol: String): Response<FundamentalsResponse>
+    suspend fun getFundamentals(@Path("exchange") ex: String, @Path("symbol") sym: String): Response<FundamentalsResponse>
 
-    // ── Orders (simulated in-app) ─────────────────────────────────
+    @GET("market/universe")
+    suspend fun getUniverse(@Query("section") section: String): Response<ApiList<Map<String, Any>>>
+
+    // Background tracking
+    @POST("tracking/add")
+    suspend fun trackSymbol(@Body body: Map<String, String>): Response<TrackResponse>
+
+    // Wallet
+    @GET("wallet")
+    suspend fun getWallet(): Response<WalletResponse>
+
+    // Orders
     @POST("app-orders")
     suspend fun placeAppOrder(@Body body: Map<String, @JvmSuppressWildcards Any>): Response<AppOrderResponse>
 
@@ -85,7 +84,6 @@ interface ApiService {
     @GET("app-orders/positions")
     suspend fun getAppPositions(): Response<AppPositionsResponse>
 
-    // ── Portfolio (Kite) ──────────────────────────────────────────
     @GET("portfolio/holdings")
     suspend fun getHoldings(): Response<HoldingsResponse>
 
@@ -95,7 +93,6 @@ interface ApiService {
     @GET("orders")
     suspend fun getOrders(@Query("status") status: String? = null): Response<ApiList<Order>>
 
-    // ── Watchlist ─────────────────────────────────────────────────
     @GET("watchlist")
     suspend fun getWatchlist(): Response<ApiList<WatchlistItem>>
 
@@ -105,10 +102,6 @@ interface ApiService {
     @DELETE("watchlist/{id}")
     suspend fun removeFromWatchlist(@Path("id") id: Int): Response<Map<String, Boolean>>
 
-    // ── MF ───────────────────────────────────────────────────────
     @GET("mf/explore")
     suspend fun getMfExplore(): Response<ApiList<MutualFund>>
-
-    @GET("mf/{code}/chart")
-    suspend fun getMfChart(@Path("code") schemeCode: String): Response<ApiList<NavPoint>>
 }

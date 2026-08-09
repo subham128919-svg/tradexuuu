@@ -101,19 +101,19 @@
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:id="@+id/chipTrending"
                     android:text="Trending" android:textSize="12.5sp" android:textStyle="bold"
-                    android:textColor="@color/accent"
+                    android:textColor="@color/t100"
                     android:paddingStart="14dp" android:paddingEnd="14dp"
                     android:paddingTop="7dp" android:paddingBottom="7dp"
                     android:background="@drawable/bg_chip_on" android:layout_marginEnd="8dp"/>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:id="@+id/chipGainers"
-                    android:text="Gainers" android:textSize="12.5sp" android:textColor="@color/t600"
+                    android:text="Gainers" android:textSize="12.5sp" android:textColor="@color/t100"
                     android:paddingStart="14dp" android:paddingEnd="14dp"
                     android:paddingTop="7dp" android:paddingBottom="7dp"
                     android:background="@drawable/bg_chip_off" android:layout_marginEnd="8dp"/>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:id="@+id/chipLosers"
-                    android:text="Losers" android:textSize="12.5sp" android:textColor="@color/t600"
+                    android:text="Losers" android:textSize="12.5sp" android:textColor="@color/t100"
                     android:paddingStart="14dp" android:paddingEnd="14dp"
                     android:paddingTop="7dp" android:paddingBottom="7dp"
                     android:background="@drawable/bg_chip_off"/>

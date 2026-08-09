@@ -32,7 +32,7 @@
             app:layout_constraintTop_toBottomOf="@id/tvSub" app:layout_constraintStart_toStartOf="parent"/>
         <com.google.android.material.textfield.TextInputEditText android:id="@+id/etName"
             android:layout_width="match_parent" android:layout_height="52dp"
-            android:hint="Abhishek Meena" android:textColorHint="@color/t700"
+            android:hint="Ronin Rajput" android:textColorHint="@color/t700"
             android:textColor="@color/t100" android:textSize="15sp"
             android:inputType="textPersonName" android:background="@drawable/bg_card"
             android:paddingStart="16dp" android:paddingEnd="16dp" android:layout_marginTop="6dp"

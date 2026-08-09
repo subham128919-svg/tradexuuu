@@ -1,18 +1,20 @@
 package com.tradingapp.ui.chart
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
 import android.view.View
-import com.tradingapp.R
 import android.webkit.*
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.tradingapp.R
 import com.tradingapp.data.model.toChartJson
 import com.tradingapp.databinding.ScreenChartBinding
+import com.tradingapp.ui.order.OrderActivity
 import com.tradingapp.util.*
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
@@ -21,8 +23,8 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class ChartActivity : AppCompatActivity() {
 
-    private lateinit var binding: ScreenChartBinding
-    private val viewModel: ChartViewModel by viewModels()
+    private lateinit var b: ScreenChartBinding
+    private val vm: ChartViewModel by viewModels()
 
     private val symbol   by lazy { intent.getStringExtra(EXTRA_SYMBOL)   ?: "RELIANCE" }
     private val exchange by lazy { intent.getStringExtra(EXTRA_EXCHANGE) ?: "NSE" }
@@ -31,58 +33,48 @@ class ChartActivity : AppCompatActivity() {
     private var chartReady   = false
     private var pendingJson  = ""
     private var currentPeriod = "1M"
-
-    private val periods = listOf("1D", "1W", "1M", "3M", "1Y", "5Y")
+    private val periods = listOf("1D","1W","1M","3M","6M","1Y","5Y")
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ScreenChartBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        b = ScreenChartBinding.inflate(layoutInflater)
+        setContentView(b.root)
 
         setupHeader()
         setupWebView()
         setupPeriodButtons()
+        setupOrderButtons()
 
-        // Load initial chart data from our backend (DB-first)
-        viewModel.loadChart(symbol, exchange, currentPeriod)
+        // Tell backend to permanently track this symbol
+        vm.trackSymbol("$exchange:$symbol")
+
+        // Load chart data from backend
+        vm.loadChart(symbol, exchange, currentPeriod)
         observeCandles()
         observeQuote()
         observeLiveTick()
-
-        // Hide trade buttons — this is a data/chart app
-        binding.btnBuy.visibility  = View.GONE
-        binding.btnSell.visibility = View.GONE
     }
 
     private fun setupHeader() {
-        binding.tvSymbol.text   = symbol
-        binding.tvExchange.text = exchange
-        binding.ivBack.setOnClickListener { finish() }
+        b.tvLogo.text     = symbol.take(4).lowercase()
+        b.tvSymbol.text   = symbol
+        b.tvExchange.text = exchange
+        b.tvName.text     = name
+        b.ivBack.setOnClickListener { finish() }
     }
 
     @SuppressLint("SetJavaScriptEnabled")
     private fun setupWebView() {
-        with(binding.chartWebView.settings) {
+        with(b.chartWebView.settings) {
             javaScriptEnabled    = true
             domStorageEnabled    = true
             useWideViewPort      = true
             loadWithOverviewMode = true
             cacheMode            = WebSettings.LOAD_NO_CACHE
         }
-        binding.chartWebView.webChromeClient = WebChromeClient()
-        binding.chartWebView.addJavascriptInterface(object {
-            @JavascriptInterface fun onChartReady() {
-                chartReady = true
-                if (pendingJson.isNotEmpty()) {
-                    val json = pendingJson; pendingJson = ""
-                    binding.chartWebView.post {
-                        binding.chartWebView.evaluateJavascript("setCandles('$json')", null)
-                    }
-                }
-            }
-        }, "Android")
-        binding.chartWebView.webViewClient = object : WebViewClient() {
+        b.chartWebView.webChromeClient = WebChromeClient()
+        b.chartWebView.webViewClient   = object : WebViewClient() {
             override fun onPageFinished(view: WebView, url: String) {
                 chartReady = true
                 if (pendingJson.isNotEmpty()) {
@@ -91,22 +83,17 @@ class ChartActivity : AppCompatActivity() {
                 }
             }
         }
-        // chart.html uses our own backend candle data — no TradingView login needed
-        binding.chartWebView.loadUrl("file:///android_asset/chart.html")
+        b.chartWebView.loadUrl("file:///android_asset/chart.html")
     }
 
     private fun setupPeriodButtons() {
         periods.forEach { period ->
-            binding.periodContainer.findViewWithTag<TextView>(period)?.let { tv ->
-                tv.setOnClickListener {
-                    if (period == currentPeriod) return@setOnClickListener
-                    currentPeriod = period
-                    highlightPeriod(period)
-                    // Show loading state in chart
-                    binding.chartWebView.evaluateJavascript("showLoading()", null)
-                    // Load candles for new period from backend
-                    viewModel.loadCandles(symbol, exchange, period)
-                }
+            b.periodContainer.findViewWithTag<TextView>(period)?.setOnClickListener {
+                if (period == currentPeriod) return@setOnClickListener
+                currentPeriod = period
+                highlightPeriod(period)
+                b.chartWebView.evaluateJavascript("showLoading()", null)
+                vm.loadCandles(symbol, exchange, period)
             }
         }
         highlightPeriod(currentPeriod)
@@ -114,65 +101,79 @@ class ChartActivity : AppCompatActivity() {
 
     private fun highlightPeriod(active: String) {
         periods.forEach { p ->
-            binding.periodContainer.findViewWithTag<TextView>(p)?.let { tv ->
-                val isActive = p == active
-                tv.setTextColor(if (isActive) Color.parseColor("#6D5EF8") else Color.parseColor("#6E7681"))
-                tv.setTypeface(tv.typeface, if (isActive) Typeface.BOLD else Typeface.NORMAL)
-                tv.setBackgroundResource(if (isActive) R.drawable.bg_chip_on else R.drawable.bg_chip_off)
+            b.periodContainer.findViewWithTag<TextView>(p)?.let { tv ->
+                val on = p == active
+                tv.setTextColor(if (on) Color.parseColor("#6D5EF8") else Color.parseColor("#6E7681"))
+                tv.setTypeface(tv.typeface, if (on) Typeface.BOLD else Typeface.NORMAL)
+                tv.setBackgroundResource(if (on) R.drawable.bg_chip_on else R.drawable.bg_chip_off)
             }
         }
     }
 
+    private fun setupOrderButtons() {
+        b.btnSip.visibility  = View.GONE   // enable later when payment gateway is live
+        b.btnBuy.setOnClickListener  { openOrder("BUY")  }
+        b.btnSell.setOnClickListener { openOrder("SELL") }
+    }
+
+    private fun openOrder(type: String) {
+        val ltp = vm.quote.value?.ltp ?: 0.0
+        startActivity(Intent(this, OrderActivity::class.java).apply {
+            putExtra(EXTRA_SYMBOL,   symbol)
+            putExtra(EXTRA_EXCHANGE, exchange)
+            putExtra(EXTRA_NAME,     name)
+            putExtra("orderType",    type)
+            putExtra("ltp",          ltp)
+        })
+    }
+
     private fun observeCandles() = lifecycleScope.launch {
-        viewModel.candles.collectLatest { res ->
+        vm.candles.collectLatest { res ->
             when (res) {
-                is Resource.Loading -> { /* chart shows its own loading indicator */ }
+                is Resource.Loading -> { /* chart shows its own spinner */ }
                 is Resource.Success -> pushCandles(res.data.toChartJson())
-                is Resource.Error   -> {
-                    binding.chartWebView.evaluateJavascript(
+                is Resource.Error   -> b.chartWebView.post {
+                    b.chartWebView.evaluateJavascript(
                         "document.getElementById('loading').style.display='none';" +
-                        "document.getElementById('error').style.display='block';" +
-                        "document.getElementById('error').textContent='${res.message.take(80)}'", null)
+                        "document.getElementById('errBox').style.display='block';" +
+                        "document.getElementById('errBox').textContent='${res.message?.take(60)}'", null)
                 }
             }
         }
     }
 
     private fun pushCandles(json: String) {
-        val safe = json.replace("'", "\'")
+        val safe = json.replace("\\", "\\\\").replace("'", "\\'")
         if (chartReady) {
-            binding.chartWebView.post {
-                binding.chartWebView.evaluateJavascript("setCandles('$safe')", null)
-            }
+            b.chartWebView.post { b.chartWebView.evaluateJavascript("setCandles('$safe')", null) }
         } else {
             pendingJson = safe
         }
     }
 
     private fun observeQuote() = lifecycleScope.launch {
-        viewModel.quote.collectLatest { q ->
+        vm.quote.collectLatest { q ->
             q ?: return@collectLatest
-            binding.tvPrice.text = q.ltp.toRupee()
-            binding.tvChange.setChange(q.changePct, "%")
-            binding.tvOhlv.text =
-                "O %.2f  H %.2f  L %.2f  Vol %,d".format(q.open, q.high, q.low, q.volume)
+            b.tvPrice.text = q.ltp.toRupee()
+            b.tvChange.setChange(q.changePct, "%")
+            b.tvOhlv.text = "O %.2f  H %.2f  L %.2f  Vol %,d"
+                .format(q.open, q.high, q.low, q.volume)
         }
     }
 
     private fun observeLiveTick() = lifecycleScope.launch {
-        viewModel.liveTicks.collectLatest { tick ->
+        vm.liveTicks.collectLatest { tick ->
             if (tick.symbol != "$exchange:$symbol") return@collectLatest
-            binding.tvPrice.text = tick.ltp.toRupee()
-            binding.tvChange.setChange(tick.changePct, "%")
+            b.tvPrice.text = tick.ltp.toRupee()
+            b.tvChange.setChange(tick.changePct, "%")
             val time = tick.ts / 1000
-            binding.chartWebView.post {
-                binding.chartWebView.evaluateJavascript("addTick($time, ${tick.ltp})", null)
+            b.chartWebView.post {
+                b.chartWebView.evaluateJavascript("addTick($time, ${tick.ltp})", null)
             }
         }
     }
 
     override fun onBackPressed() {
-        if (binding.chartWebView.canGoBack()) binding.chartWebView.goBack()
-        else super.onBackPressed()
+        if (b.chartWebView.canGoBack()) b.chartWebView.goBack() else super.onBackPressed()
     }
 }

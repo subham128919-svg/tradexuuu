@@ -7,10 +7,11 @@
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
         android:orientation="horizontal" android:gravity="center_vertical"
         android:paddingStart="16dp" android:paddingEnd="16dp"
-        android:paddingTop="52dp" android:paddingBottom="14dp"
+        android:paddingTop="22dp" android:paddingBottom="14dp"
         android:background="@color/bg_item">
 
         <ImageView android:id="@+id/ivClose"
+            android:tint="@color/t100"
             android:layout_width="22dp" android:layout_height="22dp"
             android:src="@drawable/ic_back" android:layout_marginEnd="12dp"/>
         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
@@ -21,11 +22,11 @@
                 android:textColor="@color/t100"/>
             <TextView android:id="@+id/tvPriceInfo"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="NSE ₹2948.55" android:textSize="12sp" android:textColor="@color/t600"/>
+                android:text="NSE ₹2948.55" android:textSize="12sp" android:textColor="@color/t100"/>
         </LinearLayout>
         <TextView android:id="@+id/tvDepth"
             android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:text="Depth" android:textSize="13sp" android:textColor="@color/t500"
+            android:text="Depth" android:textSize="13sp" android:textColor="@color/t100"
             android:paddingStart="12dp" android:paddingEnd="12dp"
             android:paddingTop="6dp" android:paddingBottom="6dp"
             android:background="@drawable/bg_chip_off"/>
@@ -140,10 +141,15 @@
         android:layout_marginStart="16dp" android:layout_marginEnd="16dp" android:layout_marginBottom="12dp"/>
 
     <!-- Custom numpad -->
-    <GridLayout android:layout_width="match_parent" android:layout_height="0dp"
-        android:layout_weight="1" android:rowCount="4" android:columnCount="3"
-        android:padding="4dp" android:background="@color/bg_item"
-        android:id="@+id/numpad">
+    <GridLayout
+        android:id="@+id/numpad"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:background="@color/t100"
+        android:columnCount="3"
+        android:padding="4dp"
+        android:rowCount="4">
 
         <!-- Populated programmatically in OrderActivity.kt -->
     </GridLayout>

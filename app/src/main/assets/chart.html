@@ -6,260 +6,361 @@
 <title>Chart</title>
 <script src="https://unpkg.com/lightweight-charts@4.1.0/dist/lightweight-charts.standalone.production.js"></script>
 <style>
-* { margin:0; padding:0; box-sizing:border-box; }
-html, body { width:100%; height:100%; background:#07080A; overflow:hidden; }
-#infoBar {
-  position:absolute; top:0; left:0; right:0;
-  display:flex; align-items:center; justify-content:space-between;
-  padding:8px 14px;
-  background:rgba(7,8,10,.97);
-  z-index:20;
-  font-family:'JetBrains Mono','Courier New',monospace;
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{width:100%;height:100%;background:#07080A;overflow:hidden;font-family:-apple-system,sans-serif}
+
+/* OHLCV bar — shows when finger touches chart */
+#ohlcBar{
+  position:absolute;top:0;left:0;right:0;
+  display:flex;align-items:center;gap:8px;
+  padding:7px 12px;
+  background:rgba(7,8,10,.96);
   border-bottom:1px solid rgba(255,255,255,.06);
+  z-index:30;font-size:11px;
+  font-family:'Menlo','JetBrains Mono',monospace;
+  opacity:0;transition:opacity .15s;pointer-events:none;
 }
-#ohlcInfo { font-size:10px; color:#8A93A0; }
-#ohlcInfo .up   { color:#2FBF71; }
-#ohlcInfo .down { color:#FF5C5C; }
-#ohlcInfo .neu  { color:#E8EBF0; }
-#chartContainer { position:absolute; top:36px; left:0; right:0; bottom:48px; }
-#rsiPanel {
-  position:absolute; bottom:0; left:0; right:0; height:48px;
-  border-top:1px solid rgba(255,255,255,.06);
-  background:#07080A;
+#ohlcBar.visible{opacity:1}
+.ob{display:flex;flex-direction:column;gap:1px;margin-right:6px}
+.ob .k{color:#6E7681;font-size:9px;text-transform:uppercase;letter-spacing:.04em}
+.ob .v{color:#F2F4F7;font-weight:600}
+.ob .v.up{color:#2FBF71}.ob .v.dn{color:#FF5C5C}
+#ohlcDate{margin-left:auto;color:#8A93A0;font-size:10px;white-space:nowrap}
+
+/* Date/time tooltip that floats above crosshair */
+#tooltip{
+  position:absolute;
+  background:rgba(255,255,255,.09);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:6px;
+  padding:4px 9px;
+  font-size:11px;color:#E8EBF0;
+  font-family:'Menlo','JetBrains Mono',monospace;
+  pointer-events:none;z-index:40;
+  opacity:0;transition:opacity .1s;
+  white-space:nowrap;
 }
-#rsiLabel {
-  position:absolute; top:3px; left:8px;
-  font-family:'JetBrains Mono',monospace; font-size:9px; color:#6E7681;
+#tooltip.visible{opacity:1}
+
+/* Chart type buttons */
+#typeBtns{
+  position:absolute;top:44px;right:8px;
+  display:flex;flex-direction:column;gap:4px;z-index:20;
 }
-#loading {
-  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
-  color:#6E7681; font-family:'JetBrains Mono',monospace; font-size:13px;
+.typBtn{
+  background:rgba(255,255,255,.07);border:none;border-radius:7px;
+  padding:5px 8px;color:#8A93A0;font-size:10px;cursor:pointer;
+  transition:.15s;
 }
-#error {
-  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
-  color:#FF5C5C; font-family:'JetBrains Mono',monospace; font-size:12px;
-  text-align:center; max-width:280px; display:none;
-}
+.typBtn:hover,.typBtn.active{background:#6D5EF8;color:#fff}
+
+/* Chart container */
+#chartWrap{position:absolute;top:0;left:0;right:0;bottom:44px}
+
+/* Volume panel */
+#volPanel{position:absolute;bottom:0;left:0;right:0;height:44px;background:#07080A;
+  border-top:1px solid rgba(255,255,255,.04)}
+#rsiLabel{position:absolute;top:3px;left:8px;font-size:9px;color:#6E7681;
+  font-family:'Menlo',monospace}
+
+/* Loading / error */
+#loading{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  color:#6E7681;font-size:13px}
+#errBox{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  color:#FF5C5C;font-size:12px;text-align:center;display:none;max-width:240px}
 </style>
 </head>
 <body>
-<div id="infoBar">
-  <div id="ohlcInfo">
-    O <span id="vO" class="neu">—</span>
-    H <span id="vH" class="up">—</span>
-    L <span id="vL" class="down">—</span>
-    C <span id="vC" class="neu">—</span>
-    V <span id="vV" class="neu">—</span>
-  </div>
-  <div id="chartTypeBtns" style="display:flex;gap:5px">
-    <button onclick="setChartType('candle')" id="btnCandle"
-      style="background:#6D5EF8;border:none;border-radius:5px;color:#fff;font-size:9px;padding:3px 7px;cursor:pointer">Cndl</button>
-    <button onclick="setChartType('line')" id="btnLine"
-      style="background:rgba(255,255,255,.08);border:none;border-radius:5px;color:#6E7681;font-size:9px;padding:3px 7px;cursor:pointer">Line</button>
-    <button onclick="setChartType('area')" id="btnArea"
-      style="background:rgba(255,255,255,.08);border:none;border-radius:5px;color:#6E7681;font-size:9px;padding:3px 7px;cursor:pointer">Area</button>
-  </div>
+
+<!-- OHLCV info bar (appears when touching chart) -->
+<div id="ohlcBar">
+  <div class="ob"><div class="k">O</div><div class="v" id="vO">—</div></div>
+  <div class="ob"><div class="k">H</div><div class="v up" id="vH">—</div></div>
+  <div class="ob"><div class="k">L</div><div class="v dn" id="vL">—</div></div>
+  <div class="ob"><div class="k">C</div><div class="v" id="vC">—</div></div>
+  <div class="ob"><div class="k">Vol</div><div class="v" id="vV">—</div></div>
+  <div id="ohlcDate">—</div>
 </div>
-<div id="chartContainer"></div>
-<div id="rsiPanel"><span id="rsiLabel">RSI(14) —</span></div>
+
+<!-- Floating date/time tooltip above crosshair -->
+<div id="tooltip"></div>
+
+<!-- Chart type switcher -->
+<div id="typeBtns">
+  <button class="typBtn active" onclick="setType('candle')"   title="Candlestick">Cndl</button>
+  <button class="typBtn"        onclick="setType('heiken')"   title="Heikin Ashi">HA</button>
+  <button class="typBtn"        onclick="setType('line')"     title="Line">Line</button>
+  <button class="typBtn"        onclick="setType('area')"     title="Area">Area</button>
+  <button class="typBtn"        onclick="setType('bar')"      title="Bar">Bar</button>
+</div>
+
+<div id="chartWrap"></div>
+<div id="volPanel"><div id="rsiLabel">RSI(14) —</div></div>
+
 <div id="loading">Loading chart…</div>
-<div id="error">Could not load chart data.<br>Check your connection.</div>
+<div id="errBox">No data available for this period.</div>
 
 <script>
-var activeType = 'candle';
-
-// ── Main chart ────────────────────────────────────────────────
-var mainChart = LightweightCharts.createChart(document.getElementById('chartContainer'), {
-  layout: {
-    background: { type: 'solid', color: '#07080A' },
-    textColor: '#6E7681', fontSize: 10,
-    fontFamily: "'JetBrains Mono','Courier New',monospace"
-  },
-  grid: { vertLines: { color: '#0E1218' }, horzLines: { color: '#0E1218' } },
+// ── Chart instance ───────────────────────────────────────────────
+var chart = LightweightCharts.createChart(document.getElementById('chartWrap'), {
+  layout:    { background: { type:'solid', color:'#07080A' }, textColor:'#6E7681', fontSize:10 },
+  grid:      { vertLines: { color:'#0E1218' }, horzLines: { color:'#0E1218' } },
   crosshair: {
     mode: LightweightCharts.CrosshairMode.Normal,
-    vertLine: { color: '#6D5EF8', labelBackgroundColor: '#6D5EF8', width:1 },
-    horzLine: { color: '#6D5EF8', labelBackgroundColor: '#6D5EF8', width:1 },
+    vertLine: { color:'rgba(109,94,248,.7)', labelBackgroundColor:'#6D5EF8', width:1 },
+    horzLine: { color:'rgba(109,94,248,.7)', labelBackgroundColor:'#6D5EF8', width:1 },
   },
-  rightPriceScale: { borderColor: 'rgba(255,255,255,.06)', scaleMargins: { top:.06, bottom:.22 } },
+  rightPriceScale: { borderColor:'rgba(255,255,255,.05)', scaleMargins:{ top:.04, bottom:.22 } },
   timeScale: {
-    borderColor: 'rgba(255,255,255,.06)', timeVisible: true, secondsVisible: false,
-    tickMarkFormatter: function(t) {
-      var d = new Date(t*1000);
-      return d.toLocaleDateString('en-IN', { day:'numeric', month:'short' });
-    }
+    borderColor:'rgba(255,255,255,.05)', timeVisible:true, secondsVisible:false,
   },
-  handleScroll: { mouseWheel:true, pressedMouseMove:true, horzTouchDrag:true },
-  handleScale:  { axisPressedMouseMove:true, mouseWheel:true, pinch:true },
+  handleScroll:{ mouseWheel:true, pressedMouseMove:true, horzTouchDrag:true, vertTouchDrag:false },
+  handleScale: { axisPressedMouseMove:true, mouseWheel:true, pinch:true },
 });
 
-// ── RSI sub-chart ────────────────────────────────────────────
-var rsiChart = LightweightCharts.createChart(document.getElementById('rsiPanel'), {
-  layout: { background:{type:'solid',color:'#07080A'}, textColor:'#6E7681', fontSize:9 },
-  grid:   { vertLines:{color:'transparent'}, horzLines:{color:'#0E1218'} },
+// RSI sub-chart
+var rsiChart = LightweightCharts.createChart(document.getElementById('volPanel'), {
+  layout:    { background:{type:'solid',color:'#07080A'}, textColor:'#6E7681', fontSize:9 },
+  grid:      { vertLines:{color:'transparent'}, horzLines:{color:'#0E1218'} },
   crosshair: { mode: LightweightCharts.CrosshairMode.Hidden },
-  rightPriceScale: { borderColor:'rgba(255,255,255,.06)', scaleMargins:{top:.05,bottom:.05}, minimumWidth:44 },
-  timeScale: { borderColor:'rgba(255,255,255,.06)', visible:false },
-  handleScroll: false, handleScale: false,
+  rightPriceScale: { borderColor:'rgba(255,255,255,.05)', scaleMargins:{top:.05,bottom:.05}, minimumWidth:44 },
+  timeScale: { borderColor:'rgba(255,255,255,.05)', visible:false },
+  handleScroll:false, handleScale:false,
 });
 
-// ── Series ───────────────────────────────────────────────────
-var candleSeries, lineSeries, areaSeries, volSeries, ema9Series, ema21Series, rsiSeries;
+// ── Series holders ───────────────────────────────────────────────
+var candleSeries, heikenSeries, lineSeries, areaSeries, barSeries;
+var volSeries, ema9Series, ema21Series, rsiSeries;
+var activeType = 'candle';
+var rawCandles = [];
 
 function buildSeries() {
-  if (candleSeries) try { mainChart.removeSeries(candleSeries); } catch(e){}
-  if (lineSeries)   try { mainChart.removeSeries(lineSeries);   } catch(e){}
-  if (areaSeries)   try { mainChart.removeSeries(areaSeries);   } catch(e){}
-  if (volSeries)    try { mainChart.removeSeries(volSeries);     } catch(e){}
-  if (ema9Series)   try { mainChart.removeSeries(ema9Series);   } catch(e){}
-  if (ema21Series)  try { mainChart.removeSeries(ema21Series);  } catch(e){}
+  function tryRemove(s) { if(s){ try{ chart.removeSeries(s); }catch(e){} } }
+  tryRemove(candleSeries); tryRemove(heikenSeries); tryRemove(lineSeries);
+  tryRemove(areaSeries);   tryRemove(barSeries);    tryRemove(volSeries);
+  tryRemove(ema9Series);   tryRemove(ema21Series);
+  if(rsiSeries){ try{ rsiChart.removeSeries(rsiSeries); }catch(e){} }
 
-  candleSeries = mainChart.addCandlestickSeries({
-    upColor:'#2FBF71', downColor:'#FF5C5C',
-    borderUpColor:'#2FBF71', borderDownColor:'#FF5C5C',
-    wickUpColor:'#2FBF71', wickDownColor:'#FF5C5C',
-    visible: activeType === 'candle'
+  var upColor = '#2FBF71', dnColor = '#FF5C5C';
+
+  candleSeries = chart.addCandlestickSeries({
+    upColor, downColor:dnColor, borderUpColor:upColor, borderDownColor:dnColor,
+    wickUpColor:upColor, wickDownColor:dnColor, visible: activeType==='candle'
   });
-  lineSeries = mainChart.addLineSeries({
-    color:'#6D5EF8', lineWidth:2, priceLineVisible:false, visible: activeType === 'line'
+  heikenSeries = chart.addCandlestickSeries({
+    upColor:'#00BCD4', downColor:'#FF5722', borderUpColor:'#00BCD4', borderDownColor:'#FF5722',
+    wickUpColor:'#00BCD4', wickDownColor:'#FF5722', visible: activeType==='heiken'
   });
-  areaSeries = mainChart.addAreaSeries({
+  lineSeries = chart.addLineSeries({
+    color:'#6D5EF8', lineWidth:2, priceLineVisible:false, visible: activeType==='line'
+  });
+  areaSeries = chart.addAreaSeries({
     topColor:'rgba(109,94,248,.35)', bottomColor:'rgba(109,94,248,.02)',
-    lineColor:'#6D5EF8', lineWidth:2, priceLineVisible:false, visible: activeType === 'area'
+    lineColor:'#6D5EF8', lineWidth:2, priceLineVisible:false, visible: activeType==='area'
   });
-  volSeries = mainChart.addHistogramSeries({
-    priceFormat:{type:'volume'}, priceScaleId:'vol', lastValueVisible:false, priceLineVisible:false
+  barSeries = chart.addBarSeries({
+    upColor, downColor:dnColor, thinBars:false, visible: activeType==='bar'
   });
-  mainChart.priceScale('vol').applyOptions({ scaleMargins:{top:.82,bottom:0} });
-  ema9Series  = mainChart.addLineSeries({ color:'#F5A623', lineWidth:1, priceLineVisible:false, crossHairMarkerVisible:false, lastValueVisible:false, visible: activeType==='candle' });
-  ema21Series = mainChart.addLineSeries({ color:'#6D5EF8', lineWidth:1, priceLineVisible:false, crossHairMarkerVisible:false, lastValueVisible:false, visible: activeType==='candle' });
-
-  if (rsiSeries) try { rsiChart.removeSeries(rsiSeries); } catch(e){}
+  volSeries = chart.addHistogramSeries({
+    priceFormat:{type:'volume'}, priceScaleId:'vol',
+    lastValueVisible:false, priceLineVisible:false
+  });
+  chart.priceScale('vol').applyOptions({ scaleMargins:{top:.82,bottom:0} });
+  ema9Series  = chart.addLineSeries({ color:'#F5A623', lineWidth:1, priceLineVisible:false, crossHairMarkerVisible:false, lastValueVisible:false, visible: activeType==='candle'||activeType==='heiken' });
+  ema21Series = chart.addLineSeries({ color:'#6D5EF8', lineWidth:1, priceLineVisible:false, crossHairMarkerVisible:false, lastValueVisible:false, visible: activeType==='candle'||activeType==='heiken' });
   rsiSeries = rsiChart.addLineSeries({ color:'#00BCD4', lineWidth:1.5, priceLineVisible:false, lastValueVisible:true });
-}
 
+  // Sync RSI time with main chart
+  chart.timeScale().subscribeVisibleLogicalRangeChange(function(r){ if(r) rsiChart.timeScale().setVisibleLogicalRange(r); });
+}
 buildSeries();
 
-// ── Data loading — called from Android via evaluateJavascript ─
+// ── Data loading (called from Android) ──────────────────────────
 function setCandles(jsonStr) {
   document.getElementById('loading').style.display = 'none';
-  document.getElementById('error').style.display   = 'none';
+  document.getElementById('errBox').style.display  = 'none';
   try {
-    var candles = JSON.parse(jsonStr);
-    if (!candles || candles.length === 0) {
-      document.getElementById('error').style.display = 'block';
-      document.getElementById('error').textContent    = 'No data for this period.';
+    rawCandles = JSON.parse(jsonStr);
+    if (!rawCandles || !rawCandles.length) {
+      document.getElementById('errBox').style.display = 'block';
       return;
     }
-    var ohlc  = candles.map(function(c){ return {time:c.time, open:c.open, high:c.high, low:c.low, close:c.close}; });
-    var close = candles.map(function(c){ return {time:c.time, value:c.close}; });
-    var vols  = candles.map(function(c){ return {time:c.time, value:c.volume, color:c.close>=c.open?'rgba(47,191,113,.25)':'rgba(255,92,92,.25)'}; });
-    candleSeries.setData(ohlc);
-    lineSeries.setData(close);
-    areaSeries.setData(close);
-    volSeries.setData(vols);
-    ema9Series.setData(computeEma(candles, 9));
-    ema21Series.setData(computeEma(candles, 21));
-    rsiSeries.setData(computeRsi(candles, 14));
-    mainChart.timeScale().fitContent();
-    rsiChart.timeScale().fitContent();
-    // Sync RSI scroll with main
-    mainChart.timeScale().subscribeVisibleLogicalRangeChange(function(r){ if(r) rsiChart.timeScale().setVisibleLogicalRange(r); });
+    applyData(rawCandles);
   } catch(e) {
-    document.getElementById('error').style.display = 'block';
-    document.getElementById('error').textContent   = 'Chart error: ' + e.message;
+    document.getElementById('errBox').style.display = 'block';
+    document.getElementById('errBox').textContent = 'Parse error: ' + e.message;
   }
 }
 
 function showLoading() {
   document.getElementById('loading').style.display = 'block';
-  document.getElementById('error').style.display   = 'none';
+  document.getElementById('errBox').style.display  = 'none';
 }
 
-// Live tick update (during market hours)
-function addTick(time, price) {
-  try {
-    if (activeType === 'candle') candleSeries.update({time:time, open:price, high:price, low:price, close:price});
-    lineSeries.update({time:time, value:price});
-    areaSeries.update({time:time, value:price});
-  } catch(e){}
+function applyData(candles) {
+  var ohlc  = candles.map(c=>({time:c.time,open:c.open,high:c.high,low:c.low,close:c.close}));
+  var close = candles.map(c=>({time:c.time,value:c.close}));
+  var vols  = candles.map(c=>({time:c.time,value:c.volume,color:c.close>=c.open?'rgba(47,191,113,.2)':'rgba(255,92,92,.2)'}));
+
+  candleSeries.setData(ohlc);
+  heikenSeries.setData(computeHeikenAshi(candles));
+  lineSeries.setData(close);
+  areaSeries.setData(close);
+  barSeries.setData(ohlc);
+  volSeries.setData(vols);
+  ema9Series.setData(computeEma(candles, 9));
+  ema21Series.setData(computeEma(candles, 21));
+  rsiSeries.setData(computeRsi(candles, 14));
+
+  chart.timeScale().fitContent();
+  rsiChart.timeScale().fitContent();
 }
 
-// Chart type switch (Candle/Line/Area)
-function setChartType(type) {
+// ── Chart type switch ─────────────────────────────────────────────
+function setType(type) {
   activeType = type;
-  candleSeries.applyOptions({visible: type==='candle'});
-  lineSeries.applyOptions({visible:   type==='line'});
-  areaSeries.applyOptions({visible:   type==='area'});
-  ema9Series.applyOptions({visible:   type==='candle'});
-  ema21Series.applyOptions({visible:  type==='candle'});
-  var btns = {candle:'btnCandle', line:'btnLine', area:'btnArea'};
-  Object.keys(btns).forEach(function(k){
-    var el = document.getElementById(btns[k]);
-    el.style.background = k===type ? '#6D5EF8' : 'rgba(255,255,255,.08)';
-    el.style.color      = k===type ? '#fff'    : '#6E7681';
+  var types = {candle:candleSeries, heiken:heikenSeries, line:lineSeries, area:areaSeries, bar:barSeries};
+  Object.entries(types).forEach(([k,s]) => s.applyOptions({ visible: k===type }));
+  var showEma = type==='candle'||type==='heiken';
+  ema9Series.applyOptions({visible:showEma});
+  ema21Series.applyOptions({visible:showEma});
+  document.querySelectorAll('.typBtn').forEach(function(b,i){
+    b.classList.toggle('active', ['candle','heiken','line','area','bar'][i]===type);
   });
 }
 
-// Crosshair info bar
-mainChart.subscribeCrosshairMove(function(param) {
-  if (!param.point || !param.time) return;
-  var d = param.seriesData.get(candleSeries);
-  if (!d) return;
-  var v = param.seriesData.get(volSeries);
-  var up = d.close >= d.open;
-  function fmt(n){ return n && n.toFixed ? n.toFixed(2) : '—'; }
-  document.getElementById('vO').textContent = fmt(d.open);
-  document.getElementById('vO').className = 'neu';
-  document.getElementById('vH').textContent = fmt(d.high);
-  document.getElementById('vH').className = 'up';
-  document.getElementById('vL').textContent = fmt(d.low);
-  document.getElementById('vL').className = 'down';
-  document.getElementById('vC').textContent = fmt(d.close);
-  document.getElementById('vC').className = up ? 'up' : 'down';
-  document.getElementById('vV').textContent = v ? (v.value/1e5).toFixed(1)+'L' : '—';
+// ── Live tick update (during market hours) ────────────────────────
+function addTick(time, price) {
+  try {
+    if(activeType==='candle')  candleSeries.update({time,open:price,high:price,low:price,close:price});
+    if(activeType==='heiken')  heikenSeries.update({time,open:price,high:price,low:price,close:price});
+    if(activeType==='line')    lineSeries.update({time,value:price});
+    if(activeType==='area')    areaSeries.update({time,value:price});
+    if(activeType==='bar')     barSeries.update({time,open:price,high:price,low:price,close:price});
+  } catch(e){}
+}
+
+// ── Crosshair move — shows Groww-style OHLCV + date/time overlay ──
+var ohlcBar   = document.getElementById('ohlcBar');
+var tooltip   = document.getElementById('tooltip');
+var rsiLabel  = document.getElementById('rsiLabel');
+
+chart.subscribeCrosshairMove(function(param) {
+  if (!param.point || !param.time || !param.point.x || !param.point.y) {
+    ohlcBar.classList.remove('visible');
+    tooltip.classList.remove('visible');
+    return;
+  }
+
+  // Get active series data
+  var activeSeries = {candle:candleSeries,heiken:heikenSeries,bar:barSeries}[activeType];
+  var d = activeSeries ? param.seriesData.get(activeSeries) : null;
+  if (!d && activeType === 'line')  d = param.seriesData.get(lineSeries);
+  if (!d && activeType === 'area')  d = param.seriesData.get(areaSeries);
+  if (!d) { ohlcBar.classList.remove('visible'); tooltip.classList.remove('visible'); return; }
+
+  ohlcBar.classList.add('visible');
+
+  var fmt = function(n){ return n && n.toFixed ? n.toFixed(2) : '—'; };
+  var open  = d.open  !== undefined ? d.open  : d.value;
+  var high  = d.high  !== undefined ? d.high  : d.value;
+  var low   = d.low   !== undefined ? d.low   : d.value;
+  var close = d.close !== undefined ? d.close : d.value;
+  var isUp  = close >= open;
+
+  document.getElementById('vO').textContent = fmt(open);
+  document.getElementById('vO').className   = 'v';
+  document.getElementById('vH').textContent = fmt(high);
+  document.getElementById('vH').className   = 'v up';
+  document.getElementById('vL').textContent = fmt(low);
+  document.getElementById('vL').className   = 'v dn';
+  document.getElementById('vC').textContent = fmt(close);
+  document.getElementById('vC').className   = 'v ' + (isUp ? 'up' : 'dn');
+
+  var vd = param.seriesData.get(volSeries);
+  document.getElementById('vV').textContent = vd ? fmtVol(vd.value) : '—';
+
+  // Format date/time
+  var dt = new Date(param.time * 1000);
+  var dateStr = dt.toLocaleString('en-IN', {
+    day:'numeric', month:'short', year:'numeric',
+    hour:'2-digit', minute:'2-digit', hour12:true
+  });
+  document.getElementById('ohlcDate').textContent = dateStr;
+
+  // Floating tooltip near crosshair
+  var chartRect = document.getElementById('chartWrap').getBoundingClientRect();
+  var x = param.point.x, y = param.point.y;
+  var ttWidth = 130;
+  var ttLeft  = x + 12;
+  if (ttLeft + ttWidth > window.innerWidth - 8) ttLeft = x - ttWidth - 12;
+  var ttTop   = Math.max(50, y - 28);
+
+  tooltip.textContent  = dateStr;
+  tooltip.style.left   = ttLeft + 'px';
+  tooltip.style.top    = ttTop  + 'px';
+  tooltip.classList.add('visible');
+
+  // RSI label update
   var rD = param.seriesData.get(rsiSeries);
-  if (rD) document.getElementById('rsiLabel').textContent = 'RSI(14) ' + rD.value.toFixed(1);
+  if (rD) rsiLabel.textContent = 'RSI(14) ' + rD.value.toFixed(1);
 });
 
-// Indicators
+// ── Indicators ────────────────────────────────────────────────────
 function computeEma(candles, period) {
   if (candles.length < period) return [];
-  var k   = 2 / (period + 1);
-  var res = [];
-  var ema = 0;
-  for (var i = 0; i < period; i++) ema += candles[i].close / period;
-  res.push({time: candles[period-1].time, value: parseFloat(ema.toFixed(2))});
-  for (var i = period; i < candles.length; i++) {
-    ema = candles[i].close * k + ema * (1-k);
-    res.push({time: candles[i].time, value: parseFloat(ema.toFixed(2))});
+  var k = 2/(period+1), ema = 0, res = [];
+  for (var i=0; i<period; i++) ema += candles[i].close/period;
+  res.push({time:candles[period-1].time, value:parseFloat(ema.toFixed(2))});
+  for (var i=period; i<candles.length; i++) {
+    ema = candles[i].close*k + ema*(1-k);
+    res.push({time:candles[i].time, value:parseFloat(ema.toFixed(2))});
   }
   return res;
 }
 
 function computeRsi(candles, period) {
   if (candles.length < period+1) return [];
-  var res = [], gains = 0, losses = 0;
-  for (var i = 1; i <= period; i++) {
+  var res=[], gains=0, losses=0;
+  for (var i=1; i<=period; i++) {
     var d = candles[i].close - candles[i-1].close;
-    if (d > 0) gains += d; else losses -= d;
+    if(d>0) gains+=d; else losses-=d;
   }
-  var avgG = gains/period, avgL = losses/period;
-  res.push({time: candles[period].time, value: parseFloat((avgL===0?100:100-(100/(1+avgG/avgL))).toFixed(2))});
-  for (var i = period+1; i < candles.length; i++) {
+  var avgG=gains/period, avgL=losses/period;
+  res.push({time:candles[period].time, value:parseFloat((avgL===0?100:100-(100/(1+avgG/avgL))).toFixed(2))});
+  for (var i=period+1; i<candles.length; i++) {
     var d = candles[i].close - candles[i-1].close;
-    avgG = (avgG*(period-1) + Math.max(d,0))  / period;
-    avgL = (avgL*(period-1) + Math.max(-d,0)) / period;
-    res.push({time: candles[i].time, value: parseFloat((avgL===0?100:100-(100/(1+avgG/avgL))).toFixed(2))});
+    avgG = (avgG*(period-1) + Math.max(d,0))/period;
+    avgL = (avgL*(period-1) + Math.max(-d,0))/period;
+    res.push({time:candles[i].time, value:parseFloat((avgL===0?100:100-(100/(1+avgG/avgL))).toFixed(2))});
   }
   return res;
 }
 
-// Resize
+function computeHeikenAshi(candles) {
+  return candles.reduce(function(acc, c, i) {
+    var haClose = (c.open+c.high+c.low+c.close)/4;
+    var haOpen  = i===0 ? (c.open+c.close)/2 : (acc[i-1].open+acc[i-1].close)/2;
+    var haHigh  = Math.max(c.high, haOpen, haClose);
+    var haLow   = Math.min(c.low,  haOpen, haClose);
+    acc.push({time:c.time, open:haOpen, high:haHigh, low:haLow, close:haClose});
+    return acc;
+  }, []);
+}
+
+function fmtVol(v) {
+  if (v >= 1e7) return (v/1e7).toFixed(1)+'Cr';
+  if (v >= 1e5) return (v/1e5).toFixed(1)+'L';
+  if (v >= 1e3) return (v/1e3).toFixed(1)+'K';
+  return v;
+}
+
+// ── Resize ────────────────────────────────────────────────────────
 function resizeAll() {
   var w = window.innerWidth, h = window.innerHeight;
-  mainChart.resize(w, h - 36 - 48);
-  rsiChart.resize(w, 48);
+  var volH = 44;
+  chart.resize(w, h - volH);
+  rsiChart.resize(w, volH);
 }
 window.addEventListener('resize', resizeAll);
 resizeAll();
