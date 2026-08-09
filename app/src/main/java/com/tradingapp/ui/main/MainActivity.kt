@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.lifecycleScope
 import com.tradingapp.R
@@ -45,13 +44,14 @@ class MainActivity : AppCompatActivity() {
     private var currentSegment = SEG_EQUITY
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        // FIX #10: Edge-to-edge display with dark status bar icons
-        WindowCompat.setDecorFitsSystemWindows(window, false)
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // FIX #10: Light-coloured icons on dark background
+        // FIX #10: real edge-to-edge — background extends behind system
+        // bars, but appHeader gets top-inset padding and bottomNav gets
+        // bottom-inset padding so nothing is ever hidden underneath.
+        applyEdgeToEdge(topView = binding.appHeader, bottomView = binding.bottomNav)
         WindowInsetsControllerCompat(window, binding.root).isAppearanceLightStatusBars = false
 
         setupBottomNav()
@@ -62,12 +62,10 @@ class MainActivity : AppCompatActivity() {
         switchSegment(SEG_EQUITY)
     }
 
-    // FIX #1 — wire the profile avatar circle to open ProfileActivity
     private fun setupProfileIcon() {
         binding.tvAvatar.setOnClickListener {
             startActivity(Intent(this, ProfileActivity::class.java))
         }
-        // Set user initials from SharedPreferences
         val prefs    = getSharedPreferences("tradingapp_prefs", Context.MODE_PRIVATE)
         val name     = prefs.getString("user_name", "") ?: ""
         val initials = name.split(" ").filter { it.isNotEmpty() }

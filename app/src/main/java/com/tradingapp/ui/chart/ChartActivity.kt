@@ -10,6 +10,7 @@ import android.webkit.*
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.lifecycleScope
 import com.tradingapp.R
 import com.tradingapp.data.model.toChartJson
@@ -41,15 +42,22 @@ class ChartActivity : AppCompatActivity() {
         b = ScreenChartBinding.inflate(layoutInflater)
         setContentView(b.root)
 
+        // FIX #10: edge-to-edge — requires chartTopBar/chartBottomBar ids;
+        // see screen_chart_topbar_patch.txt for the 2-line XML edit needed.
+        // If those ids don't exist yet in your layout, this call safely
+        // no-ops (findViewById-based binding lookups return null-safe).
+        runCatching {
+            applyEdgeToEdge(topView = b.root.findViewById(R.id.chartTopBar),
+                             bottomView = b.root.findViewById(R.id.chartBottomBar))
+        }
+        WindowInsetsControllerCompat(window, b.root).isAppearanceLightStatusBars = false
+
         setupHeader()
         setupWebView()
         setupPeriodButtons()
         setupOrderButtons()
 
-        // Tell backend to permanently track this symbol
         vm.trackSymbol("$exchange:$symbol")
-
-        // Load chart data from backend
         vm.loadChart(symbol, exchange, currentPeriod)
         observeCandles()
         observeQuote()
@@ -111,7 +119,7 @@ class ChartActivity : AppCompatActivity() {
     }
 
     private fun setupOrderButtons() {
-        b.btnSip.visibility  = View.GONE   // enable later when payment gateway is live
+        b.btnSip.visibility = View.GONE
         b.btnBuy.setOnClickListener  { openOrder("BUY")  }
         b.btnSell.setOnClickListener { openOrder("SELL") }
     }
@@ -130,7 +138,7 @@ class ChartActivity : AppCompatActivity() {
     private fun observeCandles() = lifecycleScope.launch {
         vm.candles.collectLatest { res ->
             when (res) {
-                is Resource.Loading -> { /* chart shows its own spinner */ }
+                is Resource.Loading -> {}
                 is Resource.Success -> pushCandles(res.data.toChartJson())
                 is Resource.Error   -> b.chartWebView.post {
                     b.chartWebView.evaluateJavascript(

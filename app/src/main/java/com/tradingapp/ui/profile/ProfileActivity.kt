@@ -4,10 +4,13 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.lifecycleScope
 import com.tradingapp.BuildConfig
+import com.tradingapp.R
 import com.tradingapp.databinding.ActivityProfileBinding
 import com.tradingapp.ui.auth.LoginActivity
+import com.tradingapp.util.applyEdgeToEdge
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 
@@ -22,19 +25,26 @@ class ProfileActivity : AppCompatActivity() {
         b = ActivityProfileBinding.inflate(layoutInflater)
         setContentView(b.root)
 
+        // FIX #10: edge-to-edge — the header row (back/bell/settings)
+        // needs an id to get top-inset padding. See patch note below
+        // if this doesn't take effect: activity_profile.xml's header
+        // LinearLayout needs android:id="@+id/profileHeader" added.
+        runCatching {
+            applyEdgeToEdge(topView = b.root.findViewById(R.id.profileHeader))
+        }
+        WindowInsetsControllerCompat(window, b.root).isAppearanceLightStatusBars = false
+
         b.ivBack.setOnClickListener { finish() }
         b.tvVersion.text = "v${BuildConfig.VERSION_NAME}"
 
-        // Row click handlers
-        b.rowOrders.setOnClickListener  { /* TODO: open orders screen */ }
-        b.rowReports.setOnClickListener { /* TODO: open reports */ }
-        b.rowAccount.setOnClickListener { /* TODO: account details */ }
-        b.rowRefer.setOnClickListener   { /* TODO: referral */ }
-        b.rowSupport.setOnClickListener { /* TODO: support */ }
-        b.tvAbout.setOnClickListener    { /* TODO: about */ }
-        b.tvCharges.setOnClickListener  { /* TODO: charges */ }
-
-        b.btnAddMoney.setOnClickListener { /* Wallet flow — gateway not live yet */ }
+        b.rowOrders.setOnClickListener  {}
+        b.rowReports.setOnClickListener {}
+        b.rowAccount.setOnClickListener {}
+        b.rowRefer.setOnClickListener   {}
+        b.rowSupport.setOnClickListener {}
+        b.tvAbout.setOnClickListener    {}
+        b.tvCharges.setOnClickListener  {}
+        b.btnAddMoney.setOnClickListener {}
 
         b.rowLogout.setOnClickListener {
             vm.logout {

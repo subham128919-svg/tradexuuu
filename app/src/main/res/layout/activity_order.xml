@@ -3,11 +3,12 @@
     android:layout_width="match_parent" android:layout_height="match_parent"
     android:orientation="vertical" android:background="@color/bg_surface">
 
-    <!-- Header: Stock name + prices -->
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+    <!-- Header: Stock name + prices — id added for edge-to-edge inset padding -->
+    <LinearLayout android:id="@+id/orderHeader"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
         android:orientation="horizontal" android:gravity="center_vertical"
         android:paddingStart="16dp" android:paddingEnd="16dp"
-        android:paddingTop="22dp" android:paddingBottom="14dp"
+        android:paddingTop="16dp" android:paddingBottom="14dp"
         android:background="@color/bg_item">
 
         <ImageView android:id="@+id/ivClose"
@@ -22,7 +23,7 @@
                 android:textColor="@color/t100"/>
             <TextView android:id="@+id/tvPriceInfo"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="NSE ₹2948.55" android:textSize="12sp" android:textColor="@color/t100"/>
+                android:text="NSE ₹0.00" android:textSize="12sp" android:textColor="@color/t100"/>
         </LinearLayout>
         <TextView android:id="@+id/tvDepth"
             android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -82,7 +83,7 @@
     </LinearLayout>
     <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/div07"/>
 
-    <!-- Price row -->
+    <!-- Price row — tvPriceTypeChip now toggles Market/Limit -->
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
         android:orientation="vertical"
         android:paddingStart="16dp" android:paddingEnd="16dp"
@@ -112,14 +113,12 @@
     </LinearLayout>
     <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/div07"/>
 
-    <!-- Info text -->
     <TextView android:id="@+id/tvOrderInfo"
         android:layout_width="match_parent" android:layout_height="wrap_content"
         android:text="Order will be executed at market price"
         android:textSize="12sp" android:textColor="@color/t700"
         android:gravity="center" android:padding="16dp"/>
 
-    <!-- Balance / Required -->
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
         android:orientation="horizontal" android:paddingStart="16dp" android:paddingEnd="16dp"
         android:paddingBottom="14dp">
@@ -132,7 +131,6 @@
             android:text="Required: ₹0" android:textSize="13sp" android:textColor="@color/t600"/>
     </LinearLayout>
 
-    <!-- Buy/Sell button -->
     <Button android:id="@+id/btnOrder"
         android:layout_width="match_parent" android:layout_height="52dp"
         android:text="Buy" android:textSize="15sp" android:textStyle="bold"
@@ -140,18 +138,10 @@
         android:stateListAnimator="@null"
         android:layout_marginStart="16dp" android:layout_marginEnd="16dp" android:layout_marginBottom="12dp"/>
 
-    <!-- Custom numpad -->
-    <GridLayout
-        android:id="@+id/numpad"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:background="@color/t100"
-        android:columnCount="3"
-        android:padding="4dp"
-        android:rowCount="4">
-
-        <!-- Populated programmatically in OrderActivity.kt -->
-    </GridLayout>
+    <!-- Numpad — id added for edge-to-edge bottom inset padding -->
+    <GridLayout android:id="@+id/numpad"
+        android:layout_width="match_parent" android:layout_height="0dp"
+        android:layout_weight="1" android:rowCount="4" android:columnCount="3"
+        android:padding="4dp" android:background="@color/bg_item"/>
 
 </LinearLayout>
