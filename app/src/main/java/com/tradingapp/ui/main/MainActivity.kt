@@ -1,10 +1,13 @@
 package com.tradingapp.ui.main
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.lifecycleScope
 import com.tradingapp.R
 import com.tradingapp.data.model.Quote
@@ -14,6 +17,7 @@ import com.tradingapp.ui.explore.FnoExploreFragment
 import com.tradingapp.ui.holdings.HoldingsFragment
 import com.tradingapp.ui.orders.OrdersFragment
 import com.tradingapp.ui.positions.PositionsFragment
+import com.tradingapp.ui.profile.ProfileActivity
 import com.tradingapp.ui.search.SearchActivity
 import com.tradingapp.ui.watchlist.WatchlistFragment
 import com.tradingapp.util.*
@@ -29,7 +33,7 @@ class MainActivity : AppCompatActivity() {
     private val TABS = mapOf(
         SEG_EQUITY to listOf(TAB_EXPLORE, TAB_HOLDINGS, TAB_POSITIONS, TAB_ORDERS, TAB_WATCHLIST),
         SEG_FNO    to listOf(TAB_EXPLORE, TAB_POSITIONS, TAB_HOLDINGS, TAB_ORDERS, TAB_WATCHLIST),
-        SEG_MF     to listOf(TAB_EXPLORE, TAB_HOLDINGS, TAB_ORDERS, TAB_SIPS)
+        SEG_MF     to listOf(TAB_EXPLORE, TAB_HOLDINGS, TAB_ORDERS)
     )
     private val SEG_META = mapOf(
         SEG_EQUITY to Pair("Stocks",       "Equity · NSE / BSE"),
@@ -41,14 +45,40 @@ class MainActivity : AppCompatActivity() {
     private var currentSegment = SEG_EQUITY
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // FIX #10: Edge-to-edge display with dark status bar icons
+        WindowCompat.setDecorFitsSystemWindows(window, false)
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // FIX #10: Light-coloured icons on dark background
+        WindowInsetsControllerCompat(window, binding.root).isAppearanceLightStatusBars = false
+
         setupBottomNav()
-        binding.ivSearch.setOnClickListener { startActivity(Intent(this, SearchActivity::class.java)) }
+        setupSearch()
+        setupProfileIcon()
         observeSegment()
         observeIndices()
         switchSegment(SEG_EQUITY)
+    }
+
+    // FIX #1 — wire the profile avatar circle to open ProfileActivity
+    private fun setupProfileIcon() {
+        binding.tvAvatar.setOnClickListener {
+            startActivity(Intent(this, ProfileActivity::class.java))
+        }
+        // Set user initials from SharedPreferences
+        val prefs    = getSharedPreferences("tradingapp_prefs", Context.MODE_PRIVATE)
+        val name     = prefs.getString("user_name", "") ?: ""
+        val initials = name.split(" ").filter { it.isNotEmpty() }
+            .take(2).joinToString("") { it.first().uppercase() }.ifEmpty { "RJ" }
+        binding.tvAvatar.text = initials
+    }
+
+    private fun setupSearch() {
+        binding.ivSearch.setOnClickListener {
+            startActivity(Intent(this, SearchActivity::class.java))
+        }
     }
 
     private fun observeSegment() = lifecycleScope.launchWhenStarted {
