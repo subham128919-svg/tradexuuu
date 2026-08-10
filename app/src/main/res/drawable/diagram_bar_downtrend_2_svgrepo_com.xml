@@ -1,7 +1,17 @@
-<vector xmlns:android="http://schemas.android.com/apk/res/android" android:height="25dp" android:viewportHeight="24" android:viewportWidth="24" android:width="25dp">
-      
-    <path android:fillColor="#2CA9BC" android:pathData="M17,16a1,1 0,0 1,-1 -1L16,11a1,1 0,0 1,2 0v4A1,1 0,0 1,17 16ZM13,16a1,1 0,0 1,-1 -1L12,9a1,1 0,0 1,2 0v6A1,1 0,0 1,13 16ZM9,16a1,1 0,0 1,-1 -1L8,7a1,1 0,0 1,2 0v8A1,1 0,0 1,9 16Z"/>
-      
-    <path android:fillColor="#000000" android:pathData="M5,22a1,1 0,0 1,-1 -1V20H3a1,1 0,0 1,0 -2H4V3A1,1 0,0 1,6 3V18H21a1,1 0,0 1,0 2H6v1A1,1 0,0 1,5 22Z"/>
-    
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="20dp"
+    android:height="17dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#7A8492"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M3,4 L3,20 L21,20" />
+    <path
+        android:fillColor="#7A8492"
+        android:pathData="M6,17 L6,20 L9,20 L9,17 Z M11,13 L11,20 L14,20 L14,13 Z M16,9 L16,20 L19,20 L19,9 Z" />
 </vector>

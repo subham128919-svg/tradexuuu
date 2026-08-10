@@ -15,7 +15,7 @@
             android:id="@+id/logoBox"
             android:layout_width="278dp"
             android:layout_height="274dp"
-            android:background="@drawable/chatgpt_image_aug_7__2026__12_02_26_am_modified"
+            android:background="@drawable/appicon__2__removebg_preview"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">

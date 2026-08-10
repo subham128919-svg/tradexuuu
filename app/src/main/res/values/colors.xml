@@ -25,11 +25,11 @@
     <color name="t600">#8A93A0</color>
     <color name="t700">#7C848F</color>
     <color name="t800">#6E7681</color>
-    <color name="t_avatar">#B9A6FF</color>
     <color name="t_tool">#9AA3AF</color>
     <!-- ── Dividers (white+alpha) ── -->
     <color name="div06">#0FFFFFFF</color>
     <color name="div07">#12FFFFFF</color>
+    <color name="t_avatar">#FFFFFF</color>
     <color name="div09">#17FFFFFF</color>
     <color name="div12">#1FFFFFFF</color>
     <color name="div14">#24FFFFFF</color>

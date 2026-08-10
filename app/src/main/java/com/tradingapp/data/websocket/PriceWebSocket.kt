@@ -20,6 +20,7 @@ import okhttp3.Request
 import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -70,6 +71,22 @@ class PriceWebSocket @Inject constructor(
     private val gson = Gson()
     private var socket: WebSocket? = null
 
+    // FIX: the injected okHttpClient is shared with Retrofit and has
+    // readTimeout(15s) — OkHttp applies that same readTimeout to
+    // WebSocket connections (this is a well-known OkHttp gotcha, see
+    // square/okhttp#1930). Since it's shorter than pingInterval(20s),
+    // any 15s gap with no incoming frame (a closed-market lull, a slow
+    // tick cycle, backgrounding) throws SocketTimeoutException and
+    // kills the socket *before* the next scheduled ping/pong can save
+    // it — the socket then reconnects, drops again ~15s later, and
+    // repeats. That reconnect loop is what "live data isn't updating"
+    // looks like from the outside. A dedicated client with readTimeout
+    // disabled makes the ping/pong + our own heartbeat the only things
+    // that decide liveness, which is what they're there for.
+    private val wsClient: OkHttpClient = okHttpClient.newBuilder()
+        .readTimeout(0, TimeUnit.MILLISECONDS)
+        .build()
+
     // Symbols the app wants live data for. Persists across reconnects —
     // this is the whole point: the caller shouldn't have to re-subscribe
     // after a network blip, the socket layer handles that transparently.
@@ -99,7 +116,7 @@ class PriceWebSocket @Inject constructor(
             if (reconnectAttempt > 0) ConnectionState.Reconnecting(reconnectAttempt)
             else ConnectionState.Connecting
         val request = Request.Builder().url(BuildConfig.WS_URL).build()
-        socket = okHttpClient.newWebSocket(request, listener)
+        socket = wsClient.newWebSocket(request, listener)
     }
 
     private val listener = object : WebSocketListener() {
@@ -153,7 +170,13 @@ class PriceWebSocket @Inject constructor(
             change    = num("change"),
             changePct = num("changePct"),
             volume    = num("volume").toLong(),
-            ts        = (map["ts"] as? Double)?.toLong() ?: System.currentTimeMillis()
+            // Backend (priceStream.js / marketDataService.js) sends this
+            // field as "updatedAt", not "ts" — this was always missing,
+            // silently falling back to local receipt time every tick.
+            // Harmless in practice (receipt time is a fine proxy) but not
+            // what was intended; "ts" kept as a fallback for safety.
+            ts        = ((map["updatedAt"] ?: map["ts"]) as? Double)?.toLong()
+                            ?: System.currentTimeMillis()
         )
     }
 
