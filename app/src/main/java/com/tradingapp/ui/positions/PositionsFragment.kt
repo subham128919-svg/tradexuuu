@@ -74,7 +74,8 @@ class PositionsFragment : Fragment() {
                     val pnl  = (ltp - p.avgPrice) * p.qty
                     val pnlP = if (p.invested > 0) pnl / p.invested * 100 else 0.0
                     p.copy(ltp = ltp, currentValue = ltp * p.qty,
-                           pnl = pnl, pnlPct = pnlP, isProfit = pnl >= 0)
+                           pnl = pnl, pnlPct = pnlP, isProfit = pnl >= 0,
+                           priceAvailable = true) // a live tick is always a real price
                 }
                 if (updated != currentPositions) {
                     currentPositions = updated

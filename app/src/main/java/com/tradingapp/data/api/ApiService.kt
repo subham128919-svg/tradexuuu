@@ -25,7 +25,13 @@ data class FundamentalsResponse(val data: Fundamentals?)
 data class AppPosition(val symbol: String, val exchange: String, val name: String,
                        val qty: Int, val avgPrice: Double, val ltp: Double,
                        val currentValue: Double, val invested: Double,
-                       val pnl: Double, val pnlPct: Double, val isProfit: Boolean)
+                       val pnl: Double, val pnlPct: Double, val isProfit: Boolean,
+                       // FIX (P&L bug): backend now reports this explicitly.
+                       // false means "we don't have a real price for this
+                       // symbol yet" — pnl/pnlPct are held at 0 in that case,
+                       // not a fabricated -100%. Defaults true so any other
+                       // existing caller of this data class keeps compiling.
+                       val priceAvailable: Boolean = true)
 data class AppPositionsResponse(val data: List<AppPosition>, val totalValue: Double,
                                 val totalInvested: Double, val totalPnl: Double, val totalPnlPct: Double)
 data class AppOrderResponse(val success: Boolean, val message: String)
