@@ -11,7 +11,7 @@
         android:gravity="center"
         android:text="TP" android:textSize="12sp" android:textStyle="bold"
         android:textColor="@color/t400"
-        android:background="@drawable/bg_card_logo"
+        android:background="@android:color/transparent"
         android:layout_marginBottom="12dp" />
 
     <TextView android:id="@+id/tvName"

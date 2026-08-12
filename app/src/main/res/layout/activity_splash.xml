@@ -8,15 +8,15 @@
 
     <FrameLayout
         android:id="@+id/logoContainer"
-        android:layout_width="339dp"
-        android:layout_height="320dp"
-        android:background="@drawable/chatgpt_image_aug_7__2026__12_02_26_am_modified"
+        android:layout_width="342dp"
+        android:layout_height="347dp"
+        android:background="@drawable/app_logo"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintHorizontal_bias="0.492"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.499">
+        app:layout_constraintVertical_bias="0.428">
 
         <View
             android:layout_width="26dp"

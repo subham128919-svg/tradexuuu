@@ -2,7 +2,10 @@ package com.tradingapp.ui.main
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Typeface
 import android.os.Bundle
+import android.view.View
+import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -63,7 +66,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupProfileIcon() {
-        binding.tvAvatar.setOnClickListener {
+        binding.avatarWrap.setOnClickListener {
             startActivity(Intent(this, ProfileActivity::class.java))
         }
         val prefs    = getSharedPreferences("tradingapp_prefs", Context.MODE_PRIVATE)
@@ -71,6 +74,10 @@ class MainActivity : AppCompatActivity() {
         val initials = name.split(" ").filter { it.isNotEmpty() }
             .take(2).joinToString("") { it.first().uppercase() }.ifEmpty { "RJ" }
         binding.tvAvatar.text = initials
+
+        // NEW — green dot shows whenever the user has a valid session/token.
+        val hasSession = !prefs.getString("jwt_token", null).isNullOrEmpty()
+        binding.dotOnline.visibility = if (hasSession) View.VISIBLE else View.GONE
     }
 
     private fun setupSearch() {
@@ -87,6 +94,7 @@ class MainActivity : AppCompatActivity() {
             binding.tvSegSub.text   = meta.second
             buildTabStrip(seg)
             switchTab(TABS[seg]!!.first())
+            updateBottomNavHighlight(seg)
         }
     }
 
@@ -118,7 +126,7 @@ class MainActivity : AppCompatActivity() {
             val tv = TextView(this).apply {
                 text = tab; setPadding(40, 52, 40, 44); textSize = 13.5f
                 setTextColor(if (tab == currentTab) 0xFFF2F4F7.toInt() else 0xFF7C848F.toInt())
-                setTypeface(typeface, if (tab == currentTab) android.graphics.Typeface.BOLD else android.graphics.Typeface.NORMAL)
+                setTypeface(typeface, if (tab == currentTab) Typeface.BOLD else Typeface.NORMAL)
                 setOnClickListener { switchTab(tab) }
                 tag = tab
             }
@@ -148,7 +156,7 @@ class MainActivity : AppCompatActivity() {
             val tv = binding.llTabs.getChildAt(i) as? TextView ?: continue
             val a = tv.tag == currentTab
             tv.setTextColor(if (a) 0xFFF2F4F7.toInt() else 0xFF7C848F.toInt())
-            tv.setTypeface(tv.typeface, if (a) android.graphics.Typeface.BOLD else android.graphics.Typeface.NORMAL)
+            tv.setTypeface(tv.typeface, if (a) Typeface.BOLD else Typeface.NORMAL)
         }
     }
 
@@ -156,6 +164,22 @@ class MainActivity : AppCompatActivity() {
         binding.navStocks.setOnClickListener { viewModel.setSegment(SEG_EQUITY) }
         binding.navFno.setOnClickListener    { viewModel.setSegment(SEG_FNO) }
         binding.navFunds.setOnClickListener  { viewModel.setSegment(SEG_MF) }
+    }
+
+    // NEW — actually highlights whichever bottom-nav segment is selected.
+    // Previously the active/inactive look was hardcoded in XML and never
+    // changed when the user tapped between Stocks / F&O / Funds.
+    private fun updateBottomNavHighlight(segment: String) {
+        setNavItemActive(binding.navIconBgStocks, binding.tvNavStocks, segment == SEG_EQUITY)
+        setNavItemActive(binding.navIconBgFno,    binding.tvNavFno,    segment == SEG_FNO)
+        setNavItemActive(binding.navIconBgFunds,  binding.tvNavFunds,  segment == SEG_MF)
+    }
+
+    private fun setNavItemActive(iconBg: FrameLayout, label: TextView, active: Boolean) {
+        iconBg.setBackgroundResource(if (active) R.drawable.bg_nav_on else android.R.color.transparent)
+        iconBg.alpha = if (active) 1f else 0.7f
+        label.setTextColor(if (active) 0xFFF2F4F7.toInt() else 0xFF7C848F.toInt())
+        label.setTypeface(label.typeface, if (active) Typeface.BOLD else Typeface.NORMAL)
     }
 
     private fun switchSegment(seg: String) = viewModel.setSegment(seg)

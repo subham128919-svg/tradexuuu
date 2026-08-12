@@ -110,7 +110,7 @@
                 android:id="@+id/tvPillTrending"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/bg_pill_selected"
+                android:background="@drawable/bg_row"
                 android:paddingStart="20dp"
                 android:paddingEnd="20dp"
                 android:paddingTop="10dp"
