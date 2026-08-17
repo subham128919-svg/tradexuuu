@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent" android:layout_height="match_parent"
-    android:background="@color/bg_app" android:fillViewport="true">
+    android:background="#FFFFFF" android:fillViewport="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent" android:layout_height="wrap_content"
@@ -30,48 +30,79 @@
         <TextView android:id="@+id/tvTitle"
             android:layout_width="wrap_content" android:layout_height="wrap_content"
             android:text="Welcome back" android:textSize="26sp" android:textStyle="bold"
-            android:textColor="@color/t100" android:layout_marginTop="24dp"
+            android:textColor="@color/black" android:layout_marginTop="24dp"
             app:layout_constraintTop_toBottomOf="@id/logoBox"
             app:layout_constraintStart_toStartOf="parent"/>
 
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
             android:text="Sign in to continue"
-            android:textSize="14sp" android:textColor="@color/t700" android:layout_marginTop="4dp"
+            android:textSize="14sp" android:textColor="@color/black" android:layout_marginTop="4dp"
             app:layout_constraintTop_toBottomOf="@id/tvTitle"
             app:layout_constraintStart_toStartOf="parent"
             android:id="@+id/tvSub"/>
 
         <!-- Email -->
-        <TextView android:id="@+id/labelEmail"
-            android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:text="Email address" android:textSize="12sp" android:textColor="@color/t700"
-            android:layout_marginTop="36dp"
-            app:layout_constraintTop_toBottomOf="@id/tvSub" app:layout_constraintStart_toStartOf="parent"/>
 
-        <com.google.android.material.textfield.TextInputEditText android:id="@+id/etEmail"
-            android:layout_width="match_parent" android:layout_height="52dp"
-            android:hint="you@email.com" android:textColorHint="@color/t700"
-            android:textColor="@color/t100" android:textSize="15sp"
-            android:inputType="textEmailAddress" android:background="@drawable/bg_card"
-            android:paddingStart="16dp" android:paddingEnd="16dp" android:layout_marginTop="6dp"
-            app:layout_constraintTop_toBottomOf="@id/labelEmail"
-            app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"/>
+        <TextView
+            android:id="@+id/labelEmail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="36dp"
+            android:text="Email address"
+            android:textColor="@color/black"
+            android:textSize="12sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.09"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvSub" />
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etEmail"
+            android:layout_width="360dp"
+            android:layout_height="53dp"
+            android:layout_marginTop="6dp"
+            android:background="@drawable/bg_card"
+            android:hint=""
+            android:inputType=""
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:textColor="@color/t100"
+            android:textColorHint="@color/black"
+            android:textSize="15sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/labelEmail" />
 
         <!-- Password -->
-        <TextView android:id="@+id/labelPwd"
-            android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:text="Password" android:textSize="12sp" android:textColor="@color/t700"
-            android:layout_marginTop="16dp"
-            app:layout_constraintTop_toBottomOf="@id/etEmail" app:layout_constraintStart_toStartOf="parent"/>
 
-        <com.google.android.material.textfield.TextInputEditText android:id="@+id/etPassword"
-            android:layout_width="match_parent" android:layout_height="52dp"
-            android:hint="••••••••" android:textColorHint="@color/t700"
-            android:textColor="@color/t100" android:textSize="15sp"
-            android:inputType="textPassword" android:background="@drawable/bg_card"
-            android:paddingStart="16dp" android:paddingEnd="16dp" android:layout_marginTop="6dp"
-            app:layout_constraintTop_toBottomOf="@id/labelPwd"
-            app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"/>
+        <TextView
+            android:id="@+id/labelPwd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="20dp"
+            android:text="Password"
+            android:textColor="@color/black"
+            android:textSize="12sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/etEmail" />
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etPassword"
+            android:layout_width="360dp"
+            android:layout_height="56dp"
+            android:layout_marginTop="6dp"
+            android:background="@drawable/bg_card"
+            android:hint="••••••••"
+            android:inputType="textPassword"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:textColor="@color/t100"
+            android:textColorHint="@color/black"
+            android:textSize="15sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/labelPwd" />
 
         <!-- Error -->
         <TextView android:id="@+id/tvError"
@@ -83,7 +114,7 @@
 
         <!-- Login button -->
         <Button android:id="@+id/btnLogin"
-            android:layout_width="match_parent" android:layout_height="52dp"
+            android:layout_width="300dp" android:layout_height="52dp"
             android:text="Sign In" android:textSize="15sp" android:textStyle="bold"
             android:textColor="#FFFFFF" android:backgroundTint="@color/accent"
             android:stateListAnimator="@null" android:layout_marginTop="24dp"

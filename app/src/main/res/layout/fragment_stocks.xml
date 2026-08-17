@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#090D12"
+    android:background="@color/white"
     android:scrollbars="none"
     android:clipToPadding="false">
 
@@ -30,7 +30,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Top Gainers"
-                android:textColor="#F5F7FA"
+                android:textColor="@color/black"
                 android:textSize="17sp"
                 android:textStyle="bold" />
 
@@ -71,7 +71,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Top Losers"
-                android:textColor="#F5F7FA"
+                android:textColor="@color/black"
                 android:textSize="17sp"
                 android:textStyle="bold" />
 
@@ -116,7 +116,7 @@
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
                 android:text="Trending"
-                android:textColor="#FFFFFF"
+                android:textColor="@color/white"
                 android:textSize="13sp"
                 android:textStyle="bold" />
 
@@ -131,7 +131,7 @@
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
                 android:text="Gainers"
-                android:textColor="#C7CDD6"
+                android:textColor="@color/black"
                 android:textSize="13sp" />
 
             <TextView
@@ -145,7 +145,7 @@
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
                 android:text="Losers"
-                android:textColor="#C7CDD6"
+                android:textColor="@color/black"
                 android:textSize="13sp" />
         </LinearLayout>
 

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- ── Backgrounds ── -->
-    <color name="bg_app">#07080A</color>
-    <color name="bg_surface">#0B0D10</color>
-    <color name="bg_card">#12151A</color>
+    <color name="bg_app">#FFFFFF</color>
+    <color name="bg_surface">#FFFFFF</color>
+    <color name="bg_card">#FFFFFF</color>
     <color name="bg_item">#14171C</color>
     <color name="bg_icon">#1D2129</color>
     <color name="bg_logo">#20242C</color>
@@ -17,14 +17,14 @@
     <color name="negative">#FF5C5C</color>
     <color name="negative_subtle">#21FF5C5C</color>
     <!-- ── Text (bright → faint) ── -->
-    <color name="t100">#F2F4F7</color>
+    <color name="t100">#FFFFFF</color>
     <color name="t200">#E8EBF0</color>
     <color name="t300">#DCE0E7</color>
     <color name="t400">#C6CBD4</color>
     <color name="t500">#B4BAC4</color>
     <color name="t600">#8A93A0</color>
     <color name="t700">#7C848F</color>
-    <color name="t800">#6E7681</color>
+    <color name="t800">#000000</color>
     <color name="t_tool">#9AA3AF</color>
     <!-- ── Dividers (white+alpha) ── -->
     <color name="div06">#0FFFFFFF</color>
@@ -42,5 +42,8 @@
     <color name="chip_off_bg">#14171C</color>
     <color name="chip_off_text">#9AA3AF</color>
     <color name="chip_off_border">#14FFFFFF</color>
-    <color name="chip_on_text">#0B0D10</color>
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
+    <color name="chip_on_text">#FFFFFF</color>
+
 </resources>

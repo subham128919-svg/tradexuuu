@@ -37,7 +37,7 @@
                 android:layout_weight="1"
                 android:text="RELIANCE"
                 android:textSize="17sp" android:textStyle="bold"
-                android:textColor="@color/t100"/>
+                android:textColor="@color/black"/>
 
             <TextView android:id="@+id/tvType"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -62,7 +62,7 @@
             android:layout_width="match_parent" android:layout_height="56dp"
             android:hint="1"
             android:inputType="number"
-            android:textSize="15sp" android:textColor="@color/t100"
+            android:textSize="15sp" android:textColor="@color/white"
             android:paddingStart="16dp" android:paddingEnd="16dp"
             android:background="@drawable/bg_card"
             app:layout_constraintTop_toBottomOf="@id/labelQty"/>
@@ -80,7 +80,7 @@
             android:layout_width="match_parent" android:layout_height="56dp"
             android:hint="Market price"
             android:inputType="numberDecimal"
-            android:textSize="15sp" android:textColor="@color/t100"
+            android:textSize="15sp" android:textColor="@color/white"
             android:paddingStart="16dp" android:paddingEnd="16dp"
             android:background="@drawable/bg_card"
             app:layout_constraintTop_toBottomOf="@id/labelPrice"/>
@@ -99,14 +99,14 @@
             app:layout_constraintTop_toBottomOf="@id/labelProduct">
 
             <RadioButton android:id="@+id/rbMis" android:layout_width="0dp" android:layout_height="wrap_content"
-                android:layout_weight="1" android:text="MIS" android:textColor="@color/t200"
-                android:textSize="13sp" android:buttonTint="@color/accent" android:checked="true"/>
+                android:layout_weight="1" android:text="MIS" android:textColor="@color/black"
+                android:textSize="13sp" android:buttonTint="@color/black" android:checked="true"/>
             <RadioButton android:id="@+id/rbCnc" android:layout_width="0dp" android:layout_height="wrap_content"
-                android:layout_weight="1" android:text="CNC" android:textColor="@color/t200"
+                android:layout_weight="1" android:text="CNC" android:textColor="@color/black"
                 android:textSize="13sp" android:buttonTint="@color/accent"/>
             <RadioButton android:id="@+id/rbNrml" android:layout_width="0dp" android:layout_height="wrap_content"
-                android:layout_weight="1" android:text="NRML" android:textColor="@color/t200"
-                android:textSize="13sp" android:buttonTint="@color/accent"/>
+                android:layout_weight="1" android:text="NRML" android:textColor="@color/black"
+                android:textSize="13sp" android:buttonTint="@color/black"/>
         </RadioGroup>
 
         <!-- Order type -->
@@ -123,14 +123,14 @@
             app:layout_constraintTop_toBottomOf="@id/labelOrderType">
 
             <RadioButton android:id="@+id/rbMarket" android:layout_width="0dp" android:layout_height="wrap_content"
-                android:layout_weight="1" android:text="Market" android:textColor="@color/t200"
-                android:textSize="13sp" android:buttonTint="@color/accent" android:checked="true"/>
+                android:layout_weight="1" android:text="Market" android:textColor="@color/black"
+                android:textSize="13sp" android:buttonTint="@color/black" android:checked="true"/>
             <RadioButton android:id="@+id/rbLimit" android:layout_width="0dp" android:layout_height="wrap_content"
-                android:layout_weight="1" android:text="Limit" android:textColor="@color/t200"
-                android:textSize="13sp" android:buttonTint="@color/accent"/>
+                android:layout_weight="1" android:text="Limit" android:textColor="@color/black"
+                android:textSize="13sp" android:buttonTint="@color/black"/>
             <RadioButton android:id="@+id/rbSl" android:layout_width="0dp" android:layout_height="wrap_content"
-                android:layout_weight="1" android:text="SL" android:textColor="@color/t200"
-                android:textSize="13sp" android:buttonTint="@color/accent"/>
+                android:layout_weight="1" android:text="SL" android:textColor="@color/black"
+                android:textSize="13sp" android:buttonTint="@color/black"/>
         </RadioGroup>
 
         <!-- Place order button -->

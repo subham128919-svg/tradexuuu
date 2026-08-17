@@ -93,16 +93,16 @@
                                 android:layout_marginStart="7dp" android:letterSpacing="0.06" />
                         </LinearLayout>
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="One-time ₹25,000 · placed 09:12" android:textSize="10.5sp" android:textColor="@color/t800"
+                            android:text="One-time ₹25,000 · placed 09:12" android:textSize="10.5sp" android:textColor="@color/white"
                             android:fontFamily="@font/jetbrains_mono" android:layout_marginTop="3dp" />
                     </LinearLayout>
                     <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:orientation="vertical" android:gravity="end">
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="Pending" android:textSize="13sp" android:textColor="@color/t200"
+                            android:text="Pending" android:textSize="13sp" android:textColor="@color/white"
                             android:fontFamily="@font/jetbrains_mono" android:gravity="end" />
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="Awaiting NAV" android:textSize="10.5sp" android:textColor="@color/t600"
+                            android:text="Awaiting NAV" android:textSize="10.5sp" android:textColor="@color/white"
                             android:fontFamily="@font/jetbrains_mono" android:layout_marginTop="3dp" android:gravity="end" />
                     </LinearLayout>
                 </LinearLayout>
@@ -132,7 +132,7 @@
                                 android:layout_marginStart="7dp" android:letterSpacing="0.06" />
                         </LinearLayout>
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="SIP ₹10,000 · debit 5 Aug" android:textSize="10.5sp" android:textColor="@color/t800"
+                            android:text="SIP ₹10,000 · debit 5 Aug" android:textSize="10.5sp" android:textColor="@color/white"
                             android:fontFamily="@font/jetbrains_mono" android:layout_marginTop="3dp" />
                     </LinearLayout>
                     <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -141,7 +141,7 @@
                             android:text="Scheduled" android:textSize="13sp" android:textColor="@color/t200"
                             android:fontFamily="@font/jetbrains_mono" android:gravity="end" />
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="Next 5 Aug" android:textSize="10.5sp" android:textColor="@color/t600"
+                            android:text="Next 5 Aug" android:textSize="10.5sp" android:textColor="@color/white"
                             android:fontFamily="@font/jetbrains_mono" android:layout_marginTop="3dp" android:gravity="end" />
                     </LinearLayout>
                 </LinearLayout>

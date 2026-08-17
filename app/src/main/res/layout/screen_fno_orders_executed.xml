@@ -30,7 +30,7 @@
                     android:paddingTop="7dp" android:paddingBottom="7dp"
                     android:layout_marginEnd="8dp" />
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="Executed" android:textSize="12sp" android:textColor="@color/chip_on_text"
+                    android:text="Executed" android:textSize="12sp" android:textColor="@color/white"
                     android:background="@drawable/bg_chip_on"
                     android:paddingStart="13dp" android:paddingEnd="13dp"
                     android:paddingTop="7dp" android:paddingBottom="7dp"

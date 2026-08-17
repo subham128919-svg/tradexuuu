@@ -27,6 +27,6 @@
 
     <TextView android:id="@+id/tvLabel"
         android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:text="MTF" android:textSize="11sp" android:textColor="@color/t_tool"
+        android:text="MTF" android:textSize="11sp" android:textColor="@color/black"
         android:gravity="center" android:layout_marginTop="7dp" />
 </LinearLayout>

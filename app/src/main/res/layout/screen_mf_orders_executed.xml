@@ -30,7 +30,7 @@
                     android:paddingTop="7dp" android:paddingBottom="7dp"
                     android:layout_marginEnd="8dp" />
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="Executed" android:textSize="12sp" android:textColor="@color/chip_on_text"
+                    android:text="Executed" android:textSize="12sp" android:textColor="@color/white"
                     android:background="@drawable/bg_chip_on"
                     android:paddingStart="13dp" android:paddingEnd="13dp"
                     android:paddingTop="7dp" android:paddingBottom="7dp"
@@ -93,7 +93,7 @@
                                 android:layout_marginStart="7dp" android:letterSpacing="0.06" />
                         </LinearLayout>
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="NAV ₹492.60 · 31 Jul" android:textSize="10.5sp" android:textColor="@color/t800"
+                            android:text="NAV ₹492.60 · 31 Jul" android:textSize="10.5sp" android:textColor="@color/white"
                             android:fontFamily="@font/jetbrains_mono" android:layout_marginTop="3dp" />
                     </LinearLayout>
                     <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -132,7 +132,7 @@
                                 android:layout_marginStart="7dp" android:letterSpacing="0.06" />
                         </LinearLayout>
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="NAV ₹92.80 · 28 Jul" android:textSize="10.5sp" android:textColor="@color/t800"
+                            android:text="NAV ₹92.80 · 28 Jul" android:textSize="10.5sp" android:textColor="@color/white"
                             android:fontFamily="@font/jetbrains_mono" android:layout_marginTop="3dp" />
                     </LinearLayout>
                     <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -171,7 +171,7 @@
                                 android:layout_marginStart="7dp" android:letterSpacing="0.06" />
                         </LinearLayout>
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="NAV ₹2,684.20 · 25 Jul" android:textSize="10.5sp" android:textColor="@color/t800"
+                            android:text="NAV ₹2,684.20 · 25 Jul" android:textSize="10.5sp" android:textColor="@color/white"
                             android:fontFamily="@font/jetbrains_mono" android:layout_marginTop="3dp" />
                     </LinearLayout>
                     <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"

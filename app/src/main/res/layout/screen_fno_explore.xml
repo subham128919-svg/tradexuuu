@@ -22,11 +22,11 @@
             <TextView android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Indices" android:textSize="14sp" android:textStyle="bold"
-                android:textColor="@color/t100"/>
+                android:textColor="@color/black"/>
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:id="@+id/tvMarketStatus"
                 android:text="Market Closed" android:textSize="10.5sp"
-                android:textColor="@color/t700"
+                android:textColor="@color/white"
                 android:paddingStart="8dp" android:paddingEnd="8dp"
                 android:paddingTop="3dp" android:paddingBottom="3dp"
                 android:background="@drawable/bg_chip_off"/>
@@ -38,8 +38,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:nestedScrollingEnabled="false"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            android:padding="8dp"/>
+            android:padding="8dp"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

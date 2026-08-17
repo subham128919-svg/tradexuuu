@@ -24,7 +24,7 @@
             <TextView
                 android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Day P&amp;L" android:textSize="13sp" android:textColor="@color/t600"/>
+                android:text="Day P&amp;L" android:textSize="13sp" android:textColor="@color/white"/>
 
             <!-- tvSummaryValue — REQUIRED ID -->
             <TextView

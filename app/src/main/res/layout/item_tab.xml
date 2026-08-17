@@ -23,5 +23,4 @@
     android:text="Explore"
     android:textSize="13.5sp"
     android:textStyle="bold"
-    android:textColor="@color/t100"
-    android:background="@android:color/transparent" />
+    android:textColor="@color/black" />

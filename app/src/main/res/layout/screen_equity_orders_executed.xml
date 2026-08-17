@@ -93,7 +93,7 @@
                                 android:layout_marginStart="7dp" android:letterSpacing="0.06" />
                         </LinearLayout>
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="MARKET ₹818.40 · MIS · 09:31" android:textSize="10.5sp" android:textColor="@color/t800"
+                            android:text="MARKET ₹818.40 · MIS · 09:31" android:textSize="10.5sp" android:textColor="@color/white"
                             android:fontFamily="@font/jetbrains_mono" android:layout_marginTop="3dp" />
                     </LinearLayout>
                     <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -132,7 +132,7 @@
                                 android:layout_marginStart="7dp" android:letterSpacing="0.06" />
                         </LinearLayout>
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="LIMIT ₹272.10 · MIS · 09:36" android:textSize="10.5sp" android:textColor="@color/t800"
+                            android:text="LIMIT ₹272.10 · MIS · 09:36" android:textSize="10.5sp" android:textColor="@color/white"
                             android:fontFamily="@font/jetbrains_mono" android:layout_marginTop="3dp" />
                     </LinearLayout>
                     <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -171,7 +171,7 @@
                                 android:layout_marginStart="7dp" android:letterSpacing="0.06" />
                         </LinearLayout>
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="MARKET ₹148.90 · CNC · 09:22" android:textSize="10.5sp" android:textColor="@color/t800"
+                            android:text="MARKET ₹148.90 · CNC · 09:22" android:textSize="10.5sp" android:textColor="@color/white"
                             android:fontFamily="@font/jetbrains_mono" android:layout_marginTop="3dp" />
                     </LinearLayout>
                     <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"

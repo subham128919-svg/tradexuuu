@@ -48,7 +48,7 @@
         <TextView android:id="@+id/tvSub"
             android:layout_width="wrap_content" android:layout_height="wrap_content"
             android:text="NSE · ₹19.9L Cr"
-            android:textSize="10.5sp" android:textColor="@color/t800"
+            android:textSize="10.5sp" android:textColor="@color/white"
             android:fontFamily="@font/jetbrains_mono"
             android:layout_marginTop="3dp" />
     </LinearLayout>

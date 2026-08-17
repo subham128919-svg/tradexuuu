@@ -17,22 +17,22 @@
         <TextView android:id="@+id/tvTitle"
             android:layout_width="wrap_content" android:layout_height="wrap_content"
             android:text="Create account" android:textSize="26sp" android:textStyle="bold"
-            android:textColor="@color/t100" android:layout_marginTop="28dp"
+            android:textColor="@color/black" android:layout_marginTop="28dp"
             app:layout_constraintTop_toBottomOf="@id/ivBack" app:layout_constraintStart_toStartOf="parent"/>
 
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:text="Start investing in minutes" android:textSize="14sp" android:textColor="@color/t700"
+            android:text="Start investing in minutes" android:textSize="14sp" android:textColor="@color/black"
             android:layout_marginTop="4dp" android:id="@+id/tvSub"
             app:layout_constraintTop_toBottomOf="@id/tvTitle" app:layout_constraintStart_toStartOf="parent"/>
 
         <!-- Full name -->
         <TextView android:id="@+id/l1" android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:text="Full name" android:textSize="12sp" android:textColor="@color/t700"
+            android:text="Full name" android:textSize="12sp" android:textColor="@color/black"
             android:layout_marginTop="32dp"
             app:layout_constraintTop_toBottomOf="@id/tvSub" app:layout_constraintStart_toStartOf="parent"/>
         <com.google.android.material.textfield.TextInputEditText android:id="@+id/etName"
             android:layout_width="match_parent" android:layout_height="52dp"
-            android:hint="Ronin Rajput" android:textColorHint="@color/t700"
+            android:hint="Ronin Rajput" android:textColorHint="@color/black"
             android:textColor="@color/t100" android:textSize="15sp"
             android:inputType="textPersonName" android:background="@drawable/bg_card"
             android:paddingStart="16dp" android:paddingEnd="16dp" android:layout_marginTop="6dp"
@@ -46,7 +46,7 @@
             app:layout_constraintTop_toBottomOf="@id/etName" app:layout_constraintStart_toStartOf="parent"/>
         <com.google.android.material.textfield.TextInputEditText android:id="@+id/etEmail"
             android:layout_width="match_parent" android:layout_height="52dp"
-            android:hint="you@email.com" android:textColorHint="@color/t700"
+            android:hint="you@email.com" android:textColorHint="@color/black"
             android:textColor="@color/t100" android:textSize="15sp"
             android:inputType="textEmailAddress" android:background="@drawable/bg_card"
             android:paddingStart="16dp" android:paddingEnd="16dp" android:layout_marginTop="6dp"
@@ -60,7 +60,7 @@
             app:layout_constraintTop_toBottomOf="@id/etEmail" app:layout_constraintStart_toStartOf="parent"/>
         <com.google.android.material.textfield.TextInputEditText android:id="@+id/etPhone"
             android:layout_width="match_parent" android:layout_height="52dp"
-            android:hint="+91 98765 43210" android:textColorHint="@color/t700"
+            android:hint="+91 98765 43210" android:textColorHint="@color/black"
             android:textColor="@color/t100" android:textSize="15sp"
             android:inputType="phone" android:background="@drawable/bg_card"
             android:paddingStart="16dp" android:paddingEnd="16dp" android:layout_marginTop="6dp"
@@ -74,7 +74,7 @@
             app:layout_constraintTop_toBottomOf="@id/etPhone" app:layout_constraintStart_toStartOf="parent"/>
         <com.google.android.material.textfield.TextInputEditText android:id="@+id/etPassword"
             android:layout_width="match_parent" android:layout_height="52dp"
-            android:hint="Min. 6 characters" android:textColorHint="@color/t700"
+            android:hint="Min. 6 characters" android:textColorHint="@color/black"
             android:textColor="@color/t100" android:textSize="15sp"
             android:inputType="textPassword" android:background="@drawable/bg_card"
             android:paddingStart="16dp" android:paddingEnd="16dp" android:layout_marginTop="6dp"
@@ -103,9 +103,9 @@
             app:layout_constraintTop_toBottomOf="@id/btnSignup"
             app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent">
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="Already have an account? " android:textSize="13.5sp" android:textColor="@color/t600"/>
+                android:text="Already have an account? " android:textSize="13.5sp" android:textColor="@color/black"/>
             <TextView android:id="@+id/tvLogin" android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="Sign In" android:textSize="13.5sp" android:textColor="@color/accent" android:textStyle="bold"/>
+                android:text="Sign In" android:textSize="13.5sp" android:textColor="@color/black" android:textStyle="bold"/>
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

@@ -2,7 +2,7 @@
 <androidx.core.widget.NestedScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent" android:layout_height="match_parent"
-    android:background="@color/bg_surface" android:fillViewport="true"
+    android:background="@color/black" android:fillViewport="true"
     android:scrollbars="none">
 
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
@@ -13,7 +13,7 @@
             android:layout_width="match_parent" android:layout_height="52dp"
             android:orientation="horizontal" android:gravity="center_vertical"
             android:paddingStart="12dp" android:paddingEnd="12dp"
-            android:paddingTop="8dp">
+            android:paddingTop="15dp">
             <ImageView android:id="@+id/ivBack"
                 android:layout_width="22dp" android:layout_height="22dp"
                 android:src="@drawable/ic_back"/>
@@ -32,7 +32,7 @@
             <TextView android:id="@+id/tvInitials"
                 android:layout_width="match_parent" android:layout_height="match_parent"
                 android:gravity="center" android:textSize="32sp" android:textStyle="bold"
-                android:textColor="#9B7EF8" android:background="@drawable/bg_app_logo"/>
+                android:textColor="#9B7EF8" android:background="@drawable/app_logo"/>
         </FrameLayout>
 
         <!-- User name -->
@@ -40,7 +40,7 @@
             android:layout_width="wrap_content" android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:text="Your Name" android:textSize="20sp" android:textStyle="bold"
-            android:textColor="@color/t100" android:layout_marginTop="12dp"/>
+            android:textColor="@color/black" android:layout_marginTop="12dp"/>
 
         <TextView android:id="@+id/tvUserEmail"
             android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -49,35 +49,62 @@
             android:layout_marginTop="2dp" android:layout_marginBottom="24dp"/>
 
         <!-- Wallet card -->
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:orientation="horizontal" android:gravity="center_vertical"
-            android:paddingStart="20dp" android:paddingEnd="20dp"
-            android:paddingTop="16dp" android:paddingBottom="16dp"
-            android:background="@color/bg_item">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="96dp"
+            android:background="@color/black"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="20dp"
+            android:paddingTop="16dp"
+            android:paddingEnd="20dp"
+            android:paddingBottom="16dp">
 
-            <ImageView android:layout_width="22dp" android:layout_height="22dp"
-                android:src="@drawable/appicon__2__removebg_preview" android:layout_marginEnd="12dp"/>
-            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
-                android:layout_weight="1" android:orientation="vertical">
-                <TextView android:id="@+id/tvBalance"
-                    android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="₹0.00" android:textSize="17sp" android:textStyle="bold"
-                    android:textColor="@color/t100"/>
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="Stocks, F&amp;O balance" android:textSize="11.5sp"
-                    android:textColor="@color/t700"/>
+            <ImageView
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:layout_marginEnd="12dp"
+                android:src="@drawable/appicon__2__removebg_preview" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvBalance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="₹0.00"
+                    android:textColor="@color/t100"
+                    android:textSize="17sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Stocks, F&amp;O balance"
+                    android:textColor="@color/t700"
+                    android:textSize="11.5sp" />
             </LinearLayout>
 
-            <Button android:id="@+id/btnAddMoney"
-                android:layout_width="wrap_content" android:layout_height="36dp"
-                android:text="+ Add money" android:textSize="12.5sp" android:textStyle="bold"
-                android:textColor="#FFFFFF" android:backgroundTint="@color/positive"
+            <Button
+                android:id="@+id/btnAddMoney"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:backgroundTint="@color/positive"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp"
                 android:stateListAnimator="@null"
-                android:paddingStart="14dp" android:paddingEnd="14dp"/>
+                android:text="+ Add money"
+                android:textColor="#FFFFFF"
+                android:textSize="12.5sp"
+                android:textStyle="bold" />
         </LinearLayout>
 
         <View android:layout_width="match_parent" android:layout_height="8dp"
-            android:background="@color/bg_surface"/>
+            android:background="@color/black"/>
 
         <!-- Menu items -->
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
@@ -160,7 +187,7 @@
         </LinearLayout>
 
         <View android:layout_width="match_parent" android:layout_height="8dp"
-            android:background="@color/bg_surface"/>
+            android:background="@color/black"/>
 
         <!-- Logout -->
         <LinearLayout android:id="@+id/rowLogout"
