@@ -21,6 +21,9 @@ const val EXTRA_SYMBOL   = "symbol"
 const val EXTRA_EXCHANGE = "exchange"
 const val EXTRA_NAME     = "name"
 const val EXTRA_SEGMENT  = "segment"
+const val EXTRA_UNDERLYING   = "underlying"
+const val EXTRA_DISPLAY_NAME = "displayName"
+const val EXTRA_LOT_SIZE     = "lotSize"
 
 // SharedPreferences keys
 const val PREF_NAME     = "tradingapp_prefs"

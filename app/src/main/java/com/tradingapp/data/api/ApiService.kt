@@ -38,6 +38,25 @@ data class AppOrderResponse(val success: Boolean, val message: String)
 data class WalletResponse(val balance: Double, val transactions: List<Map<String, Any>>)
 data class TrackResponse(val ok: Boolean, val symbol: String, val tracked: Int)
 
+// ── F&O: Option Chain ────────────────────────────────────────────
+data class OptionExpiriesResponse(val underlying: String, val expiries: List<String>)
+data class OptionContract(
+    val symbol: String, val ltp: Double, val change: Double,
+    val changePct: Double, val priceAvailable: Boolean
+)
+data class OptionChainRow(val strike: Double, val call: OptionContract?, val put: OptionContract?)
+data class OptionChainResponse(
+    val underlying: String, val expiry: String, val lotSize: Int?,
+    val spot: Double?, val rows: List<OptionChainRow>
+)
+data class HasOptionsResponse(val hasOptions: Boolean)
+
+// ── Razorpay ──────────────────────────────────────────────────────
+data class RazorpayOrderResponse(
+    val orderId: String, val amount: Int, val currency: String, val keyId: String
+)
+data class RazorpayVerifyResponse(val ok: Boolean, val newBalance: Double, val alreadyProcessed: Boolean = false)
+
 interface ApiService {
     @POST("users/login")
     suspend fun login(@Body body: Map<String, @JvmSuppressWildcards Any>): Response<AuthResponse>
@@ -110,4 +129,24 @@ interface ApiService {
 
     @GET("mf/explore")
     suspend fun getMfExplore(): Response<ApiList<MutualFund>>
+
+    // ── F&O: Option Chain ────────────────────────────────────────
+    @GET("market/has-options")
+    suspend fun hasOptions(@Query("symbol") symbol: String): Response<HasOptionsResponse>
+
+    @GET("market/option-expiries")
+    suspend fun getOptionExpiries(@Query("underlying") underlying: String): Response<OptionExpiriesResponse>
+
+    @GET("market/option-chain")
+    suspend fun getOptionChain(
+        @Query("underlying") underlying: String,
+        @Query("expiry") expiry: String
+    ): Response<OptionChainResponse>
+
+    // ── Razorpay: Add funds ──────────────────────────────────────
+    @POST("wallet/razorpay/create-order")
+    suspend fun createRazorpayOrder(@Body body: Map<String, @JvmSuppressWildcards Any>): Response<RazorpayOrderResponse>
+
+    @POST("wallet/razorpay/verify")
+    suspend fun verifyRazorpayPayment(@Body body: Map<String, String>): Response<RazorpayVerifyResponse>
 }

@@ -2,6 +2,7 @@ package com.tradingapp.ui.profile
 
 import android.content.Intent
 import android.os.Bundle
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowInsetsControllerCompat
@@ -10,6 +11,7 @@ import com.tradingapp.BuildConfig
 import com.tradingapp.R
 import com.tradingapp.databinding.ActivityProfileBinding
 import com.tradingapp.ui.auth.LoginActivity
+import com.tradingapp.ui.wallet.AddFundsActivity
 import com.tradingapp.util.applyEdgeToEdge
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
@@ -19,6 +21,15 @@ class ProfileActivity : AppCompatActivity() {
 
     private lateinit var b: ActivityProfileBinding
     private val vm: ProfileViewModel by viewModels()
+
+    // Refreshes the displayed balance immediately when the user comes
+    // back from successfully adding funds, rather than waiting for
+    // whatever next triggers a reload.
+    private val addFundsLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) vm.load()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,7 +55,9 @@ class ProfileActivity : AppCompatActivity() {
         b.rowSupport.setOnClickListener {}
         b.tvAbout.setOnClickListener    {}
         b.tvCharges.setOnClickListener  {}
-        b.btnAddMoney.setOnClickListener {}
+        b.btnAddMoney.setOnClickListener {
+            addFundsLauncher.launch(Intent(this, AddFundsActivity::class.java))
+        }
 
         b.rowLogout.setOnClickListener {
             vm.logout {

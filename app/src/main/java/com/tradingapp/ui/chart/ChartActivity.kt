@@ -16,6 +16,7 @@ import com.tradingapp.R
 import com.tradingapp.data.model.toChartJson
 import com.tradingapp.databinding.ScreenChartBinding
 import com.tradingapp.ui.order.OrderActivity
+import com.tradingapp.ui.optionchain.OptionChainActivity
 import com.tradingapp.util.*
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
@@ -30,6 +31,9 @@ class ChartActivity : AppCompatActivity() {
     private val symbol   by lazy { intent.getStringExtra(EXTRA_SYMBOL)   ?: "RELIANCE" }
     private val exchange by lazy { intent.getStringExtra(EXTRA_EXCHANGE) ?: "NSE" }
     private val name     by lazy { intent.getStringExtra(EXTRA_NAME)     ?: symbol }
+    // F&O only: >1 when this chart was opened from the option chain for
+    // a specific contract. Equity charts default to 1 (no lot concept).
+    private val lotSize  by lazy { intent.getIntExtra(EXTRA_LOT_SIZE, 1) }
 
     private var chartReady   = false
     private var pendingJson  = ""
@@ -119,9 +123,34 @@ class ChartActivity : AppCompatActivity() {
     }
 
     private fun setupOrderButtons() {
-        b.btnSip.visibility = View.GONE
         b.btnBuy.setOnClickListener  { openOrder("BUY")  }
         b.btnSell.setOnClickListener { openOrder("SELL") }
+        b.btnOptionChain.setOnClickListener { openOptionChain() }
+        vm.checkOptionsAvailable("$exchange:$symbol")
+        lifecycleScope.launch {
+            vm.hasOptions.collectLatest { has ->
+                b.btnOptionChain.visibility = if (has) View.VISIBLE else View.GONE
+            }
+        }
+    }
+
+    // Kite's F&O "underlying" name doesn't always match the spot
+    // trading symbol for indices (e.g. spot "NIFTY 50" → underlying
+    // "NIFTY"). Mirror of optionChainService.js's SPOT_SYMBOL_MAP,
+    // reversed.
+    private fun toUnderlying(sym: String): String = when (sym.uppercase()) {
+        "NIFTY 50"           -> "NIFTY"
+        "NIFTY BANK"         -> "BANKNIFTY"
+        "NIFTY FIN SERVICE"  -> "FINNIFTY"
+        "NIFTY MIDCAP 100"   -> "MIDCPNIFTY"
+        else                 -> sym.uppercase()
+    }
+
+    private fun openOptionChain() {
+        startActivity(Intent(this, OptionChainActivity::class.java).apply {
+            putExtra(EXTRA_UNDERLYING,   toUnderlying(symbol))
+            putExtra(EXTRA_DISPLAY_NAME, name)
+        })
     }
 
     private fun openOrder(type: String) {
@@ -132,6 +161,7 @@ class ChartActivity : AppCompatActivity() {
             putExtra(EXTRA_NAME,     name)
             putExtra("orderType",    type)
             putExtra("ltp",          ltp)
+            putExtra(EXTRA_LOT_SIZE, lotSize)
         })
     }
 

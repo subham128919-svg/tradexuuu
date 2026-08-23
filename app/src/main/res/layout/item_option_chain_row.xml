@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:paddingTop="10dp" android:paddingBottom="10dp"
+    android:paddingStart="10dp" android:paddingEnd="10dp">
+
+    <!-- CALL side -->
+    <LinearLayout
+        android:id="@+id/callContainer"
+        android:layout_width="0dp" android:layout_height="wrap_content"
+        android:layout_weight="1" android:orientation="vertical"
+        android:gravity="end" android:background="?attr/selectableItemBackground"
+        android:paddingEnd="10dp">
+        <TextView android:id="@+id/tvCallLtp"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="—" android:textSize="14sp" android:textStyle="bold"
+            android:textColor="@color/t100" android:fontFamily="monospace"/>
+        <TextView android:id="@+id/tvCallChange"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="" android:textSize="11sp" android:layout_marginTop="2dp"/>
+    </LinearLayout>
+
+    <!-- Strike (center) -->
+    <TextView android:id="@+id/tvStrike"
+        android:layout_width="86dp" android:layout_height="wrap_content"
+        android:text="0" android:textSize="13.5sp" android:textStyle="bold"
+        android:textColor="@color/t100" android:gravity="center"
+        android:background="@drawable/bg_chip_off"
+        android:paddingTop="4dp" android:paddingBottom="4dp"/>
+
+    <!-- PUT side -->
+    <LinearLayout
+        android:id="@+id/putContainer"
+        android:layout_width="0dp" android:layout_height="wrap_content"
+        android:layout_weight="1" android:orientation="vertical"
+        android:gravity="start" android:background="?attr/selectableItemBackground"
+        android:paddingStart="10dp">
+        <TextView android:id="@+id/tvPutLtp"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="—" android:textSize="14sp" android:textStyle="bold"
+            android:textColor="@color/t100" android:fontFamily="monospace"/>
+        <TextView android:id="@+id/tvPutChange"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="" android:textSize="11sp" android:layout_marginTop="2dp"/>
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:background="@color/bg_surface">
+
+    <!-- Header -->
+    <LinearLayout android:id="@+id/chainHeader"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="horizontal" android:gravity="center_vertical"
+        android:paddingStart="16dp" android:paddingEnd="16dp"
+        android:paddingTop="14dp" android:paddingBottom="14dp"
+        android:background="@color/bg_item">
+
+        <ImageView android:id="@+id/ivBack"
+            android:layout_width="24dp" android:layout_height="24dp"
+            android:src="@android:drawable/ic_menu_close_clear_cancel"
+            android:layout_marginEnd="14dp"/>
+
+        <LinearLayout
+            android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1" android:orientation="vertical">
+            <TextView android:id="@+id/tvUnderlyingName"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="NIFTY" android:textSize="16sp" android:textStyle="bold"
+                android:textColor="@color/t100"/>
+            <TextView android:id="@+id/tvLotSize"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="" android:textSize="11sp" android:textColor="@color/t700"
+                android:layout_marginTop="2dp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:orientation="vertical" android:gravity="end">
+            <TextView android:id="@+id/tvSpot"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="—" android:textSize="16sp" android:textStyle="bold"
+                android:textColor="@color/t100"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="Spot" android:textSize="10sp" android:textColor="@color/t700"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Expiry chips -->
+    <HorizontalScrollView
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:scrollbars="none" android:background="@color/bg_item">
+        <LinearLayout android:id="@+id/expiryContainer"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingStart="12dp" android:paddingEnd="12dp"
+            android:paddingBottom="10dp"/>
+    </HorizontalScrollView>
+
+    <!-- Column headers -->
+    <LinearLayout
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="horizontal" android:gravity="center_vertical"
+        android:paddingTop="8dp" android:paddingBottom="8dp"
+        android:paddingStart="10dp" android:paddingEnd="10dp">
+        <TextView
+            android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+            android:text="CALLS" android:textSize="11sp" android:textStyle="bold"
+            android:textColor="@color/positive" android:gravity="end" android:paddingEnd="10dp"/>
+        <TextView
+            android:layout_width="86dp" android:layout_height="wrap_content"
+            android:text="STRIKE" android:textSize="11sp" android:textStyle="bold"
+            android:textColor="@color/t700" android:gravity="center"/>
+        <TextView
+            android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+            android:text="PUTS" android:textSize="11sp" android:textStyle="bold"
+            android:textColor="@color/negative" android:gravity="start" android:paddingStart="10dp"/>
+    </LinearLayout>
+
+    <View android:layout_width="match_parent" android:layout_height="0.5dp" android:background="@color/div06"/>
+
+    <FrameLayout
+        android:layout_width="match_parent" android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvChain"
+            android:layout_width="match_parent" android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingBottom="16dp"/>
+
+        <ProgressBar android:id="@+id/progressBar"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_gravity="center" android:indeterminateTint="@color/accent"/>
+
+        <TextView android:id="@+id/tvEmpty"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_gravity="center" android:visibility="gone"
+            android:text="No option chain available for this instrument"
+            android:textColor="@color/t700" android:textSize="13sp"
+            android:paddingStart="32dp" android:paddingEnd="32dp" android:gravity="center"/>
+    </FrameLayout>
+
+</LinearLayout>

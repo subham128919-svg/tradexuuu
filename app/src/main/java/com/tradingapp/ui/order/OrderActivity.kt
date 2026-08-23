@@ -30,6 +30,10 @@ class OrderActivity : AppCompatActivity() {
     private val orderTypePrm by lazy { intent.getStringExtra("orderType")    ?: "BUY" }
     private val ltpHint      by lazy { intent.getDoubleExtra("ltp", 0.0) }
     private val defaultQty   by lazy { intent.getStringExtra("defaultQty") ?: "" }
+    // F&O only: >1 when opened for an option/futures contract. The
+    // numpad input then represents LOTS, not raw shares — actualQty
+    // (what actually gets ordered/validated server-side) = lots * lotSize.
+    private val lotSize       by lazy { intent.getIntExtra(EXTRA_LOT_SIZE, 1) }
 
     private var product   = "DELIVERY"
     // FIX #buy/sell toggle: starts as LIMIT, tappable to switch to MARKET
@@ -37,6 +41,12 @@ class OrderActivity : AppCompatActivity() {
     private var qty       = ""
     private var priceStr  = ""
     private var inputMode = "qty"
+
+    // The numpad's `qty` string means different things depending on
+    // context: raw share count for equity (lotSize=1), number of LOTS
+    // for F&O (lotSize>1). This always returns the real order quantity
+    // to send to the backend / use for required-amount math.
+    private fun actualQty(): Int = (qty.toIntOrNull() ?: 0) * lotSize
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,9 +60,15 @@ class OrderActivity : AppCompatActivity() {
         WindowInsetsControllerCompat(window, b.root).isAppearanceLightStatusBars = false
 
         b.tvStockName.text = symbol
+        b.tvExchangeChip.text = exchange
         val isBuy = orderTypePrm == "BUY"
         b.btnOrder.text = orderTypePrm
         b.btnOrder.setBackgroundColor(if (isBuy) Color.parseColor("#2FBF71") else Color.parseColor("#FF5C5C"))
+
+        // F&O: numpad now enters LOTS, not raw shares — label it clearly.
+        if (lotSize > 1) {
+            b.tvQtyLabel.text = "Qty (lots of $lotSize)"
+        }
 
         if (defaultQty.isNotEmpty()) {
             qty = defaultQty
@@ -106,12 +122,15 @@ class OrderActivity : AppCompatActivity() {
         }
 
         b.btnOrder.setOnClickListener {
-            val qtyInt = qty.toIntOrNull() ?: 0
+            val qtyInt = actualQty()
             val price  = if (priceType == "MARKET")
                 (vm.ltp.value.takeIf { it > 0 } ?: ltpHint)
             else (priceStr.toDoubleOrNull() ?: 0.0)
 
-            if (qtyInt <= 0) { Toast.makeText(this, "Enter quantity", Toast.LENGTH_SHORT).show(); return@setOnClickListener }
+            if (qtyInt <= 0) {
+                val msg = if (lotSize > 1) "Enter number of lots" else "Enter quantity"
+                Toast.makeText(this, msg, Toast.LENGTH_SHORT).show(); return@setOnClickListener
+            }
             if (price  <= 0) { Toast.makeText(this, "Price not available yet, try again", Toast.LENGTH_SHORT).show(); return@setOnClickListener }
 
             b.btnOrder.isEnabled = false
@@ -204,15 +223,19 @@ class OrderActivity : AppCompatActivity() {
     }
 
     private fun updateRequired() {
-        val q   = qty.toIntOrNull() ?: 0
+        val q   = actualQty()
         val ltp = vm.ltp.value.takeIf { it > 0 } ?: ltpHint
         val p   = if (priceType == "MARKET") ltp else (priceStr.toDoubleOrNull() ?: ltp)
         val req = q * p
         b.tvRequired.text  = "Required: ₹%.0f".format(req)
-        b.tvOrderInfo.text = if (priceType == "MARKET")
+        val execInfo = if (priceType == "MARKET")
             "Order will be executed at market price"
         else
             "Order will be executed at ₹%.2f or lower price".format(p)
+        b.tvOrderInfo.text = if (lotSize > 1 && q > 0) {
+            val lots = q / lotSize
+            "$execInfo • $q qty ($lots lot${if (lots == 1) "" else "s"})"
+        } else execInfo
 
         if (p > 0 && ltp > 0) {
             val diff = ((p - ltp) / ltp * 100)

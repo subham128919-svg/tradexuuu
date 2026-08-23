@@ -25,6 +25,21 @@ class ChartViewModel @Inject constructor(
     private val _quote = MutableStateFlow<Quote?>(null)
     val quote: StateFlow<Quote?> = _quote
 
+    // F&O: whether this symbol has an option chain at all. Checked
+    // against the real instruments table server-side (market.js
+    // /has-options) rather than guessed client-side, since most
+    // equities have no derivatives and a hardcoded list would be wrong
+    // as often as it's right.
+    private val _hasOptions = MutableStateFlow(false)
+    val hasOptions: StateFlow<Boolean> = _hasOptions
+
+    fun checkOptionsAvailable(fullSymbol: String) = viewModelScope.launch {
+        try {
+            val r = api.hasOptions(fullSymbol)
+            if (r.isSuccessful) _hasOptions.value = r.body()?.hasOptions ?: false
+        } catch (_: Exception) { /* button stays hidden */ }
+    }
+
     val liveTicks = repo.liveTicks
     private var candleJob: Job? = null
 

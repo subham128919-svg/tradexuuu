@@ -28,6 +28,15 @@
             android:windowSoftInputMode="adjustResize"/>
         <activity android:name=".ui.profile.ProfileActivity" android:exported="false"/>
         <activity android:name=".ui.search.SearchActivity"   android:exported="false"/>
+        <activity android:name=".ui.optionchain.OptionChainActivity" android:exported="false"/>
+        <activity android:name=".ui.wallet.AddFundsActivity" android:exported="false"
+            android:windowSoftInputMode="adjustResize"/>
+
+        <!-- No manual declaration needed for com.razorpay.CheckoutActivity —
+             the Razorpay SDK's own AAR manifest already declares it with
+             the correct exported/theme values, and Gradle's manifest
+             merger pulls it in automatically. Declaring it here too
+             caused a merge conflict (mismatched exported/theme values). -->
 
     </application>
 </manifest>
