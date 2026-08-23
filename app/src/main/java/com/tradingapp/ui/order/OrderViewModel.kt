@@ -18,6 +18,26 @@ class OrderViewModel @Inject constructor(private val api: ApiService) : ViewMode
     private val _balance = MutableStateFlow(0.0)
     val balance: StateFlow<Double> = _balance
 
+    // FIX: fetched fresh from the backend rather than trusting an
+    // Intent extra passed through from wherever the user navigated
+    // from — that only worked when coming through the option chain
+    // screen; search, watchlist, holdings, etc. never knew the lot
+    // size to pass along, so those entry points silently fell back to
+    // lot=1 (treating options like equity — raw quantity, not lots).
+    // Defaults to 1 (equity, no lot concept) until the lookup resolves;
+    // for NSE/BSE symbols it correctly stays 1 forever since lot-size
+    // lookup only applies to NFO.
+    private val _lotSize = MutableStateFlow(1)
+    val lotSize: StateFlow<Int> = _lotSize
+
+    fun loadLotSize(exchange: String, symbol: String) = viewModelScope.launch {
+        if (exchange != "NFO") return@launch
+        try {
+            val r = api.getLotSize(symbol)
+            if (r.isSuccessful) _lotSize.value = (r.body()?.lotSize ?: 1).coerceAtLeast(1)
+        } catch (_: Exception) { /* stays at 1 — safe default, order will just be per-share */ }
+    }
+
     // FIX #5: Load live price from backend (not from Intent which may be stale)
     fun loadLtp(exchange: String, symbol: String) = viewModelScope.launch {
         try {

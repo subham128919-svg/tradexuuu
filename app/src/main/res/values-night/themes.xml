@@ -2,9 +2,20 @@
 <resources>
     <style name="Theme.TradingApp" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="android:windowBackground">@color/bg_surface</item>
-        <item name="android:statusBarColor">#000000</item>
+        <item name="android:statusBarColor">@color/bg_surface</item>
         <item name="android:windowLightStatusBar">false</item>
         <item name="android:navigationBarColor">@color/bg_nav</item>
         <item name="colorPrimary">@color/accent</item>
+
+        <!-- Same fix as values/themes.xml — force explicit text colors
+             rather than letting them default from system theme state. -->
+        <item name="android:textColorPrimary">@color/t100</item>
+        <item name="android:textColorSecondary">@color/t600</item>
+        <item name="android:textColorHint">@color/t700</item>
+        <item name="android:editTextColor">@color/t100</item>
+        <item name="colorOnSurface">@color/t100</item>
+        <item name="colorOnBackground">@color/t100</item>
+        <item name="colorSurface">@color/bg_surface</item>
+        <item name="android:colorBackground">@color/bg_surface</item>
     </style>
 </resources>

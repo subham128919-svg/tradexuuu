@@ -30,10 +30,16 @@ class OrderActivity : AppCompatActivity() {
     private val orderTypePrm by lazy { intent.getStringExtra("orderType")    ?: "BUY" }
     private val ltpHint      by lazy { intent.getDoubleExtra("ltp", 0.0) }
     private val defaultQty   by lazy { intent.getStringExtra("defaultQty") ?: "" }
-    // F&O only: >1 when opened for an option/futures contract. The
-    // numpad input then represents LOTS, not raw shares — actualQty
-    // (what actually gets ordered/validated server-side) = lots * lotSize.
-    private val lotSize       by lazy { intent.getIntExtra(EXTRA_LOT_SIZE, 1) }
+    // FIX: no longer trust the EXTRA_LOT_SIZE intent extra alone — it
+    // only ever got set when navigating through the option chain
+    // screen. The real lotSize now comes from vm.lotSize, fetched
+    // fresh from the backend in onCreate() regardless of how this
+    // screen was reached (see OrderViewModel.loadLotSize()). The
+    // intent extra is kept only as an instant, non-blocking initial
+    // guess so the UI doesn't flash "Qty" before flipping to
+    // "Qty (lots)" a moment later for the option-chain-entry case.
+    private var lotSize = 1
+    private val initialLotSizeGuess by lazy { intent.getIntExtra(EXTRA_LOT_SIZE, 1) }
 
     private var product   = "DELIVERY"
     // FIX #buy/sell toggle: starts as LIMIT, tappable to switch to MARKET
@@ -47,6 +53,10 @@ class OrderActivity : AppCompatActivity() {
     // for F&O (lotSize>1). This always returns the real order quantity
     // to send to the backend / use for required-amount math.
     private fun actualQty(): Int = (qty.toIntOrNull() ?: 0) * lotSize
+
+    private fun applyLotSizeUi() {
+        b.tvQtyLabel.text = if (lotSize > 1) "Qty (lots of $lotSize)" else "Qty"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,9 +76,10 @@ class OrderActivity : AppCompatActivity() {
         b.btnOrder.setBackgroundColor(if (isBuy) Color.parseColor("#2FBF71") else Color.parseColor("#FF5C5C"))
 
         // F&O: numpad now enters LOTS, not raw shares — label it clearly.
-        if (lotSize > 1) {
-            b.tvQtyLabel.text = "Qty (lots of $lotSize)"
-        }
+        // Show the instant intent-based guess right away (avoids a UI
+        // flash), then correct it once the real backend value lands.
+        lotSize = initialLotSizeGuess
+        applyLotSizeUi()
 
         if (defaultQty.isNotEmpty()) {
             qty = defaultQty
@@ -79,6 +90,15 @@ class OrderActivity : AppCompatActivity() {
 
         vm.loadLtp(exchange, symbol)
         vm.loadBalance()
+        vm.loadLotSize(exchange, symbol)
+
+        lifecycleScope.launch {
+            vm.lotSize.collectLatest { ls ->
+                lotSize = ls
+                applyLotSizeUi()
+                updateRequired()
+            }
+        }
 
         lifecycleScope.launch {
             vm.ltp.collectLatest { ltp ->

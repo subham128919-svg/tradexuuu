@@ -10,5 +10,27 @@
         <item name="android:windowLightStatusBar">false</item>
         <item name="android:windowLightNavigationBar" tools:targetApi="27">false</item>
         <item name="android:fitsSystemWindows">false</item>
+
+        <!-- FIX (root cause of "text invisible on many screens"): this
+             theme's PARENT is DayNight, which means any TextView/Button/
+             EditText that doesn't set its own explicit android:textColor
+             was inheriting Material's default text colors based on the
+             PHONE'S system light/dark setting — not based on this app's
+             background, which is ALWAYS forced dark above. On a phone
+             set to system light mode, that meant dark/near-black default
+             text colors landing on this app's permanently dark
+             background: dark text on a dark background, invisible,
+             everywhere an XML didn't explicitly set its own color.
+             Forcing these here makes every default text color correct
+             for this app's always-dark background regardless of the
+             phone's own system theme setting. -->
+        <item name="android:textColorPrimary">@color/t100</item>
+        <item name="android:textColorSecondary">@color/t600</item>
+        <item name="android:textColorHint">@color/t700</item>
+        <item name="android:editTextColor">@color/t100</item>
+        <item name="colorOnSurface">@color/t100</item>
+        <item name="colorOnBackground">@color/t100</item>
+        <item name="colorSurface">@color/bg_surface</item>
+        <item name="android:colorBackground">@color/bg_surface</item>
     </style>
 </resources>

@@ -50,6 +50,7 @@ data class OptionChainResponse(
     val spot: Double?, val rows: List<OptionChainRow>
 )
 data class HasOptionsResponse(val hasOptions: Boolean)
+data class LotSizeResponse(val lotSize: Int)
 
 // ── Razorpay ──────────────────────────────────────────────────────
 data class RazorpayOrderResponse(
@@ -133,6 +134,12 @@ interface ApiService {
     // ── F&O: Option Chain ────────────────────────────────────────
     @GET("market/has-options")
     suspend fun hasOptions(@Query("symbol") symbol: String): Response<HasOptionsResponse>
+
+    // FIX: fetched fresh by OrderActivity right before placing an order,
+    // regardless of navigation entry point (option chain, search,
+    // watchlist, etc.) — see OrderViewModel.loadLotSize().
+    @GET("market/lot-size")
+    suspend fun getLotSize(@Query("symbol") symbol: String): Response<LotSizeResponse>
 
     @GET("market/option-expiries")
     suspend fun getOptionExpiries(@Query("underlying") underlying: String): Response<OptionExpiriesResponse>
