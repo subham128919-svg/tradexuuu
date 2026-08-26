@@ -52,7 +52,7 @@
                                 android:textColor="@color/t800" android:letterSpacing="0.04"
                                 android:layout_marginBottom="4dp" />
                             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                                android:text="₹6,79,700" android:textSize="13sp" android:textColor="@color/t200"
+                                android:text="₹6,79,700" android:textSize="13sp" android:textColor="@color/black"
                                 android:fontFamily="@font/jetbrains_mono" />
                         </LinearLayout>
                         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
@@ -88,7 +88,7 @@
                                 android:textColor="@color/t800" android:letterSpacing="0.04"
                                 android:layout_marginBottom="4dp" />
                             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                                android:text="9 schemes" android:textSize="13sp" android:textColor="@color/t200"
+                                android:text="9 schemes" android:textSize="13sp" android:textColor="@color/black"
                                 android:fontFamily="@font/jetbrains_mono" />
                         </LinearLayout>
             </GridLayout>

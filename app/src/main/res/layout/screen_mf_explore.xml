@@ -25,24 +25,24 @@
 
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:text="Trending" android:textSize="12sp" android:textColor="@color/chip_on_text"
-                    android:background="@drawable/bg_chip_on"
+                    android:background="@drawable/bg_app_header"
                     android:paddingStart="13dp" android:paddingEnd="13dp"
                     android:paddingTop="7dp" android:paddingBottom="7dp"
                     android:layout_marginEnd="8dp" />
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="Top gainers" android:textSize="12sp" android:textColor="@color/chip_off_text"
+                    android:text="Top gainers" android:textSize="12sp" android:textColor="@color/bg_app"
                     android:background="@drawable/bg_chip_off"
                     android:paddingStart="13dp" android:paddingEnd="13dp"
                     android:paddingTop="7dp" android:paddingBottom="7dp"
                     android:layout_marginEnd="8dp" />
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="High return" android:textSize="12sp" android:textColor="@color/chip_off_text"
+                    android:text="High return" android:textSize="12sp" android:textColor="@color/bg_app"
                     android:background="@drawable/bg_chip_off"
                     android:paddingStart="13dp" android:paddingEnd="13dp"
                     android:paddingTop="7dp" android:paddingBottom="7dp"
                     android:layout_marginEnd="8dp" />
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="New funds" android:textSize="12sp" android:textColor="@color/chip_off_text"
+                    android:text="New funds" android:textSize="12sp" android:textColor="@color/bg_app"
                     android:background="@drawable/bg_chip_off"
                     android:paddingStart="13dp" android:paddingEnd="13dp"
                     android:paddingTop="7dp" android:paddingBottom="7dp"
@@ -61,8 +61,8 @@
                 <TextView android:layout_width="0dp" android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Trending" android:textSize="15.5sp" android:textStyle="bold"
-                    android:textColor="@color/t100" android:letterSpacing="-0.01" />
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="See all" android:textSize="11.5sp" android:textStyle="bold" android:textColor="@color/accent" />
+                    android:textColor="@color/black" android:letterSpacing="-0.01" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="See all" android:textSize="11.5sp" android:textStyle="bold" android:textColor="@color/bg_item" />
             </LinearLayout>
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                     android:orientation="horizontal" android:layout_marginBottom="11dp">
@@ -74,7 +74,7 @@
                         <TextView android:layout_width="32dp" android:layout_height="32dp"
                             android:gravity="center" android:text="PP"
                             android:textSize="12sp" android:textStyle="bold"
-                            android:textColor="@color/t400"
+                            android:textColor="@color/bg_app"
                             android:background="@drawable/bg_card_logo"
                             android:layout_marginBottom="12dp" />
                         <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
@@ -98,7 +98,7 @@
                         <TextView android:layout_width="32dp" android:layout_height="32dp"
                             android:gravity="center" android:text="QU"
                             android:textSize="12sp" android:textStyle="bold"
-                            android:textColor="@color/t400"
+                            android:textColor="@color/bg_app"
                             android:background="@drawable/bg_card_logo"
                             android:layout_marginBottom="12dp" />
                         <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
@@ -126,7 +126,7 @@
                         <TextView android:layout_width="32dp" android:layout_height="32dp"
                             android:gravity="center" android:text="HD"
                             android:textSize="12sp" android:textStyle="bold"
-                            android:textColor="@color/t400"
+                            android:textColor="@color/bg_surface"
                             android:background="@drawable/bg_card_logo"
                             android:layout_marginBottom="12dp" />
                         <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
@@ -150,7 +150,7 @@
                         <TextView android:layout_width="32dp" android:layout_height="32dp"
                             android:gravity="center" android:text="NI"
                             android:textSize="12sp" android:textStyle="bold"
-                            android:textColor="@color/t400"
+                            android:textColor="@color/bg_surface"
                             android:background="@drawable/bg_card_logo"
                             android:layout_marginBottom="12dp" />
                         <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
@@ -181,8 +181,8 @@
                 <TextView android:layout_width="0dp" android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Collections" android:textSize="15.5sp" android:textStyle="bold"
-                    android:textColor="@color/t100" android:letterSpacing="-0.01" />
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="See more" android:textSize="11.5sp" android:textStyle="bold" android:textColor="@color/accent" />
+                    android:textColor="@color/black" android:letterSpacing="-0.01" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="See more" android:textSize="11.5sp" android:textStyle="bold" android:textColor="@color/black" />
             </LinearLayout>
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                     android:orientation="horizontal" android:layout_marginBottom="14dp">
@@ -324,8 +324,8 @@
                 <TextView android:layout_width="0dp" android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Fund houses" android:textSize="15.5sp" android:textStyle="bold"
-                    android:textColor="@color/t100" android:letterSpacing="-0.01" />
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="All AMCs" android:textSize="11.5sp" android:textStyle="bold" android:textColor="@color/accent" />
+                    android:textColor="@color/black" android:letterSpacing="-0.01" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="All AMCs" android:textSize="11.5sp" android:textStyle="bold" android:textColor="@color/black" />
             </LinearLayout>
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                 android:orientation="vertical" android:background="@drawable/bg_rows_wrap"
@@ -350,7 +350,7 @@
                                 android:maxLines="1" android:ellipsize="end" />
                         </LinearLayout>
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="58 funds · AUM ₹9.8L Cr" android:textSize="10.5sp" android:textColor="@color/t800"
+                            android:text="58 funds · AUM ₹9.8L Cr" android:textSize="10.5sp" android:textColor="@color/bg_surface"
                             android:fontFamily="@font/jetbrains_mono" android:layout_marginTop="3dp" />
                     </LinearLayout>
                     <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -383,7 +383,7 @@
                                 android:maxLines="1" android:ellipsize="end" />
                         </LinearLayout>
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="62 funds · AUM ₹6.4L Cr" android:textSize="10.5sp" android:textColor="@color/t800"
+                            android:text="62 funds · AUM ₹6.4L Cr" android:textSize="10.5sp" android:textColor="@color/bg_surface"
                             android:fontFamily="@font/jetbrains_mono" android:layout_marginTop="3dp" />
                     </LinearLayout>
                     <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -416,7 +416,7 @@
                                 android:maxLines="1" android:ellipsize="end" />
                         </LinearLayout>
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="71 funds · AUM ₹7.1L Cr" android:textSize="10.5sp" android:textColor="@color/t800"
+                            android:text="71 funds · AUM ₹7.1L Cr" android:textSize="10.5sp" android:textColor="@color/bg_surface"
                             android:fontFamily="@font/jetbrains_mono" android:layout_marginTop="3dp" />
                     </LinearLayout>
                     <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -449,7 +449,7 @@
                                 android:maxLines="1" android:ellipsize="end" />
                         </LinearLayout>
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="24 funds · AUM ₹92K Cr" android:textSize="10.5sp" android:textColor="@color/t800"
+                            android:text="24 funds · AUM ₹92K Cr" android:textSize="10.5sp" android:textColor="@color/bg_surface"
                             android:fontFamily="@font/jetbrains_mono" android:layout_marginTop="3dp" />
                     </LinearLayout>
                     <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"

@@ -1,14 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <style name="Theme.TradingApp" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <item name="android:windowBackground">@color/bg_surface</item>
-        <item name="android:statusBarColor">@color/bg_surface</item>
-        <item name="android:windowLightStatusBar">false</item>
-        <item name="android:navigationBarColor">@color/bg_nav</item>
         <item name="colorPrimary">@color/accent</item>
+        <item name="colorPrimaryVariant">@color/accent</item>
+        <item name="colorOnPrimary">@color/t100</item>
+        <item name="android:windowBackground">@color/bg_surface</item>
+        <item name="android:statusBarColor">#000000</item>
+        <item name="android:navigationBarColor">#000000</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="27">false</item>
+        <item name="android:fitsSystemWindows">false</item>
 
-        <!-- Same fix as values/themes.xml — force explicit text colors
-             rather than letting them default from system theme state. -->
+        <!-- FIX (root cause of "text invisible on many screens"): this
+             theme's PARENT is DayNight, which means any TextView/Button/
+             EditText that doesn't set its own explicit android:textColor
+             was inheriting Material's default text colors based on the
+             PHONE'S system light/dark setting — not based on this app's
+             background, which is ALWAYS forced dark above. On a phone
+             set to system light mode, that meant dark/near-black default
+             text colors landing on this app's permanently dark
+             background: dark text on a dark background, invisible,
+             everywhere an XML didn't explicitly set its own color.
+             Forcing these here makes every default text color correct
+             for this app's always-dark background regardless of the
+             phone's own system theme setting. -->
         <item name="android:textColorPrimary">@color/t100</item>
         <item name="android:textColorSecondary">@color/t600</item>
         <item name="android:textColorHint">@color/t700</item>

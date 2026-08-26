@@ -1,45 +1,189 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- F&O screen — shows top 10 indices by default -->
+
 <androidx.core.widget.NestedScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg_surface"
-    android:scrollbars="none">
+    android:background="#F4F4F4"
+    android:fillViewport="true"
+    android:scrollbars="none"
+    android:overScrollMode="never">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingBottom="16dp">
+        android:paddingBottom="24dp">
 
-        <!-- Section header -->
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:orientation="horizontal" android:gravity="center_vertical"
-            android:paddingStart="16dp" android:paddingEnd="16dp"
-            android:paddingTop="14dp" android:paddingBottom="10dp">
-            <TextView android:layout_width="0dp" android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Indices" android:textSize="14sp" android:textStyle="bold"
-                android:textColor="@color/black"/>
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:id="@+id/tvMarketStatus"
-                android:text="Market Closed" android:textSize="10.5sp"
-                android:textColor="@color/white"
-                android:paddingStart="8dp" android:paddingEnd="8dp"
-                android:paddingTop="3dp" android:paddingBottom="3dp"
-                android:background="@drawable/bg_chip_off"/>
+
+        <!-- ===================================================== -->
+        <!-- PAGE HEADER                                            -->
+        <!-- ===================================================== -->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="18dp"
+            android:paddingEnd="18dp"
+            android:paddingTop="18dp"
+            android:paddingBottom="14dp"
+            android:background="#FFFFFF">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="F&amp;O Markets"
+                android:textColor="#0D0D0D"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:includeFontPadding="false" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:text="Track major futures &amp; options indices"
+                android:textColor="#777777"
+                android:textSize="12sp"
+                android:includeFontPadding="false" />
+
         </LinearLayout>
 
-        <!-- Index list — row items (rvWatchlist reuse is fine for rows) -->
+
+        <!-- ===================================================== -->
+        <!-- MARKET SUMMARY                                         -->
+        <!-- ===================================================== -->
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginTop="14dp"
+            app:cardBackgroundColor="#0D0D0D"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="3dp">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="92dp"
+                android:paddingStart="17dp"
+                android:paddingEnd="17dp"
+                android:paddingTop="14dp"
+                android:paddingBottom="14dp">
+
+                <TextView
+                    android:id="@+id/tvMarketSection"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="MARKET OVERVIEW"
+                    android:textColor="#9A9A9A"
+                    android:textSize="9.5sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.09"
+                    android:includeFontPadding="false"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/tvMarketStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="30dp"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center"
+                    android:minWidth="92dp"
+                    android:paddingStart="11dp"
+                    android:paddingEnd="11dp"
+                    android:text="Loading…"
+                    android:textColor="#FFFFFF"
+                    android:textSize="10.5sp"
+                    android:textStyle="bold"
+                    android:background="@drawable/bg_fno_status"
+                    android:includeFontPadding="false"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tvMarketSection" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="TOP 10 INDICES"
+                    android:textColor="#777777"
+                    android:textSize="9.5sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.06"
+                    android:includeFontPadding="false"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Live market levels"
+                    android:textColor="#BDBDBD"
+                    android:textSize="10.5sp"
+                    android:includeFontPadding="false"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tvMarketSection" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.cardview.widget.CardView>
+
+
+        <!-- ===================================================== -->
+        <!-- SECTION TITLE                                          -->
+        <!-- ===================================================== -->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="18dp"
+            android:paddingEnd="18dp"
+            android:paddingTop="22dp"
+            android:paddingBottom="9dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Major indices"
+                android:textColor="#222222"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:includeFontPadding="false" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tap any index to open chart"
+                android:textColor="#999999"
+                android:textSize="10sp"
+                android:includeFontPadding="false" />
+
+        </LinearLayout>
+
+
+        <!-- ===================================================== -->
+        <!-- INDEX LIST                                             -->
+        <!-- ===================================================== -->
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvIndices"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:clipToPadding="false"
             android:nestedScrollingEnabled="false"
-            android:padding="8dp"
+            android:overScrollMode="never"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="8dp"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
     </LinearLayout>
+
 </androidx.core.widget.NestedScrollView>

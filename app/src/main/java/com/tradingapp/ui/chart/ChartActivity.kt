@@ -114,14 +114,31 @@ class ChartActivity : AppCompatActivity() {
     private fun highlightPeriod(active: String) {
         periods.forEach { p ->
             b.periodContainer.findViewWithTag<TextView>(p)?.let { tv ->
-                val on = p == active
-                tv.setTextColor(if (on) Color.parseColor("#6D5EF8") else Color.parseColor("#6E7681"))
-                tv.setTypeface(tv.typeface, if (on) Typeface.BOLD else Typeface.NORMAL)
-                tv.setBackgroundResource(if (on) R.drawable.bg_chip_on else R.drawable.bg_chip_off)
+                val isActive = p == active
+
+                tv.setTextColor(
+                    if (isActive) {
+                        Color.WHITE
+                    } else {
+                        Color.parseColor("#333333")
+                    }
+                )
+
+                tv.setTypeface(
+                    tv.typeface,
+                    if (isActive) Typeface.BOLD else Typeface.NORMAL
+                )
+
+                tv.setBackgroundResource(
+                    if (isActive) {
+                        R.drawable.bg_chart_period_active
+                    } else {
+                        R.drawable.bg_chart_period
+                    }
+                )
             }
         }
     }
-
     private fun setupOrderButtons() {
         b.btnBuy.setOnClickListener  { openOrder("BUY")  }
         b.btnSell.setOnClickListener { openOrder("SELL") }

@@ -26,36 +26,54 @@
         android:paddingTop="28dp" android:paddingBottom="20dp">
         <TextView
             android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:text="Current Balance" android:textSize="12sp" android:textColor="@color/t700"/>
+            android:text="Current Balance" android:textSize="12sp" android:textColor="@color/black"/>
         <TextView android:id="@+id/tvCurrentBalance"
             android:layout_width="wrap_content" android:layout_height="wrap_content"
             android:text="₹0.00" android:textSize="26sp" android:textStyle="bold"
-            android:textColor="@color/t100" android:layout_marginTop="4dp"/>
+            android:textColor="@color/black" android:layout_marginTop="4dp"/>
     </LinearLayout>
 
     <View android:layout_width="match_parent" android:layout_height="0.5dp" android:background="@color/div06"/>
 
     <TextView
         android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:text="Enter amount" android:textSize="12sp" android:textColor="@color/t700"
+        android:text="Enter amount" android:textSize="12sp" android:textColor="@color/black"
         android:paddingStart="20dp" android:paddingEnd="20dp"
         android:paddingTop="20dp" android:paddingBottom="8dp"/>
 
     <LinearLayout
-        android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:orientation="horizontal" android:gravity="center_vertical"
-        android:paddingStart="20dp" android:paddingEnd="20dp">
+        android:layout_width="match_parent"
+        android:layout_height="51dp"
+        android:background="@drawable/bg_card"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="20dp"
+        android:layout_marginLeft="2dp"
+        android:layout_marginRight="2dp"
+        android:paddingEnd="20dp">
+
         <TextView
-            android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:text="₹" android:textSize="28sp" android:textStyle="bold"
-            android:textColor="@color/t100" android:layout_marginEnd="6dp"/>
-        <EditText android:id="@+id/etAmount"
-            android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="6dp"
+            android:text="₹"
+            android:textColor="@color/t100"
+            android:textSize="28sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/etAmount"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:inputType="number" android:hint="0"
+            android:background="@null"
+            android:hint="0"
+            android:inputType="number"
+            android:maxLength="6"
+            android:textColor="@color/t100"
             android:textColorHint="@color/t700"
-            android:textSize="28sp" android:textStyle="bold" android:textColor="@color/t100"
-            android:background="@null" android:maxLength="6"/>
+            android:textSize="28sp"
+            android:textStyle="bold" />
     </LinearLayout>
 
     <View android:layout_width="match_parent" android:layout_height="0.5dp"

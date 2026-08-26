@@ -66,7 +66,7 @@
                     android:orientation="horizontal" android:gravity="center_vertical"
                     android:paddingStart="14dp" android:paddingEnd="14dp"
                     android:paddingTop="13dp" android:paddingBottom="13dp"
-                    android:background="@drawable/bg_row">
+                    android:background="@drawable/bg_card">
                     <TextView android:layout_width="34dp" android:layout_height="34dp"
                         android:gravity="center" android:text="NF"
                         android:textSize="11.5sp" android:textStyle="bold"
@@ -81,7 +81,7 @@
                                 android:maxLines="1" android:ellipsize="end" />
                         </LinearLayout>
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="OI 68.4L · 28 Aug" android:textSize="10.5sp" android:textColor="@color/t800"
+                            android:text="OI 68.4L · 28 Aug" android:textSize="10.5sp" android:textColor="@color/white"
                             android:fontFamily="@font/jetbrains_mono" android:layout_marginTop="3dp" />
                     </LinearLayout>
                     <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -114,7 +114,7 @@
                                 android:maxLines="1" android:ellipsize="end" />
                         </LinearLayout>
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="OI 22.8L · 28 Aug" android:textSize="10.5sp" android:textColor="@color/t800"
+                            android:text="OI 22.8L · 28 Aug" android:textSize="10.5sp" android:textColor="@color/white"
                             android:fontFamily="@font/jetbrains_mono" android:layout_marginTop="3dp" />
                     </LinearLayout>
                     <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -147,7 +147,7 @@
                                 android:maxLines="1" android:ellipsize="end" />
                         </LinearLayout>
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="Lot 500 · 28 Aug" android:textSize="10.5sp" android:textColor="@color/t800"
+                            android:text="Lot 500 · 28 Aug" android:textSize="10.5sp" android:textColor="@color/white"
                             android:fontFamily="@font/jetbrains_mono" android:layout_marginTop="3dp" />
                     </LinearLayout>
                     <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -180,7 +180,7 @@
                                 android:maxLines="1" android:ellipsize="end" />
                         </LinearLayout>
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="Lot 175 · 28 Aug" android:textSize="10.5sp" android:textColor="@color/t800"
+                            android:text="Lot 175 · 28 Aug" android:textSize="10.5sp" android:textColor="@color/white"
                             android:fontFamily="@font/jetbrains_mono" android:layout_marginTop="3dp" />
                     </LinearLayout>
                     <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
