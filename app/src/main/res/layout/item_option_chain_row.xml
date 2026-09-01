@@ -17,7 +17,8 @@
         <TextView android:id="@+id/tvCallLtp"
             android:layout_width="wrap_content" android:layout_height="wrap_content"
             android:text="—" android:textSize="14sp" android:textStyle="bold"
-            android:textColor="@color/t100" android:fontFamily="monospace"/>
+            android:layout_gravity="center"
+            android:textColor="@color/black" android:fontFamily="monospace"/>
         <TextView android:id="@+id/tvCallChange"
             android:layout_width="wrap_content" android:layout_height="wrap_content"
             android:text="" android:textSize="11sp" android:layout_marginTop="2dp"/>
@@ -27,7 +28,7 @@
     <TextView android:id="@+id/tvStrike"
         android:layout_width="86dp" android:layout_height="wrap_content"
         android:text="0" android:textSize="13.5sp" android:textStyle="bold"
-        android:textColor="@color/t100" android:gravity="center"
+        android:textColor="@color/bg_card" android:gravity="center"
         android:background="@drawable/bg_chip_off"
         android:paddingTop="4dp" android:paddingBottom="4dp"/>
 
@@ -41,7 +42,8 @@
         <TextView android:id="@+id/tvPutLtp"
             android:layout_width="wrap_content" android:layout_height="wrap_content"
             android:text="—" android:textSize="14sp" android:textStyle="bold"
-            android:textColor="@color/t100" android:fontFamily="monospace"/>
+            android:layout_gravity="center"
+            android:textColor="@color/black" android:fontFamily="monospace"/>
         <TextView android:id="@+id/tvPutChange"
             android:layout_width="wrap_content" android:layout_height="wrap_content"
             android:text="" android:textSize="11sp" android:layout_marginTop="2dp"/>

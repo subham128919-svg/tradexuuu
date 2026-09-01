@@ -30,16 +30,31 @@ class OptionChainViewModel @Inject constructor(
     private var chainJob: Job? = null
     private var subscribedSymbols: List<String> = emptyList()
 
+    // FIX: _chain used to only ever get updated inside loadChain(). If the
+    // expiries list came back empty, or the request failed, or it threw,
+    // loadChain() was never called — so _chain stayed stuck on its initial
+    // Resource.Loading value forever, and the screen just spun with nothing
+    // rendered (no data, no error, no "no options" message). Every branch
+    // below now explicitly resolves _chain to either Success (via
+    // loadChain) or Error, so the screen always ends up showing something.
     fun loadExpiries(underlying: String) = viewModelScope.launch {
         try {
             val r = api.getOptionExpiries(underlying)
             if (r.isSuccessful) {
                 val list = r.body()?.expiries ?: emptyList()
                 _expiries.value = list
-                // Auto-load the nearest expiry once we know what's available.
-                list.firstOrNull()?.let { loadChain(underlying, it) }
+                val nearest = list.firstOrNull()
+                if (nearest != null) {
+                    loadChain(underlying, nearest)
+                } else {
+                    _chain.value = Resource.Error("No option contracts available for $underlying right now")
+                }
+            } else {
+                _chain.value = Resource.Error("Could not load expiries (${r.code()})")
             }
-        } catch (_: Exception) { /* expiries list just stays empty — UI shows "no options" */ }
+        } catch (e: Exception) {
+            _chain.value = Resource.Error(e.message ?: "Network error")
+        }
     }
 
     fun loadChain(underlying: String, expiry: String) {
