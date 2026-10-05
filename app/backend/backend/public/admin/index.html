@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TradeX Admin</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#07080A;--surface:#0B0D10;--card:#14171C;--border:rgba(255,255,255,.07);
+  --accent:#6D5EF8;--green:#2FBF71;--red:#FF5C5C;--t1:#F2F4F7;--t4:#8A93A0;--t7:#6E7681}
+body{background:var(--bg);color:var(--t1);font-family:-apple-system,sans-serif;min-height:100vh}
+#login{display:flex;align-items:center;justify-content:center;min-height:100vh}
+.login-box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:40px;width:360px}
+.login-box h1{font-size:22px;margin-bottom:8px;color:var(--accent)}
+.login-box p{color:var(--t4);font-size:13px;margin-bottom:28px}
+input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  padding:12px 14px;color:var(--t1);font-size:14px;outline:none;margin-bottom:14px}
+input:focus{border-color:var(--accent)}
+button{background:var(--accent);border:none;border-radius:10px;padding:13px;
+  color:#fff;font-size:14px;font-weight:600;cursor:pointer}
+button:hover{opacity:.9}
+.btn-sm{padding:5px 12px;font-size:12px;border-radius:7px;width:auto}
+.btn-red{background:var(--red)}
+.btn-grn{background:var(--green)}
+#errMsg{color:var(--red);font-size:12px;margin-top:8px;display:none}
+#app{display:none;flex-direction:column}
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;
+  height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+header .logo{font-size:18px;font-weight:700;color:var(--accent)}
+.badge{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.badge.green{background:rgba(47,191,113,.15);color:var(--green)}
+.badge.red{background:rgba(255,92,92,.15);color:var(--red)}
+.badge.yellow{background:rgba(255,193,7,.12);color:#FFC107}
+#logoutBtn{background:none;border:1px solid var(--border);border-radius:8px;padding:6px 14px;
+  color:var(--t4);font-size:12px;cursor:pointer;width:auto}
+#logoutBtn:hover{border-color:var(--red);color:var(--red);opacity:1}
+.layout{display:flex;min-height:calc(100vh - 56px)}
+nav{width:200px;background:var(--surface);border-right:1px solid var(--border);padding:16px 0}
+nav a{display:flex;align-items:center;gap:10px;padding:11px 20px;color:var(--t4);
+  font-size:13px;cursor:pointer;border-left:3px solid transparent;transition:.15s}
+nav a:hover{color:var(--t1);background:rgba(255,255,255,.04)}
+nav a.active{color:var(--accent);border-left-color:var(--accent);background:rgba(109,94,248,.08)}
+main{flex:1;padding:24px;overflow-x:hidden}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:24px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px 20px}
+.stat-card .label{font-size:11px;color:var(--t7);text-transform:uppercase;letter-spacing:.06em}
+.stat-card .val{font-size:26px;font-weight:700;margin:6px 0 2px}
+.stat-card .sub{font-size:11px;color:var(--t7)}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.section-header h2{font-size:15px;font-weight:600}
+.search-bar{background:var(--card);border:1px solid var(--border);border-radius:8px;
+  padding:8px 12px;color:var(--t1);font-size:13px;outline:none;width:220px}
+.search-bar:focus{border-color:var(--accent)}
+table{width:100%;border-collapse:collapse;background:var(--card);border-radius:12px;overflow:hidden}
+th{background:var(--surface);padding:10px 14px;text-align:left;font-size:11px;
+  color:var(--t7);font-weight:500;text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--border)}
+td{padding:10px 14px;font-size:13px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.02)}
+.pill{display:inline-block;padding:2px 9px;border-radius:10px;font-size:11px;font-weight:600}
+.pill.green{background:rgba(47,191,113,.15);color:var(--green)}
+.pill.red{background:rgba(255,92,92,.15);color:var(--red)}
+.pill.gray{background:rgba(255,255,255,.08);color:var(--t4)}
+.pill.blue{background:rgba(109,94,248,.15);color:#9B7EF8}
+.paginate{display:flex;gap:8px;margin-top:14px;justify-content:flex-end;align-items:center}
+.paginate button{background:var(--card);border:1px solid var(--border);border-radius:7px;
+  padding:5px 12px;color:var(--t1);font-size:12px;cursor:pointer;width:auto}
+.paginate button:hover{border-color:var(--accent)}
+.paginate button:disabled{opacity:.4;cursor:default}
+.page-info{font-size:12px;color:var(--t7)}
+.action-btn{background:none;border:1px solid var(--border);border-radius:6px;
+  padding:3px 10px;font-size:11px;color:var(--t4);cursor:pointer;width:auto}
+.action-btn:hover{color:var(--red);border-color:var(--red);opacity:1}
+.page{display:none}.page.active{display:block}
+.add-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.add-row input{flex:1;min-width:120px;margin-bottom:0;padding:8px 12px}
+.add-row select{background:var(--card);border:1px solid var(--border);border-radius:8px;
+  padding:8px 12px;color:var(--t1);font-size:13px;outline:none}
+</style>
+</head>
+<body>
+<div id="login">
+  <div class="login-box">
+    <h1>TradeX Admin</h1>
+    <p>Sign in to manage your trading app</p>
+    <input type="text" id="loginUser" placeholder="Username" autocomplete="off">
+    <input type="password" id="loginPass" placeholder="Password">
+    <button onclick="doLogin()" style="width:100%">Sign In</button>
+    <div id="errMsg"></div>
+  </div>
+</div>
+
+<div id="app" style="display:none;flex-direction:column">
+  <header>
+    <div class="logo">TradeX Admin</div>
+    <div style="display:flex;align-items:center;gap:12px;font-size:13px;color:var(--t4)">
+      <span id="hdrMarket" class="badge"></span>
+      <span id="hdrKite" class="badge"></span>
+      <button id="logoutBtn" onclick="logout()">Sign out</button>
+    </div>
+  </header>
+  <div class="layout">
+    <nav>
+      <a class="active" data-page="dashboard" onclick="showPage('dashboard',this)">📊 Dashboard</a>
+      <a data-page="users"    onclick="showPage('users',this)">👥 Users</a>
+      <a data-page="orders"   onclick="showPage('orders',this)">📋 Orders</a>
+      <a data-page="payments" onclick="showPage('payments',this)">💳 Payments</a>
+      <a data-page="wallet"   onclick="showPage('wallet',this)">💰 Wallet</a>
+      <a data-page="universe" onclick="showPage('universe',this)">🌐 Home Stocks</a>
+    </nav>
+    <main>
+      <!-- Dashboard -->
+      <div class="page active" id="page-dashboard">
+        <div class="stats" id="statsGrid"></div>
+        <div id="kiteStatus" style="font-size:13px;margin-top:8px"></div>
+      </div>
+
+      <!-- Users -->
+      <div class="page" id="page-users">
+        <div class="section-header">
+          <h2>App Users</h2>
+          <input class="search-bar" id="userSearch" placeholder="Search…" oninput="searchUsers()">
+        </div>
+        <table><thead><tr><th>#</th><th>Name</th><th>Email</th><th>Phone</th><th>Registered</th><th>Last Login</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody id="usersBody"></tbody></table>
+        <div class="paginate">
+          <button onclick="loadUsers(userPage-1)" id="btnPrev">← Prev</button>
+          <span class="page-info" id="pageInfo"></span>
+          <button onclick="loadUsers(userPage+1)" id="btnNext">Next →</button>
+        </div>
+      </div>
+
+      <!-- Orders -->
+      <div class="page" id="page-orders">
+        <div class="section-header"><h2>All Orders</h2></div>
+        <table><thead><tr><th>#</th><th>User</th><th>Symbol</th><th>Type</th><th>Qty</th><th>Price</th><th>Product</th><th>Status</th><th>Date</th></tr></thead>
+        <tbody id="ordersBody"></tbody></table>
+        <div class="paginate">
+          <button onclick="loadOrders(ordPage-1)" id="btnOPrev">← Prev</button>
+          <span class="page-info" id="ordPageInfo"></span>
+          <button onclick="loadOrders(ordPage+1)" id="btnONext">Next →</button>
+        </div>
+      </div>
+
+      <!-- Payments (Razorpay) -->
+      <div class="page" id="page-payments">
+        <div class="section-header">
+          <h2>Razorpay Payments</h2>
+          <div id="paymentsSummary" style="font-size:13px;color:var(--t4)"></div>
+        </div>
+        <table><thead><tr><th>#</th><th>User</th><th>Amount</th><th>Razorpay Order ID</th><th>Payment ID</th><th>Status</th><th>Date</th></tr></thead>
+        <tbody id="paymentsBody"></tbody></table>
+        <div class="paginate">
+          <button onclick="loadPayments(payPage-1)" id="btnPPrev">← Prev</button>
+          <span class="page-info" id="payPageInfo"></span>
+          <button onclick="loadPayments(payPage+1)" id="btnPNext">Next →</button>
+        </div>
+      </div>
+
+      <!-- Wallet management -->
+      <div class="page" id="page-wallet">
+        <div class="section-header"><h2>Wallet Management</h2></div>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:20px">
+          <h3 style="font-size:14px;margin-bottom:14px;color:var(--t4)">Adjust User Balance</h3>
+          <div class="add-row">
+            <input type="number" id="walletUserId" placeholder="User ID">
+            <input type="number" id="walletAmount" placeholder="Amount (₹)">
+            <select id="walletType"><option value="credit">Credit (+)</option><option value="debit">Debit (-)</option></select>
+            <input id="walletNote" placeholder="Note (optional)">
+            <button class="btn-sm btn-grn" onclick="adjustWallet()">Apply</button>
+          </div>
+          <div id="walletMsg" style="font-size:12px;margin-top:8px"></div>
+        </div>
+        <div class="section-header">
+          <h2>Users &amp; Balances</h2>
+          <input class="search-bar" id="walletSearch" placeholder="Search user…" oninput="loadWalletUsers()">
+        </div>
+        <table><thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Balance</th><th>Quick Add</th></tr></thead>
+        <tbody id="walletBody"></tbody></table>
+      </div>
+
+      <!-- Home stock universe management -->
+      <div class="page" id="page-universe">
+        <div class="section-header"><h2>Home Screen Stocks</h2></div>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:20px">
+          <h3 style="font-size:14px;margin-bottom:14px;color:var(--t4)">Add Stock / Index</h3>
+          <div class="add-row">
+            <input id="uniSymbol" placeholder="Symbol (e.g. NSE:ZOMATO)">
+            <input id="uniName"   placeholder="Company name">
+            <select id="uniSection">
+              <option value="explore">Explore (Stocks home)</option>
+              <option value="fno">F&amp;O (Indices)</option>
+              <option value="both">Both sections</option>
+            </select>
+            <input type="number" id="uniOrder" placeholder="Order #" style="width:80px">
+            <button class="btn-sm" onclick="addToUniverse()">Add</button>
+          </div>
+          <div id="uniMsg" style="font-size:12px;margin-top:8px"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div>
+            <h3 style="font-size:13px;color:var(--t4);margin-bottom:10px">EXPLORE (Home stocks)</h3>
+            <table><thead><tr><th>#</th><th>Symbol</th><th>Name</th><th></th></tr></thead>
+            <tbody id="exploreBody"></tbody></table>
+          </div>
+          <div>
+            <h3 style="font-size:13px;color:var(--t4);margin-bottom:10px">F&amp;O (Indices)</h3>
+            <table><thead><tr><th>#</th><th>Symbol</th><th>Name</th><th></th></tr></thead>
+            <tbody id="fnoBody"></tbody></table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+const BASE = '/api/v1';
+let token = localStorage.getItem('adminToken');
+let userPage=1, ordPage=1, payPage=1;
+
+async function api(path, opts={}) {
+  const r = await fetch(BASE+path, {...opts, headers:{'Content-Type':'application/json','Authorization':'Bearer '+token,...(opts.headers||{})}});
+  if (r.status===401){logout();throw new Error('Session expired');}
+  return r.json();
+}
+
+async function doLogin(){
+  const u=document.getElementById('loginUser').value.trim(), p=document.getElementById('loginPass').value;
+  try{
+    const r = await fetch(BASE+'/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p})});
+    const d = await r.json();
+    if(d.token){token=d.token;localStorage.setItem('adminToken',token);showApp();}
+    else showErr(d.error||'Login failed');
+  }catch(e){showErr('Error: '+e.message);}
+}
+function showErr(m){const e=document.getElementById('errMsg');e.textContent=m;e.style.display='block';}
+function showApp(){document.getElementById('login').style.display='none';document.getElementById('app').style.display='flex';loadDashboard();}
+function logout(){localStorage.removeItem('adminToken');token=null;document.getElementById('login').style.display='flex';document.getElementById('app').style.display='none';}
+
+function showPage(pg,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('nav a').forEach(a=>a.classList.remove('active'));
+  document.getElementById('page-'+pg).classList.add('active');
+  el.classList.add('active');
+  if(pg==='users')    loadUsers(1);
+  if(pg==='orders')   loadOrders(1);
+  if(pg==='payments') loadPayments(1);
+  if(pg==='wallet')   loadWalletUsers();
+  if(pg==='universe') loadUniverse();
+}
+
+async function loadDashboard(){
+  const d = await api('/admin/dashboard');
+  const pay = await api('/admin/payments?page=1').catch(()=>({totalPaid:0,paidCount:0}));
+  document.getElementById('statsGrid').innerHTML=[
+    {label:'Total Users',val:d.users?.total||0,sub:'+'+(d.users?.today||0)+' today'},
+    {label:'Active',val:(d.users?.total||0)-(d.users?.blocked||0),sub:(d.users?.blocked||0)+' blocked'},
+    {label:'Orders',val:d.orders?.total||0,sub:(d.orders?.today||0)+' today'},
+    {label:'Payments',val:'₹'+parseFloat(pay.totalPaid||0).toFixed(0),sub:(pay.paidCount||0)+' successful'},
+  ].map(s=>`<div class="stat-card"><div class="label">${s.label}</div><div class="val">${s.val}</div><div class="sub">${s.sub}</div></div>`).join('');
+  const ms=d.marketStatus;
+  document.getElementById('hdrMarket').className='badge '+(ms?.isOpen?'green':'red');
+  document.getElementById('hdrMarket').textContent=ms?.session||'—';
+  document.getElementById('hdrKite').className='badge '+(d.kiteToken==='active'?'green':'yellow');
+  document.getElementById('hdrKite').textContent='Kite: '+(d.kiteToken==='active'?'Active':'No Token');
+  document.getElementById('kiteStatus').innerHTML=d.kiteToken!=='active'
+    ?'<span style="color:var(--red)">⚠ Kite token missing — <a style="color:var(--accent)" href="/api/v1/auth/kite-login" target="_blank">Login here</a></span>'
+    :'<span style="color:var(--green)">✓ Kite token active</span>';
+}
+
+async function loadUsers(pg){
+  if(pg<1)return;userPage=pg;
+  const q=document.getElementById('userSearch')?.value||'';
+  const d=await api('/admin/users?page='+pg+(q?'&q='+encodeURIComponent(q):''));
+  document.getElementById('usersBody').innerHTML=(d.data||[]).map((u,i)=>`
+    <tr><td>${(pg-1)*20+i+1}</td><td><strong>${esc(u.name)}</strong></td><td>${esc(u.email)}</td>
+    <td>${esc(u.phone||'—')}</td><td>${fmtDate(u.created_at)}</td><td>${fmtDate(u.last_login_at)}</td>
+    <td><span class="pill ${u.is_blocked?'red':'green'}">${u.is_blocked?'Blocked':'Active'}</span></td>
+    <td><button class="action-btn" onclick="toggleBlock(${u.id},${u.is_blocked})">${u.is_blocked?'Unblock':'Block'}</button></td></tr>
+  `).join('');
+  document.getElementById('pageInfo').textContent='Page '+pg+' of '+(d.pages||1)+' ('+( d.total||0)+' total)';
+  document.getElementById('btnPrev').disabled=pg<=1;
+  document.getElementById('btnNext').disabled=pg>=(d.pages||1);
+}
+let searchTimer;
+function searchUsers(){clearTimeout(searchTimer);searchTimer=setTimeout(()=>loadUsers(1),400);}
+async function toggleBlock(id,isBlocked){
+  if(!confirm(isBlocked?'Unblock?':'Block this user?'))return;
+  await api('/admin/users/'+id,{method:'PATCH',body:JSON.stringify({is_blocked:isBlocked?0:1})});
+  loadUsers(userPage);
+}
+
+async function loadOrders(pg){
+  if(pg<1)return;ordPage=pg;
+  const d=await api('/admin/orders?page='+pg);
+  document.getElementById('ordersBody').innerHTML=(d.data||[]).map((o,i)=>`
+    <tr><td>${(pg-1)*30+i+1}</td>
+    <td>${esc(o.user_name||'#'+o.user_id)}<br><span style="font-size:10px;color:var(--t7)">${esc(o.email||'')}</span></td>
+    <td><strong>${esc(o.symbol)}</strong></td>
+    <td><span class="pill ${o.order_type==='BUY'?'green':'red'}">${o.order_type}</span></td>
+    <td>${o.qty}</td><td>₹${parseFloat(o.price||0).toFixed(2)}</td>
+    <td><span class="pill gray">${o.product||'—'}</span></td>
+    <td><span class="pill ${o.status==='EXECUTED'?'green':'red'}">${o.status}</span></td>
+    <td>${fmtDate(o.placed_at)}</td></tr>
+  `).join('');
+  document.getElementById('ordPageInfo').textContent='Page '+pg+' of '+(d.pages||1);
+  document.getElementById('btnOPrev').disabled=pg<=1;
+  document.getElementById('btnONext').disabled=pg>=(d.pages||1);
+}
+
+// ── Payments (Razorpay) ──────────────────────────────────────────
+async function loadPayments(pg){
+  if(pg<1)return;payPage=pg;
+  const d=await api('/admin/payments?page='+pg);
+  document.getElementById('paymentsBody').innerHTML=(d.data||[]).map((p,i)=>`
+    <tr><td>${(pg-1)*30+i+1}</td>
+    <td>${esc(p.user_name||'#'+p.user_id)}<br><span style="font-size:10px;color:var(--t7)">${esc(p.email||'')}</span></td>
+    <td>₹${parseFloat(p.amount||0).toFixed(2)}</td>
+    <td style="font-size:11px;font-family:monospace">${esc(p.razorpay_order_id)}</td>
+    <td style="font-size:11px;font-family:monospace">${esc(p.razorpay_payment_id||'—')}</td>
+    <td><span class="pill ${p.status==='paid'?'green':p.status==='failed'?'red':'gray'}">${p.status}</span></td>
+    <td>${fmtDate(p.created_at)}</td></tr>
+  `).join('');
+  document.getElementById('paymentsSummary').textContent =
+    (d.paidCount||0)+' successful payments · ₹'+parseFloat(d.totalPaid||0).toFixed(2)+' total collected';
+  document.getElementById('payPageInfo').textContent='Page '+pg+' of '+(d.pages||1)+' ('+(d.total||0)+' total)';
+  document.getElementById('btnPPrev').disabled=pg<=1;
+  document.getElementById('btnPNext').disabled=pg>=(d.pages||1);
+}
+
+// ── Wallet management ────────────────────────────────────────────
+async function loadWalletUsers(){
+  const q=document.getElementById('walletSearch')?.value||'';
+  const d=await api('/admin/users?page=1'+(q?'&q='+encodeURIComponent(q):''));
+  document.getElementById('walletBody').innerHTML=(d.data||[]).map(u=>`
+    <tr><td>${u.id}</td><td>${esc(u.name)}</td><td>${esc(u.email)}</td>
+    <td id="bal_${u.id}">—</td>
+    <td>
+      <button class="action-btn" onclick="quickCredit(${u.id})">+100</button>
+      <button class="action-btn" onclick="quickCredit(${u.id},1000)">+1K</button>
+      <button class="action-btn" onclick="quickCredit(${u.id},10000)">+10K</button>
+    </td></tr>
+  `).join('');
+}
+async function adjustWallet(){
+  const uid=document.getElementById('walletUserId').value;
+  const amt=document.getElementById('walletAmount').value;
+  const typ=document.getElementById('walletType').value;
+  const note=document.getElementById('walletNote').value;
+  if(!uid||!amt){document.getElementById('walletMsg').textContent='User ID and amount required';return;}
+  try{
+    const d=await api('/wallet/admin/adjust',{method:'POST',body:JSON.stringify({userId:parseInt(uid),amount:parseFloat(amt),type:typ,note})});
+    document.getElementById('walletMsg').innerHTML='<span style="color:var(--green)">✓ New balance: ₹'+parseFloat(d.newBalance).toFixed(2)+'</span>';
+    loadWalletUsers();
+  }catch(e){document.getElementById('walletMsg').innerHTML='<span style="color:var(--red)">Error: '+e.message+'</span>';}
+}
+async function quickCredit(uid,amt=100){
+  await api('/wallet/admin/adjust',{method:'POST',body:JSON.stringify({userId:uid,amount:amt,type:'credit',note:'Admin quick add'})});
+  document.getElementById('bal_'+uid).textContent='✓ Added ₹'+amt;
+  setTimeout(()=>loadWalletUsers(),800);
+}
+
+// ── Universe management ──────────────────────────────────────────
+async function loadUniverse(){
+  const d=await api('/market/universe');
+  const explore=(d.data||[]).filter(r=>r.section==='explore'||r.section==='both');
+  const fno    =(d.data||[]).filter(r=>r.section==='fno'    ||r.section==='both');
+  document.getElementById('exploreBody').innerHTML=explore.map((r,i)=>`
+    <tr><td>${r.display_order||i+1}</td><td><strong>${esc(r.symbol)}</strong></td><td>${esc(r.name||'')}</td>
+    <td><button class="action-btn" onclick="removeUni('${r.symbol}')">✕</button></td></tr>
+  `).join('');
+  document.getElementById('fnoBody').innerHTML=fno.map((r,i)=>`
+    <tr><td>${r.display_order||i+1}</td><td><strong>${esc(r.symbol)}</strong></td><td>${esc(r.name||'')}</td>
+    <td><button class="action-btn" onclick="removeUni('${r.symbol}')">✕</button></td></tr>
+  `).join('');
+}
+async function addToUniverse(){
+  const sym=document.getElementById('uniSymbol').value.trim().toUpperCase();
+  const name=document.getElementById('uniName').value.trim();
+  const section=document.getElementById('uniSection').value;
+  const order=parseInt(document.getElementById('uniOrder').value)||99;
+  if(!sym){document.getElementById('uniMsg').textContent='Symbol required';return;}
+  try{
+    await api('/market/universe',{method:'POST',body:JSON.stringify({symbol:sym,name,section,display_order:order})});
+    document.getElementById('uniMsg').innerHTML='<span style="color:var(--green)">✓ Added '+sym+'</span>';
+    document.getElementById('uniSymbol').value='';
+    loadUniverse();
+  }catch(e){document.getElementById('uniMsg').innerHTML='<span style="color:var(--red)">'+e.message+'</span>';}
+}
+async function removeUni(sym){
+  if(!confirm('Remove '+sym+' from home screen?'))return;
+  await api('/market/universe/'+encodeURIComponent(sym),{method:'DELETE'});
+  loadUniverse();
+}
+
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function fmtDate(d){if(!d)return'—';const dt=new Date(d);return dt.toLocaleDateString('en-IN')+' '+dt.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});}
+
+if(token){showApp();}
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.getElementById('login').style.display!=='none')doLogin();});
+</script>
+</body>
+</html>
