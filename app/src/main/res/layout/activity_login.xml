@@ -1,245 +1,433 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version='1.0' encoding='utf-8'?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0D0D0D">
+    android:background="#EDF7F2"
+    android:focusable="true"
+    android:focusableInTouchMode="true">
 
-    <!-- ================================================= -->
-    <!-- BRAND SECTION (keep your existing header/logo)     -->
-    <!-- ================================================= -->
+  <com.tradingapp.ui.auth.widget.LoginViewport
+      android:id="@+id/loginViewport"
+      android:layout_width="0dp"
+      android:layout_height="0dp"
+      android:clipToPadding="false"
+      android:fillViewport="true"
+      android:overScrollMode="never"
+      android:scrollbars="none"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
+      app:layout_constraintWidth_max="520dp">
+
     <LinearLayout
-        android:id="@+id/brandSection"
         android:layout_width="match_parent"
-        android:layout_height="220dp"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:background="#0D0D0D"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <ImageView
-            android:id="@+id/logoBox"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:src="@mipmap/ic_launcher"
-            android:contentDescription="TradeX" />
-
-        <TextView
-            android:id="@+id/tvBrand"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:text="TradeX"
-            android:textColor="#FFFFFF"
-            android:textSize="28sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="Invest smart. Trade better."
-            android:textColor="#BDBDBD"
-            android:textSize="12sp" />
-
-    </LinearLayout>
-
-    <!-- ================================================= -->
-    <!-- LOGIN CARD                                         -->
-    <!-- ================================================= -->
-    <androidx.cardview.widget.CardView
-        android:id="@+id/loginCard"
-        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="-32dp"
-        android:elevation="10dp"
-        app:cardBackgroundColor="#FFFFFF"
-        app:cardCornerRadius="20dp"
-        app:cardElevation="10dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/brandSection">
+        android:orientation="vertical"
+        android:gravity="top">
+
+      <!-- ==================== HEADER ART ==================== -->
+      <FrameLayout
+          android:id="@+id/headerArtContainer"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content">
+
+        <!-- Hero image: aspect-ratio locked so it scales, never clips -->
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:adjustViewBounds="true"
+            android:scaleType="centerCrop"
+            android:src="@drawable/txv_hero"
+            android:importantForAccessibility="no"
+            android:minHeight="180dp"
+            android:maxHeight="260dp" />
+
+        <!-- Brand overlay — match_parent width so it always centers -->
+        <LinearLayout
+            android:id="@+id/brandSection"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingTop="16dp"
+            android:paddingBottom="8dp"
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp">
+
+          <ImageView
+              android:id="@+id/logoBox"
+              android:layout_width="72dp"
+              android:layout_height="72dp"
+              android:layout_gravity="center"
+              android:contentDescription="TradeX logo"
+              android:scaleType="fitCenter"
+              android:src="@drawable/app_logo" />
+
+          <FrameLayout
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_gravity="center"
+              android:layout_marginTop="10dp">
+
+            <TextView
+                android:id="@+id/tvBrand"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:fontFamily="sans-serif"
+                android:includeFontPadding="false"
+                android:text="TradeX"
+                android:textColor="#122C22"
+                android:textSize="32sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/brandX"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end|top"
+                android:fontFamily="sans-serif"
+                android:importantForAccessibility="no"
+                android:includeFontPadding="false"
+                android:text="X"
+                android:textColor="#118A60"
+                android:textSize="32sp"
+                android:textStyle="bold" />
+          </FrameLayout>
+
+          <TextView
+              android:id="@+id/brandTagline"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_gravity="center"
+              android:layout_marginTop="6dp"
+              android:gravity="center"
+              android:paddingStart="12dp"
+              android:paddingEnd="12dp"
+              android:text="Invest smart. Trade better."
+              android:textColor="#557367"
+              android:textSize="12sp" />
+        </LinearLayout>
+      </FrameLayout>
+
+      <!-- ==================== LOGIN CARD ==================== -->
+      <androidx.cardview.widget.CardView
+          android:id="@+id/loginCard"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginStart="16dp"
+          android:layout_marginEnd="16dp"
+          android:layout_marginTop="-12dp"
+          app:cardBackgroundColor="#FFFFFF"
+          app:cardCornerRadius="28dp"
+          app:cardElevation="0dp"
+          app:cardPreventCornerOverlap="false"
+          app:cardUseCompatPadding="false">
 
         <LinearLayout
+            android:id="@+id/loginCardContent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingStart="22dp"
             android:paddingEnd="22dp"
-            android:paddingTop="26dp"
-            android:paddingBottom="24dp">
+            android:paddingTop="24dp"
+            android:paddingBottom="18dp">
+
+          <!-- Accent bar -->
+          <View
+              android:layout_width="32dp"
+              android:layout_height="4dp"
+              android:background="@drawable/txv_accent" />
+
+          <TextView
+              android:id="@+id/tvTitle"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginTop="16dp"
+              android:includeFontPadding="false"
+              android:text="Welcome back"
+              android:textColor="#122C22"
+              android:textSize="26sp"
+              android:textStyle="bold" />
+
+          <TextView
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginTop="8dp"
+              android:lineSpacingExtra="2dp"
+              android:text="Sign in securely with a one-time password."
+              android:textColor="#65796E"
+              android:textSize="13sp" />
+
+          <!-- Phone label -->
+          <TextView
+              android:id="@+id/phoneLabel"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginTop="24dp"
+              android:letterSpacing=".09"
+              android:text="MOBILE NUMBER"
+              android:textColor="#496458"
+              android:textSize="10sp"
+              android:textStyle="bold" />
+
+          <!-- Phone input row -->
+          <LinearLayout
+              android:id="@+id/phoneInput"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginTop="10dp"
+              android:addStatesFromChildren="true"
+              android:background="@drawable/txv_input"
+              android:gravity="center_vertical"
+              android:minHeight="56dp"
+              android:orientation="horizontal"
+              android:paddingStart="12dp"
+              android:paddingEnd="12dp">
+
+            <ImageView
+                android:layout_width="22dp"
+                android:layout_height="17dp"
+                android:contentDescription="India"
+                android:src="@drawable/txv_flag_india" />
 
             <TextView
-                android:id="@+id/tvTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Welcome back"
-                android:textColor="#0D0D0D"
-                android:textSize="26sp"
-                android:textStyle="bold"
-                android:includeFontPadding="false" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="7dp"
-                android:text="Enter your phone number to sign in with OTP."
-                android:textColor="#777777"
-                android:textSize="13sp" />
-
-            <!-- PHONE LABEL -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="28dp"
-                android:text="PHONE NUMBER"
-                android:textColor="#555555"
-                android:textSize="10sp"
-                android:textStyle="bold"
-                android:letterSpacing="0.08" />
-
-            <!-- PHONE FIELD -->
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="62dp"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/bg_login_input"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp">
-
-                <View
-                    android:layout_width="3dp"
-                    android:layout_height="22dp"
-                    android:layout_gravity="start|center_vertical"
-                    android:background="@drawable/bg_login_input_accent" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginStart="14dp"
-                    android:gravity="center_vertical"
-                    android:text="+91"
-                    android:textColor="#555555"
-                    android:textSize="15sp"
-                    android:textStyle="bold" />
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etPhone"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginStart="52dp"
-                    android:background="@android:color/transparent"
-                    android:hint="98765 43210"
-                    android:inputType="phone"
-                    android:maxLength="10"
-                    android:maxLines="1"
-                    android:textColor="#0D0D0D"
-                    android:textColorHint="#A0A0A0"
-                    android:textSize="15sp" />
-
-            </FrameLayout>
-
-            <!-- ERROR -->
-            <TextView
-                android:id="@+id/tvError"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="9dp"
-                android:textColor="#B3261E"
-                android:textSize="12sp"
-                android:visibility="gone"
-                tools:text="No account found with this number" />
-
-            <!-- GET OTP BUTTON -->
-            <Button
-                android:id="@+id/btnLogin"
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:layout_marginTop="20dp"
-                android:background="@drawable/bg_login_button"
-                android:elevation="2dp"
-                android:stateListAnimator="@null"
-                android:text="Get OTP"
-                android:textAllCaps="false"
-                android:textColor="#FFFFFF"
-                android:textSize="15sp"
+                android:layout_marginStart="7dp"
+                android:text="+91"
+                android:textColor="#254336"
+                android:textSize="14sp"
                 android:textStyle="bold" />
 
-            <!-- SECURITY -->
-            <LinearLayout
-                android:layout_width="wrap_content"
+            <View
+                android:layout_width="1dp"
+                android:layout_height="22dp"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="12dp"
+                android:background="#DBE7DF" />
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etPhone"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="15dp"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:hint="Your mobile number"
+                android:imeOptions="actionDone"
+                android:inputType="phone"
+                android:maxLength="10"
+                android:maxLines="1"
+                android:minHeight="56dp"
+                android:paddingStart="0dp"
+                android:paddingEnd="0dp"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp"
+                android:singleLine="true"
+                android:textColor="#122C22"
+                android:textColorHint="#8B9C92"
+                android:textSize="15sp" />
+          </LinearLayout>
+
+          <!-- Error text -->
+          <TextView
+              android:id="@+id/tvError"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginTop="8dp"
+              android:accessibilityLiveRegion="polite"
+              android:text=""
+              android:textColor="#B3261E"
+              android:textSize="12sp"
+              android:visibility="gone"
+              tools:text="Please enter a valid phone number" />
+
+          <!-- CTA button -->
+          <Button
+              android:id="@+id/btnLogin"
+              style="@style/Widget.AppCompat.Button"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginTop="18dp"
+              android:background="@drawable/txv_button"
+              android:backgroundTint="@null"
+              android:drawableEnd="@drawable/txv_arrow_white"
+              android:drawablePadding="8dp"
+              android:elevation="0dp"
+              android:insetLeft="0dp"
+              android:insetTop="0dp"
+              android:insetRight="0dp"
+              android:insetBottom="0dp"
+              android:minHeight="56dp"
+              android:minWidth="0dp"
+              android:paddingStart="18dp"
+              android:paddingTop="14dp"
+              android:paddingEnd="18dp"
+              android:paddingBottom="14dp"
+              android:stateListAnimator="@null"
+              android:text="Get OTP"
+              android:textAllCaps="false"
+              android:textColor="#FFFFFF"
+              android:textSize="16sp"
+              android:textStyle="bold"
+              app:backgroundTint="@null" />
+
+          <!-- Trust / security row -->
+          <LinearLayout
+              android:id="@+id/securityRow"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginTop="20dp"
+              android:background="@drawable/txv_trust"
+              android:gravity="center_vertical"
+              android:orientation="horizontal"
+              android:paddingStart="10dp"
+              android:paddingTop="12dp"
+              android:paddingEnd="10dp"
+              android:paddingBottom="12dp">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="SECURE SIGN IN"
-                    android:textColor="#666666"
-                    android:textSize="10sp"
-                    android:textStyle="bold"
-                    android:letterSpacing="0.06" />
+              <ImageView
+                  android:layout_width="18dp"
+                  android:layout_height="22dp"
+                  android:importantForAccessibility="no"
+                  android:src="@drawable/txv_shield" />
 
-                <View
-                    android:layout_width="4dp"
-                    android:layout_height="4dp"
-                    android:layout_marginStart="7dp"
-                    android:layout_marginEnd="7dp"
-                    android:background="@drawable/bg_login_dot" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="OTP VERIFIED"
-                    android:textColor="#999999"
-                    android:textSize="10sp"
-                    android:textStyle="bold"
-                    android:letterSpacing="0.05" />
-
+              <TextView
+                  android:layout_width="0dp"
+                  android:layout_height="wrap_content"
+                  android:layout_marginStart="5dp"
+                  android:layout_weight="1"
+                  android:text="Secure\nsign in"
+                  android:textColor="#527363"
+                  android:textSize="9sp" />
             </LinearLayout>
 
-            <!-- Divider -->
             <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="21dp"
-                android:background="#EEEEEE" />
+                android:layout_width="1dp"
+                android:layout_height="22dp"
+                android:layout_marginStart="6dp"
+                android:layout_marginEnd="6dp"
+                android:background="#DCECE2" />
 
-            <!-- Sign up link -->
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="18dp"
-                android:gravity="center"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
                 android:orientation="horizontal">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Don't have an account?"
-                    android:textColor="#888888"
-                    android:textSize="13sp" />
+              <ImageView
+                  android:layout_width="18dp"
+                  android:layout_height="22dp"
+                  android:importantForAccessibility="no"
+                  android:src="@drawable/txv_lock" />
 
-                <TextView
-                    android:id="@+id/tvSignUp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="5dp"
-                    android:text="Sign Up"
-                    android:textColor="#6D5EF8"
-                    android:textSize="13sp"
-                    android:textStyle="bold" />
-
+              <TextView
+                  android:layout_width="0dp"
+                  android:layout_height="wrap_content"
+                  android:layout_marginStart="5dp"
+                  android:layout_weight="1"
+                  android:text="OTP\nverified"
+                  android:textColor="#527363"
+                  android:textSize="9sp" />
             </LinearLayout>
 
-        </LinearLayout>
+            <View
+                android:layout_width="1dp"
+                android:layout_height="22dp"
+                android:layout_marginStart="6dp"
+                android:layout_marginEnd="6dp"
+                android:background="#DCECE2" />
 
-    </androidx.cardview.widget.CardView>
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+              <ImageView
+                  android:layout_width="18dp"
+                  android:layout_height="22dp"
+                  android:importantForAccessibility="no"
+                  android:src="@drawable/txv_bars" />
+
+              <TextView
+                  android:layout_width="0dp"
+                  android:layout_height="wrap_content"
+                  android:layout_marginStart="5dp"
+                  android:layout_weight="1"
+                  android:text="Your data\nis safe"
+                  android:textColor="#527363"
+                  android:textSize="9sp" />
+            </LinearLayout>
+          </LinearLayout>
+
+          <!-- Divider -->
+          <View
+              android:id="@+id/loginDivider"
+              android:layout_width="match_parent"
+              android:layout_height="1dp"
+              android:layout_marginTop="22dp"
+              android:background="#EAF0EC" />
+
+          <!-- Sign-up row -->
+          <LinearLayout
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginTop="6dp"
+              android:gravity="center_vertical"
+              android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="New to TradeX?"
+                android:textColor="#65796E"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/tvSignUp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:background="?android:attr/selectableItemBackground"
+                android:contentDescription="Sign Up"
+                android:drawableEnd="@drawable/txv_arrow"
+                android:drawablePadding="4dp"
+                android:gravity="center"
+                android:minHeight="48dp"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
+                android:text="Create account"
+                android:textColor="#087E59"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+          </LinearLayout>
+        </LinearLayout>
+      </androidx.cardview.widget.CardView>
+
+      <!-- Footer art -->
+      <ImageView
+          android:id="@+id/loginFooterArt"
+          android:layout_width="match_parent"
+          android:layout_height="30dp"
+          android:importantForAccessibility="no"
+          android:scaleType="fitCenter"
+          android:src="@drawable/txv_footer" />
+    </LinearLayout>
+  </com.tradingapp.ui.auth.widget.LoginViewport>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.TradingApp.Login" parent="Theme.TradingApp">
+        <item name="android:windowBackground">#EDF7F2</item>
+        <item name="android:statusBarColor">#EDF7F2</item>
+        <item name="android:navigationBarColor">#EDF7F2</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
+        <item name="colorPrimary">#0D9667</item>
+        <item name="colorPrimaryVariant">#087E59</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorOnSurface">#122C22</item>
+        <item name="android:colorAccent">#0D9667</item>
+        <item name="android:textColorPrimary">#122C22</item>
+        <item name="android:textColorSecondary">#65796E</item>
+        <item name="android:textColorHint">#8B9C92</item>
+    </style>
+</resources>

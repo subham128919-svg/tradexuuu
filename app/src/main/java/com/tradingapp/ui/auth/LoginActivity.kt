@@ -6,6 +6,9 @@ import android.os.Bundle
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import com.tradingapp.databinding.ActivityLoginBinding
 import com.tradingapp.ui.main.MainActivity
@@ -22,6 +25,23 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(s)
         b = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(b.root)
+
+        // Keep the form above the keyboard and out of system bars/cutouts.
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        WindowCompat.getInsetsController(window, b.root).apply {
+            isAppearanceLightStatusBars = true
+            isAppearanceLightNavigationBars = true
+        }
+        ViewCompat.setOnApplyWindowInsetsListener(b.root) { view, insets ->
+            val bars = insets.getInsets(
+                WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()
+            )
+            val ime = insets.getInsets(WindowInsetsCompat.Type.ime())
+            view.setPadding(bars.left, bars.top, bars.right, maxOf(bars.bottom, ime.bottom))
+            b.loginViewport.keyboardVisible = insets.isVisible(WindowInsetsCompat.Type.ime())
+            insets
+        }
+        ViewCompat.requestApplyInsets(b.root)
 
         b.tvSignUp.setOnClickListener {
             startActivity(Intent(this, SignupActivity::class.java))
