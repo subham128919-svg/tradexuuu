@@ -1,6 +1,9 @@
 package com.tradingapp.data.api
 
 import com.tradingapp.data.model.*
+import com.google.gson.annotations.SerializedName
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -26,11 +29,6 @@ data class AppPosition(val symbol: String, val exchange: String, val name: Strin
                        val qty: Int, val avgPrice: Double, val ltp: Double,
                        val currentValue: Double, val invested: Double,
                        val pnl: Double, val pnlPct: Double, val isProfit: Boolean,
-                       // FIX (P&L bug): backend now reports this explicitly.
-                       // false means "we don't have a real price for this
-                       // symbol yet" — pnl/pnlPct are held at 0 in that case,
-                       // not a fabricated -100%. Defaults true so any other
-                       // existing caller of this data class keeps compiling.
                        val priceAvailable: Boolean = true)
 data class AppPositionsResponse(val data: List<AppPosition>, val totalValue: Double,
                                 val totalInvested: Double, val totalPnl: Double, val totalPnlPct: Double)
@@ -57,6 +55,30 @@ data class RazorpayOrderResponse(
     val orderId: String, val amount: Int, val currency: String, val keyId: String
 )
 data class RazorpayVerifyResponse(val ok: Boolean, val newBalance: Double, val alreadyProcessed: Boolean = false)
+
+// ── OTP ───────────────────────────────────────────────────────────
+data class OtpSendResponse(
+    val ok: Boolean,
+    val message: String,
+    @SerializedName("phone_masked") val phoneMasked: String?,
+    @SerializedName("expires_in") val expiresIn: Int?
+)
+data class OtpVerifyResponse(
+    val ok: Boolean,
+    val message: String?,
+    val verified: Boolean?,
+    val token: String?,
+    val user: AuthUserInfo?
+)
+
+// ── KYC ───────────────────────────────────────────────────────────
+data class KycUploadResponse(val ok: Boolean, val message: String, val kycStatus: String?)
+data class KycStatusResponse(val kycStatus: String, val panNumber: String?, val aadhaarMasked: String?, val boDematNumber: String?)
+data class AccountInfoResponse(
+    val name: String, val email: String, val phone: String?,
+    val joinedAt: String?, val kycStatus: String, val panNumber: String?,
+    val aadhaarMasked: String?, val boDematNumber: String?, val accountActive: Boolean
+)
 
 interface ApiService {
     @POST("users/login")
@@ -135,9 +157,6 @@ interface ApiService {
     @GET("market/has-options")
     suspend fun hasOptions(@Query("symbol") symbol: String): Response<HasOptionsResponse>
 
-    // FIX: fetched fresh by OrderActivity right before placing an order,
-    // regardless of navigation entry point (option chain, search,
-    // watchlist, etc.) — see OrderViewModel.loadLotSize().
     @GET("market/lot-size")
     suspend fun getLotSize(@Query("symbol") symbol: String): Response<LotSizeResponse>
 
@@ -156,4 +175,32 @@ interface ApiService {
 
     @POST("wallet/razorpay/verify")
     suspend fun verifyRazorpayPayment(@Body body: Map<String, String>): Response<RazorpayVerifyResponse>
+
+    // ── OTP ──────────────────────────────────────────────────────
+    @POST("otp/send")
+    suspend fun sendOtp(@Body body: Map<String, String>): Response<OtpSendResponse>
+
+    @POST("otp/verify")
+    suspend fun verifyOtp(@Body body: Map<String, String>): Response<OtpVerifyResponse>
+
+    @POST("users/login-phone")
+    suspend fun loginWithPhone(@Body body: Map<String, String>): Response<AuthResponse>
+
+    // ── KYC ──────────────────────────────────────────────────────
+    @Multipart
+    @POST("kyc/upload")
+    suspend fun uploadKyc(
+        @Part panFront: MultipartBody.Part,
+        @Part panBack: MultipartBody.Part,
+        @Part aadhaarFront: MultipartBody.Part,
+        @Part aadhaarBack: MultipartBody.Part,
+        @Part("pan_number") panNumber: RequestBody,
+        @Part("aadhaar_number") aadhaarNumber: RequestBody
+    ): Response<KycUploadResponse>
+
+    @GET("kyc/status")
+    suspend fun getKycStatus(): Response<KycStatusResponse>
+
+    @GET("kyc/account-info")
+    suspend fun getAccountInfo(): Response<AccountInfoResponse>
 }

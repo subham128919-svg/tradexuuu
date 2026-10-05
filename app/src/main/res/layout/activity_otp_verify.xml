@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#FFFFFF"
+    android:gravity="center_horizontal"
+    android:padding="24dp">
+
+    <!-- Spacer top -->
+    <View android:layout_width="1dp" android:layout_height="40dp" />
+
+    <!-- Logo -->
+    <ImageView
+        android:id="@+id/ivLogo"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:src="@mipmap/ic_launcher"
+        android:scaleType="fitCenter"
+        android:contentDescription="Tardex Logo" />
+
+    <!-- Brand name -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Tardex"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:textColor="#1A1A2E" />
+
+    <!-- Spacer -->
+    <View android:layout_width="1dp" android:layout_height="32dp" />
+
+    <!-- Title -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Verify your phone number"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:textColor="#1A1A2E" />
+
+    <!-- Subtitle -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="We sent a 6-digit OTP to"
+        android:textSize="14sp"
+        android:textColor="#888888" />
+
+    <!-- Phone masked -->
+    <TextView
+        android:id="@+id/tvPhoneMasked"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="#1A1A2E"
+        tools:text="+91 98******21" />
+
+    <!-- Spacer -->
+    <View android:layout_width="1dp" android:layout_height="28dp" />
+
+    <!-- OTP Input Boxes -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/otp1"
+            style="@style/OtpBoxStyle"
+            android:layout_width="48dp"
+            android:layout_height="56dp"
+            android:layout_marginEnd="8dp"
+            android:inputType="number"
+            android:maxLength="1"
+            android:gravity="center"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="#1A1A2E"
+            android:background="@drawable/bg_otp_box" />
+
+        <EditText
+            android:id="@+id/otp2"
+            style="@style/OtpBoxStyle"
+            android:layout_width="48dp"
+            android:layout_height="56dp"
+            android:layout_marginEnd="8dp"
+            android:inputType="number"
+            android:maxLength="1"
+            android:gravity="center"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="#1A1A2E"
+            android:background="@drawable/bg_otp_box" />
+
+        <EditText
+            android:id="@+id/otp3"
+            style="@style/OtpBoxStyle"
+            android:layout_width="48dp"
+            android:layout_height="56dp"
+            android:layout_marginEnd="8dp"
+            android:inputType="number"
+            android:maxLength="1"
+            android:gravity="center"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="#1A1A2E"
+            android:background="@drawable/bg_otp_box" />
+
+        <EditText
+            android:id="@+id/otp4"
+            style="@style/OtpBoxStyle"
+            android:layout_width="48dp"
+            android:layout_height="56dp"
+            android:layout_marginEnd="8dp"
+            android:inputType="number"
+            android:maxLength="1"
+            android:gravity="center"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="#1A1A2E"
+            android:background="@drawable/bg_otp_box" />
+
+        <EditText
+            android:id="@+id/otp5"
+            style="@style/OtpBoxStyle"
+            android:layout_width="48dp"
+            android:layout_height="56dp"
+            android:layout_marginEnd="8dp"
+            android:inputType="number"
+            android:maxLength="1"
+            android:gravity="center"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="#1A1A2E"
+            android:background="@drawable/bg_otp_box" />
+
+        <EditText
+            android:id="@+id/otp6"
+            style="@style/OtpBoxStyle"
+            android:layout_width="48dp"
+            android:layout_height="56dp"
+            android:inputType="number"
+            android:maxLength="1"
+            android:gravity="center"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="#1A1A2E"
+            android:background="@drawable/bg_otp_box" />
+
+    </LinearLayout>
+
+    <!-- Error text -->
+    <TextView
+        android:id="@+id/tvError"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:textColor="#B3261E"
+        android:textSize="13sp"
+        android:gravity="center"
+        android:visibility="gone"
+        tools:text="Invalid OTP" />
+
+    <!-- Spacer -->
+    <View android:layout_width="1dp" android:layout_height="24dp" />
+
+    <!-- Verify Button -->
+    <Button
+        android:id="@+id/btnVerify"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="@drawable/bg_login_button"
+        android:text="Verify OTP"
+        android:textAllCaps="false"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:drawableEnd="@android:drawable/ic_media_play"
+        android:drawableTint="#FFFFFF"
+        android:elevation="2dp"
+        android:stateListAnimator="@null" />
+
+    <!-- Resend timer -->
+    <TextView
+        android:id="@+id/tvResend"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Resend OTP in 00:30"
+        android:textSize="14sp"
+        android:textColor="#6D5EF8"
+        android:enabled="false" />
+
+    <!-- Divider with "or" -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1"
+            android:background="#E0E0E0" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:text="or"
+            android:textColor="#AAAAAA"
+            android:textSize="13sp" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1"
+            android:background="#E0E0E0" />
+
+    </LinearLayout>
+
+    <!-- Change phone -->
+    <TextView
+        android:id="@+id/tvChangePhone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Change phone number"
+        android:textSize="14sp"
+        android:textColor="#6D5EF8"
+        android:textStyle="bold" />
+
+    <!-- Bottom spacer + secure badge -->
+    <View
+        android:layout_width="1dp"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp">
+
+        <ImageView
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:src="@android:drawable/ic_secure"
+            android:tint="#6D5EF8"
+            android:contentDescription="Secure" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:text="Secure verification"
+            android:textColor="#999999"
+            android:textSize="12sp" />
+
+    </LinearLayout>
+
+</LinearLayout>

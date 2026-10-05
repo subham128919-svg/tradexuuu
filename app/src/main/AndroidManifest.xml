@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
     <application
         android:name=".TradingApp"
         android:allowBackup="true"
@@ -22,21 +24,21 @@
 
         <activity android:name=".ui.auth.LoginActivity"      android:exported="false"/>
         <activity android:name=".ui.auth.SignupActivity"     android:exported="false"/>
+        <activity android:name=".ui.auth.OtpVerifyActivity"  android:exported="false"/>
         <activity android:name=".ui.main.MainActivity"       android:exported="false"/>
         <activity android:name=".ui.chart.ChartActivity"     android:exported="false"/>
         <activity android:name=".ui.order.OrderActivity"     android:exported="false"
             android:windowSoftInputMode="adjustResize"/>
         <activity android:name=".ui.profile.ProfileActivity" android:exported="false"/>
+        <activity android:name=".ui.profile.AccountInfoActivity" android:exported="false"/>
         <activity android:name=".ui.search.SearchActivity"   android:exported="false"/>
         <activity android:name=".ui.optionchain.OptionChainActivity" android:exported="false"/>
         <activity android:name=".ui.wallet.AddFundsActivity" android:exported="false"
             android:windowSoftInputMode="adjustResize"/>
-
-        <!-- No manual declaration needed for com.razorpay.CheckoutActivity —
-             the Razorpay SDK's own AAR manifest already declares it with
-             the correct exported/theme values, and Gradle's manifest
-             merger pulls it in automatically. Declaring it here too
-             caused a merge conflict (mismatched exported/theme values). -->
+        <activity android:name=".ui.wallet.PaymentMethodActivity" android:exported="false"
+            android:theme="@style/Theme.TradingApp"/>
+        <activity android:name=".ui.kyc.KycUploadActivity"  android:exported="false"/>
+        <activity android:name=".ui.kyc.KycPreviewActivity" android:exported="false"/>
 
     </application>
 </manifest>

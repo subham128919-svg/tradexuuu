@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -29,38 +28,61 @@ class LoginActivity : AppCompatActivity() {
         }
 
         b.btnLogin.setOnClickListener {
-            val email = b.etEmail.text.toString().trim()
-            val pass  = b.etPassword.text.toString()
-            if (email.isEmpty() || pass.isEmpty()) {
-                showError("Please enter email and password"); return@setOnClickListener
+            val phone = b.etPhone.text.toString().trim().replace("+91", "").replace(" ", "")
+            if (phone.length < 10) {
+                showError("Please enter a valid 10-digit phone number")
+                return@setOnClickListener
             }
+
             b.btnLogin.isEnabled = false
+            b.btnLogin.text = "Sending OTP…"
+            hideError()
+
             lifecycleScope.launch {
-                val result = vm.login(email, pass)
+                val result = vm.sendOtp(phone, "login")
                 b.btnLogin.isEnabled = true
-                if (result.isSuccess) {
-                    saveToken(result.getOrNull()!!.first, result.getOrNull()!!.second)
-                    goHome()
-                } else {
-                    showError(result.exceptionOrNull()?.message ?: "Login failed")
+                b.btnLogin.text = "Get OTP"
+
+                result.onSuccess { maskedPhone ->
+                    // Navigate to OTP screen
+                    val intent = Intent(this@LoginActivity, OtpVerifyActivity::class.java).apply {
+                        putExtra("phone", phone)
+                        putExtra("phone_masked", maskedPhone)
+                        putExtra("purpose", "login")
+                    }
+                    startActivityForResult(intent, REQ_OTP_LOGIN)
+                }.onFailure { e ->
+                    showError(e.message ?: "Failed to send OTP")
                 }
             }
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQ_OTP_LOGIN && resultCode == RESULT_OK) {
+            // OTP verified + login successful
+            val token    = data?.getStringExtra("token") ?: return
+            val userName = data.getStringExtra("user_name") ?: ""
+            val userEmail = data.getStringExtra("user_email") ?: ""
+
+            getSharedPreferences("tradingapp_prefs", Context.MODE_PRIVATE).edit()
+                .putString("jwt_token", token)
+                .putString("user_name", userName)
+                .putString("user_email", userEmail)
+                .apply()
+
+            startActivity(Intent(this, MainActivity::class.java)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK))
         }
     }
 
     private fun showError(msg: String) {
         b.tvError.text = msg; b.tvError.visibility = View.VISIBLE
     }
+    private fun hideError() { b.tvError.visibility = View.GONE }
 
-    private fun saveToken(token: String, userName: String) {
-        getSharedPreferences("tradingapp_prefs", Context.MODE_PRIVATE).edit()
-            .putString("jwt_token", token)
-            .putString("user_name", userName)
-            .apply()
-    }
-
-    private fun goHome() {
-        startActivity(Intent(this, MainActivity::class.java)
-            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK))
+    companion object {
+        const val REQ_OTP_LOGIN = 1001
     }
 }

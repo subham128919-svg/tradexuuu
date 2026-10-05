@@ -22,9 +22,6 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var b: ActivityProfileBinding
     private val vm: ProfileViewModel by viewModels()
 
-    // Refreshes the displayed balance immediately when the user comes
-    // back from successfully adding funds, rather than waiting for
-    // whatever next triggers a reload.
     private val addFundsLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -36,10 +33,6 @@ class ProfileActivity : AppCompatActivity() {
         b = ActivityProfileBinding.inflate(layoutInflater)
         setContentView(b.root)
 
-        // FIX #10: edge-to-edge — the header row (back/bell/settings)
-        // needs an id to get top-inset padding. See patch note below
-        // if this doesn't take effect: activity_profile.xml's header
-        // LinearLayout needs android:id="@+id/profileHeader" added.
         runCatching {
             applyEdgeToEdge(topView = b.root.findViewById(R.id.profileHeader))
         }
@@ -50,11 +43,16 @@ class ProfileActivity : AppCompatActivity() {
 
         b.rowOrders.setOnClickListener  {}
         b.rowReports.setOnClickListener {}
-        b.rowAccount.setOnClickListener {}
         b.rowRefer.setOnClickListener   {}
         b.rowSupport.setOnClickListener {}
         b.tvAbout.setOnClickListener    {}
         b.tvCharges.setOnClickListener  {}
+
+        // ── Account Info (NEW — opens Account Info screen) ───────
+        b.rowAccount.setOnClickListener {
+            startActivity(Intent(this, AccountInfoActivity::class.java))
+        }
+
         b.btnAddMoney.setOnClickListener {
             addFundsLauncher.launch(Intent(this, AddFundsActivity::class.java))
         }
