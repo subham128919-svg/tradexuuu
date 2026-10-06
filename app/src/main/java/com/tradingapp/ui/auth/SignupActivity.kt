@@ -3,15 +3,27 @@ package com.tradingapp.ui.auth
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.tradingapp.databinding.ActivitySignupBinding
 import com.tradingapp.ui.kyc.KycUploadActivity
+import com.tradingapp.util.PasswordPolicy
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
+/**
+ * FEATURE #1 — strong password policy.
+ *
+ * The only change from your original file is that the old
+ * `signupPass.length < 6` check is replaced by PasswordPolicy, plus a
+ * TextWatcher that shows which rules are still unmet as the user types.
+ * The server enforces the identical rules in backend/src/utils/password.js,
+ * so an older APK cannot slip a weak password through.
+ */
 @AndroidEntryPoint
 class SignupActivity : AppCompatActivity() {
 
@@ -44,8 +56,12 @@ class SignupActivity : AppCompatActivity() {
             if (signupPhone.length < 10) {
                 showError("Enter a valid 10-digit phone number"); return@setOnClickListener
             }
-            if (signupPass.length < 6) {
-                showError("Password must be at least 6 characters"); return@setOnClickListener
+
+            // ── FEATURE #1 ────────────────────────────────────────
+            val pwCheck = PasswordPolicy.check(signupPass)
+            if (!pwCheck.valid) {
+                showError(pwCheck.message ?: "Please choose a stronger password")
+                return@setOnClickListener
             }
 
             // Step 1: Send OTP to phone for verification
@@ -71,6 +87,18 @@ class SignupActivity : AppCompatActivity() {
                 }
             }
         }
+
+        // Live feedback on the password rules while typing
+        b.etPassword.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, a: Int, b2: Int, c: Int) {}
+            override fun onTextChanged(s: CharSequence?, a: Int, b2: Int, c: Int) {}
+            override fun afterTextChanged(e: Editable?) {
+                val pw = e?.toString() ?: ""
+                if (pw.isEmpty()) { hideError(); return }
+                val r = PasswordPolicy.check(pw)
+                if (r.valid) hideError() else showError(PasswordPolicy.hintFor(pw))
+            }
+        })
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -92,6 +120,7 @@ class SignupActivity : AppCompatActivity() {
                         .putString("jwt_token", token)
                         .putString("user_name", userName)
                         .putString("user_email", signupEmail)
+                        .putString("kyc_status", "none")
                         .apply()
 
                     // Step 3: Navigate to KYC document upload

@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F4F5F9"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:background="#14141F" android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="10dp" android:paddingEnd="20dp"
+        android:paddingTop="14dp" android:paddingBottom="14dp">
+
+        <TextView android:id="@+id/ivBack"
+            android:layout_width="36dp" android:layout_height="36dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:gravity="center" android:text="‹"
+            android:textColor="#FFFFFF" android:textSize="26sp" />
+
+        <TextView
+            android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_marginStart="6dp" android:layout_weight="1"
+            android:text="Withdraw funds" android:textColor="#FFFFFF"
+            android:textSize="16sp" android:textStyle="bold" />
+
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent" android:layout_height="match_parent"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical" android:paddingBottom="34dp">
+
+            <!-- Balance + amount -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginStart="16dp" android:layout_marginEnd="16dp"
+                android:layout_marginTop="16dp" app:cardBackgroundColor="#FFFFFF"
+                app:cardCornerRadius="18dp" app:cardElevation="2dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="vertical" android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:letterSpacing="0.09" android:text="AVAILABLE BALANCE"
+                        android:textColor="#8A8A9C" android:textSize="10sp" android:textStyle="bold" />
+
+                    <TextView android:id="@+id/tvBalance"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp" android:text="₹0.00"
+                        android:textColor="#14141F" android:textSize="27sp" android:textStyle="bold" />
+
+                    <View android:layout_width="match_parent" android:layout_height="1dp"
+                        android:layout_marginTop="16dp" android:background="#EFF0F5" />
+
+                    <TextView
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp" android:letterSpacing="0.09"
+                        android:text="AMOUNT TO WITHDRAW"
+                        android:textColor="#8A8A9C" android:textSize="10sp" android:textStyle="bold" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp" android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <EditText android:id="@+id/etAmount"
+                            android:layout_width="0dp" android:layout_height="52dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/bg_input_box"
+                            android:hint="0" android:inputType="numberDecimal"
+                            android:paddingStart="14dp" android:paddingEnd="14dp"
+                            android:textColor="#14141F" android:textColorHint="#B6B9C6"
+                            android:textSize="17sp" android:textStyle="bold"
+                            android:importantForAutofill="no" />
+
+                        <TextView android:id="@+id/btnWithdrawAll"
+                            android:layout_width="wrap_content" android:layout_height="52dp"
+                            android:layout_marginStart="10dp"
+                            android:background="@drawable/bg_btn_outline" android:gravity="center"
+                            android:paddingStart="18dp" android:paddingEnd="18dp"
+                            android:text="All" android:textColor="#6D5EF8"
+                            android:textSize="13.5sp" android:textStyle="bold" />
+
+                    </LinearLayout>
+
+                    <TextView android:id="@+id/tvLimits"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:textColor="#8A8A9C" android:textSize="11.5sp" />
+
+                    <TextView android:id="@+id/tvError"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp" android:background="@drawable/bg_note_red"
+                        android:padding="12dp" android:textColor="#C62828"
+                        android:textSize="12.5sp" android:visibility="gone" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Payout methods -->
+            <LinearLayout
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginStart="22dp" android:layout_marginEnd="18dp"
+                android:layout_marginTop="24dp" android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:letterSpacing="0.09"
+                    android:text="PAY OUT TO" android:textColor="#8A8A9C"
+                    android:textSize="10sp" android:textStyle="bold" />
+
+                <TextView android:id="@+id/btnAddMethod"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:padding="4dp" android:text="+ Add new"
+                    android:textColor="#6D5EF8" android:textSize="12.5sp" android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <TextView android:id="@+id/tvNoMethod"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginStart="16dp" android:layout_marginEnd="16dp"
+                android:layout_marginTop="10dp" android:background="@drawable/bg_note_blue"
+                android:lineSpacingExtra="3dp" android:padding="16dp"
+                android:text="Add a UPI ID or bank account to receive your money. Your details are only visible to you and the TradeX payouts team."
+                android:textColor="#49519B" android:textSize="12.5sp"
+                android:visibility="gone" />
+
+            <LinearLayout android:id="@+id/methodContainer"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginStart="16dp" android:layout_marginEnd="16dp"
+                android:layout_marginTop="9dp" android:orientation="vertical" />
+
+            <TextView android:id="@+id/btnSubmit"
+                android:layout_width="match_parent" android:layout_height="52dp"
+                android:layout_marginStart="16dp" android:layout_marginEnd="16dp"
+                android:layout_marginTop="18dp"
+                android:background="@drawable/bg_btn_accent" android:gravity="center"
+                android:text="Request withdrawal" android:textColor="#FFFFFF"
+                android:textSize="15sp" android:textStyle="bold" />
+
+            <TextView android:id="@+id/tvNote"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginStart="16dp" android:layout_marginEnd="16dp"
+                android:layout_marginTop="12dp" android:background="@drawable/bg_note_amber"
+                android:lineSpacingExtra="3dp" android:padding="14dp"
+                android:textColor="#8A6300" android:textSize="12sp"
+                android:visibility="gone" />
+
+            <!-- History -->
+            <TextView
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginStart="22dp" android:layout_marginTop="26dp"
+                android:letterSpacing="0.09" android:text="RECENT REQUESTS"
+                android:textColor="#8A8A9C" android:textSize="10sp" android:textStyle="bold" />
+
+            <TextView android:id="@+id/tvNoHistory"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="10dp" android:gravity="center"
+                android:paddingTop="20dp" android:paddingBottom="20dp"
+                android:text="No withdrawal requests yet."
+                android:textColor="#8A8A9C" android:textSize="13sp"
+                android:visibility="gone" />
+
+            <LinearLayout android:id="@+id/historyContainer"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginStart="16dp" android:layout_marginEnd="16dp"
+                android:layout_marginTop="9dp" android:orientation="vertical" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>

@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F4F5F9"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:background="#14141F" android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="10dp" android:paddingEnd="20dp"
+        android:paddingTop="14dp" android:paddingBottom="14dp">
+
+        <TextView android:id="@+id/ivBack"
+            android:layout_width="36dp" android:layout_height="36dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:gravity="center" android:text="‹"
+            android:textColor="#FFFFFF" android:textSize="26sp" />
+
+        <TextView
+            android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_marginStart="6dp" android:layout_weight="1"
+            android:text="Add payout method" android:textColor="#FFFFFF"
+            android:textSize="16sp" android:textStyle="bold" />
+
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent" android:layout_height="match_parent"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical" android:padding="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView android:id="@+id/tabUpi"
+                    android:layout_width="0dp" android:layout_height="38dp"
+                    android:layout_weight="1" android:background="@drawable/bg_chip_selected"
+                    android:gravity="center" android:text="UPI"
+                    android:textColor="#FFFFFF" android:textSize="13sp" android:textStyle="bold" />
+
+                <TextView android:id="@+id/tabBank"
+                    android:layout_width="0dp" android:layout_height="38dp"
+                    android:layout_weight="1" android:layout_marginStart="10dp"
+                    android:background="@drawable/bg_chip_unselected"
+                    android:gravity="center" android:text="Bank account"
+                    android:textColor="#5E5E70" android:textSize="13sp" android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="16dp" app:cardBackgroundColor="#FFFFFF"
+                app:cardCornerRadius="16dp" app:cardElevation="2dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="vertical" android:padding="18dp">
+
+                    <!-- UPI -->
+                    <LinearLayout android:id="@+id/groupUpi"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:letterSpacing="0.07" android:text="UPI ID"
+                            android:textColor="#8A8A9C" android:textSize="10sp" android:textStyle="bold" />
+
+                        <EditText android:id="@+id/etUpi"
+                            android:layout_width="match_parent" android:layout_height="50dp"
+                            android:layout_marginTop="8dp" android:background="@drawable/bg_input_box"
+                            android:hint="yourname@okaxis" android:inputType="textEmailAddress"
+                            android:paddingStart="14dp" android:paddingEnd="14dp"
+                            android:textColor="#14141F" android:textColorHint="#B6B9C6"
+                            android:textSize="14.5sp" android:importantForAutofill="no" />
+
+                        <TextView
+                            android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:layout_marginTop="9dp"
+                            android:text="Make sure this UPI ID is registered in your own name. Payouts to a third-party UPI ID are rejected."
+                            android:textColor="#8A8A9C" android:textSize="11.5sp" />
+
+                    </LinearLayout>
+
+                    <!-- Bank -->
+                    <LinearLayout android:id="@+id/groupBank"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="vertical" android:visibility="gone">
+
+                        <TextView
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:letterSpacing="0.07" android:text="ACCOUNT HOLDER NAME"
+                            android:textColor="#8A8A9C" android:textSize="10sp" android:textStyle="bold" />
+                        <EditText android:id="@+id/etHolder"
+                            android:layout_width="match_parent" android:layout_height="50dp"
+                            android:layout_marginTop="8dp" android:background="@drawable/bg_input_box"
+                            android:hint="As printed in your passbook" android:inputType="textPersonName|textCapWords"
+                            android:paddingStart="14dp" android:paddingEnd="14dp"
+                            android:textColor="#14141F" android:textColorHint="#B6B9C6"
+                            android:textSize="14.5sp" android:importantForAutofill="no" />
+
+                        <TextView
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp" android:letterSpacing="0.07"
+                            android:text="ACCOUNT NUMBER" android:textColor="#8A8A9C"
+                            android:textSize="10sp" android:textStyle="bold" />
+                        <EditText android:id="@+id/etAccount"
+                            android:layout_width="match_parent" android:layout_height="50dp"
+                            android:layout_marginTop="8dp" android:background="@drawable/bg_input_box"
+                            android:inputType="number" android:paddingStart="14dp" android:paddingEnd="14dp"
+                            android:textColor="#14141F" android:textSize="14.5sp"
+                            android:importantForAutofill="no" />
+
+                        <TextView
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp" android:letterSpacing="0.07"
+                            android:text="RE-ENTER ACCOUNT NUMBER" android:textColor="#8A8A9C"
+                            android:textSize="10sp" android:textStyle="bold" />
+                        <EditText android:id="@+id/etAccountRepeat"
+                            android:layout_width="match_parent" android:layout_height="50dp"
+                            android:layout_marginTop="8dp" android:background="@drawable/bg_input_box"
+                            android:inputType="number" android:paddingStart="14dp" android:paddingEnd="14dp"
+                            android:textColor="#14141F" android:textSize="14.5sp"
+                            android:importantForAutofill="no" />
+
+                        <TextView
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp" android:letterSpacing="0.07"
+                            android:text="IFSC CODE" android:textColor="#8A8A9C"
+                            android:textSize="10sp" android:textStyle="bold" />
+                        <EditText android:id="@+id/etIfsc"
+                            android:layout_width="match_parent" android:layout_height="50dp"
+                            android:layout_marginTop="8dp" android:background="@drawable/bg_input_box"
+                            android:hint="HDFC0001234" android:inputType="textCapCharacters"
+                            android:maxLength="11" android:paddingStart="14dp" android:paddingEnd="14dp"
+                            android:textColor="#14141F" android:textColorHint="#B6B9C6"
+                            android:textSize="14.5sp" android:importantForAutofill="no" />
+
+                        <TextView
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp" android:letterSpacing="0.07"
+                            android:text="BANK NAME (OPTIONAL)" android:textColor="#8A8A9C"
+                            android:textSize="10sp" android:textStyle="bold" />
+                        <EditText android:id="@+id/etBank"
+                            android:layout_width="match_parent" android:layout_height="50dp"
+                            android:layout_marginTop="8dp" android:background="@drawable/bg_input_box"
+                            android:inputType="textCapWords" android:paddingStart="14dp" android:paddingEnd="14dp"
+                            android:textColor="#14141F" android:textSize="14.5sp"
+                            android:importantForAutofill="no" />
+
+                    </LinearLayout>
+
+                    <TextView android:id="@+id/tvError"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp" android:background="@drawable/bg_note_red"
+                        android:padding="12dp" android:textColor="#C62828"
+                        android:textSize="12.5sp" android:visibility="gone" />
+
+                    <TextView android:id="@+id/btnSave"
+                        android:layout_width="match_parent" android:layout_height="50dp"
+                        android:layout_marginTop="18dp" android:background="@drawable/bg_btn_accent"
+                        android:gravity="center" android:text="Save payout method"
+                        android:textColor="#FFFFFF" android:textSize="14.5sp" android:textStyle="bold" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>

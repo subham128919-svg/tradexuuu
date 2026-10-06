@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TradeX Admin — Manage</title>
+<style>
+:root{
+  --bg:#0E0E14; --surface:#15151E; --card:#1A1A25; --border:#272734;
+  --t1:#F2F2F7; --t4:#A8A8B8; --t7:#6E6E80;
+  --accent:#6D5EF8; --green:#2FBF71; --red:#FF5C5C; --yellow:#F5A623;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--t1);font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;min-height:100vh}
+a{color:var(--accent);text-decoration:none}
+input,select,textarea,button{font:inherit}
+input,select,textarea{width:100%;background:var(--surface);border:1px solid var(--border);
+  border-radius:8px;padding:9px 12px;color:var(--t1);outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+textarea{resize:vertical;min-height:72px}
+button{background:var(--accent);border:none;border-radius:8px;padding:9px 16px;
+  color:#fff;font-weight:600;cursor:pointer}
+button:hover{opacity:.9}
+button.ghost{background:none;border:1px solid var(--border);color:var(--t4);font-weight:500}
+button.ghost:hover{border-color:var(--accent);color:var(--t1)}
+button.ok{background:var(--green)} button.no{background:var(--red)}
+button:disabled{opacity:.45;cursor:default}
+
+#login{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+.login-box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:32px;width:100%;max-width:360px}
+.login-box h1{font-size:20px;margin-bottom:6px}
+.login-box p{color:var(--t7);font-size:13px;margin-bottom:20px}
+.login-box input{margin-bottom:12px}
+
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:14px 20px;background:var(--surface);border-bottom:1px solid var(--border);
+  position:sticky;top:0;z-index:20;flex-wrap:wrap}
+.logo{font-weight:700;letter-spacing:.02em}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;padding:14px 20px 0}
+.tabs a{padding:8px 14px;border-radius:9px;color:var(--t4);font-size:13px;cursor:pointer;border:1px solid transparent}
+.tabs a:hover{color:var(--t1)}
+.tabs a.active{background:rgba(109,94,248,.12);border-color:var(--accent);color:var(--accent)}
+main{padding:18px 20px 60px;max-width:1200px}
+.page{display:none}.page.active{display:block}
+
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:18px}
+.card h2{font-size:15px;margin-bottom:4px}
+.card .hint{color:var(--t7);font-size:12px;margin-bottom:16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+label{display:block;font-size:11px;color:var(--t7);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.field{margin-bottom:14px}
+.row-end{display:flex;justify-content:flex-end;gap:10px;margin-top:8px}
+
+table{width:100%;border-collapse:collapse;background:var(--card);border-radius:12px;overflow:hidden}
+th{background:var(--surface);padding:10px 12px;text-align:left;font-size:11px;color:var(--t7);
+  font-weight:500;text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--border)}
+td{padding:10px 12px;font-size:13px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+.pill{display:inline-block;padding:2px 9px;border-radius:10px;font-size:11px;font-weight:600}
+.pill.green{background:rgba(47,191,113,.15);color:var(--green)}
+.pill.red{background:rgba(255,92,92,.15);color:var(--red)}
+.pill.yellow{background:rgba(245,166,35,.15);color:var(--yellow)}
+.pill.gray{background:rgba(255,255,255,.08);color:var(--t4)}
+.docs{display:flex;gap:8px;flex-wrap:wrap}
+.docs a{display:block;width:72px;height:48px;border-radius:6px;overflow:hidden;border:1px solid var(--border)}
+.docs img{width:100%;height:100%;object-fit:cover}
+.filters{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.filters select{width:auto}
+.toast{position:fixed;right:20px;bottom:20px;background:var(--card);border:1px solid var(--border);
+  border-left:3px solid var(--green);border-radius:10px;padding:12px 18px;font-size:13px;
+  opacity:0;transform:translateY(8px);transition:.2s;z-index:50;max-width:320px}
+.toast.show{opacity:1;transform:none}
+.toast.err{border-left-color:var(--red)}
+.empty{padding:28px;text-align:center;color:var(--t7);font-size:13px}
+.err{color:var(--red);font-size:13px;margin-top:10px}
+</style>
+</head>
+<body>
+
+<div id="login">
+  <div class="login-box">
+    <h1>TradeX Admin</h1>
+    <p>Manage KYC, payouts, support &amp; referrals</p>
+    <input id="u" placeholder="Username" autocomplete="username">
+    <input id="p" type="password" placeholder="Password" autocomplete="current-password">
+    <button style="width:100%" onclick="doLogin()">Sign in</button>
+    <div class="err" id="loginErr"></div>
+  </div>
+</div>
+
+<div id="app" style="display:none">
+  <header>
+    <div class="logo">TradeX Admin · Manage</div>
+    <div style="display:flex;gap:10px;align-items:center">
+      <a href="/admin/">← Main panel</a>
+      <button class="ghost" onclick="logout()">Sign out</button>
+    </div>
+  </header>
+
+  <div class="tabs" id="tabs">
+    <a class="active" data-p="kyc"      onclick="go('kyc',this)">KYC review</a>
+    <a data-p="withdrawals" onclick="go('withdrawals',this)">Withdrawals</a>
+    <a data-p="support"     onclick="go('support',this)">Support details</a>
+    <a data-p="links"       onclick="go('links',this)">App links</a>
+    <a data-p="referral"    onclick="go('referral',this)">Refer &amp; earn</a>
+    <a data-p="ledger"      onclick="go('ledger',this)">Referral ledger</a>
+  </div>
+
+  <main>
+
+    <!-- ══ KYC ══════════════════════════════════════════════ -->
+    <div class="page active" id="page-kyc">
+      <div class="filters">
+        <select id="kycStatus" onchange="loadKyc()">
+          <option value="pending">Pending review</option>
+          <option value="verified">Verified</option>
+          <option value="rejected">Rejected</option>
+          <option value="none">Not submitted</option>
+        </select>
+        <button class="ghost" onclick="loadKyc()">Refresh</button>
+        <span id="kycCounts" style="color:var(--t7);font-size:12px"></span>
+      </div>
+      <table>
+        <thead><tr><th>User</th><th>Contact</th><th>PAN</th><th>Aadhaar</th><th>Documents</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody id="kycBody"></tbody>
+      </table>
+    </div>
+
+    <!-- ══ WITHDRAWALS ══════════════════════════════════════ -->
+    <div class="page" id="page-withdrawals">
+      <div class="filters">
+        <select id="wStatus" onchange="loadWithdrawals()">
+          <option value="pending">Pending</option>
+          <option value="approved">Approved</option>
+          <option value="rejected">Rejected</option>
+          <option value="">All</option>
+        </select>
+        <button class="ghost" onclick="loadWithdrawals()">Refresh</button>
+        <span id="wSummary" style="color:var(--t7);font-size:12px"></span>
+      </div>
+      <table>
+        <thead><tr><th>#</th><th>User</th><th>Amount</th><th>Payout to</th><th>Requested</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody id="wBody"></tbody>
+      </table>
+    </div>
+
+    <!-- ══ SUPPORT ══════════════════════════════════════════ -->
+    <div class="page" id="page-support">
+      <div class="card">
+        <h2>Customer support screen</h2>
+        <div class="hint">These values appear on the Support screen inside the Android app. Changes are live within 30 seconds.</div>
+        <div class="grid">
+          <div class="field"><label>Heading</label><input id="s_support_title"></div>
+          <div class="field"><label>Sub-heading</label><input id="s_support_subtitle"></div>
+          <div class="field"><label>WhatsApp number (with country code, digits only)</label><input id="s_support_whatsapp" placeholder="919876543210"></div>
+          <div class="field"><label>WhatsApp pre-filled message</label><input id="s_support_whatsapp_text"></div>
+          <div class="field"><label>Phone (display)</label><input id="s_support_phone"></div>
+          <div class="field"><label>Email</label><input id="s_support_email"></div>
+          <div class="field"><label>Working hours</label><input id="s_support_hours"></div>
+          <div class="field"><label>Registered address</label><input id="s_support_address"></div>
+        </div>
+        <div class="field"><label>Safety note shown at the bottom</label><textarea id="s_support_note"></textarea></div>
+        <div class="row-end"><button onclick="saveKeys(['support_title','support_subtitle','support_whatsapp','support_whatsapp_text','support_phone','support_email','support_hours','support_address','support_note'])">Save support details</button></div>
+      </div>
+    </div>
+
+    <!-- ══ LINKS ════════════════════════════════════════════ -->
+    <div class="page" id="page-links">
+      <div class="card">
+        <h2>In-app WebView links</h2>
+        <div class="hint">The "About TradeX" and "Charges &amp; pricing" buttons in the app open these URLs inside the app. Must start with http:// or https://</div>
+        <div class="grid">
+          <div class="field"><label>About TradeX URL</label><input id="s_url_about" placeholder="https://tradingstock.online/about"></div>
+          <div class="field"><label>Charges &amp; pricing URL</label><input id="s_url_charges" placeholder="https://tradingstock.online/charges"></div>
+        </div>
+        <div class="row-end"><button onclick="saveKeys(['url_about','url_charges'])">Save links</button></div>
+      </div>
+
+      <div class="card">
+        <h2>Withdrawal rules</h2>
+        <div class="hint">Controls the Withdraw Funds screen.</div>
+        <div class="grid">
+          <div class="field"><label>Withdrawals enabled</label>
+            <select id="s_withdraw_enabled"><option value="1">Enabled</option><option value="0">Disabled</option></select></div>
+          <div class="field"><label>Minimum amount (₹)</label><input id="s_withdraw_min" type="number" min="0"></div>
+          <div class="field"><label>Maximum amount (₹)</label><input id="s_withdraw_max" type="number" min="0"></div>
+        </div>
+        <div class="field"><label>Note shown to the user</label><textarea id="s_withdraw_note"></textarea></div>
+        <div class="row-end"><button onclick="saveKeys(['withdraw_enabled','withdraw_min','withdraw_max','withdraw_note'])">Save withdrawal rules</button></div>
+      </div>
+    </div>
+
+    <!-- ══ REFERRAL ═════════════════════════════════════════ -->
+    <div class="page" id="page-referral">
+      <div class="card">
+        <h2>Refer &amp; earn</h2>
+        <div class="hint">Rewards are credited automatically when the invited user's KYC is approved.</div>
+        <div class="grid">
+          <div class="field"><label>Programme</label>
+            <select id="s_referral_enabled"><option value="1">Enabled</option><option value="0">Disabled</option></select></div>
+          <div class="field"><label>Reward to the referrer (₹)</label><input id="s_referral_reward_referrer" type="number" min="0"></div>
+          <div class="field"><label>Joining bonus to the new user (₹)</label><input id="s_referral_reward_referee" type="number" min="0"></div>
+          <div class="field"><label>Share link base URL</label><input id="s_referral_share_url" placeholder="https://tradingstock.online/invite"></div>
+        </div>
+        <div class="field">
+          <label>Share message template</label>
+          <textarea id="s_referral_share_message"></textarea>
+          <div class="hint" style="margin:6px 0 0">Placeholders: <code>{code}</code> = the user's referral code, <code>{link}</code> = share link with the code attached, <code>{name}</code> = the user's name.</div>
+        </div>
+        <div class="field"><label>Terms &amp; conditions text</label><textarea id="s_referral_terms"></textarea></div>
+        <div class="row-end"><button onclick="saveKeys(['referral_enabled','referral_reward_referrer','referral_reward_referee','referral_share_url','referral_share_message','referral_terms'])">Save refer &amp; earn</button></div>
+      </div>
+    </div>
+
+    <!-- ══ LEDGER ═══════════════════════════════════════════ -->
+    <div class="page" id="page-ledger">
+      <div class="filters">
+        <button class="ghost" onclick="loadLedger()">Refresh</button>
+        <span id="ledgerSummary" style="color:var(--t7);font-size:12px"></span>
+      </div>
+      <table>
+        <thead><tr><th>Referrer</th><th>Invited</th><th>Code</th><th>Their KYC</th><th>Payout</th><th>Status</th><th>Joined</th></tr></thead>
+        <tbody id="ledgerBody"></tbody>
+      </table>
+    </div>
+
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = '/api/v1';
+const TOKEN_KEY = 'tx_admin_token';
+let token = localStorage.getItem(TOKEN_KEY) || '';
+
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function money(n){return '\u20B9' + (parseFloat(n)||0).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function fmt(d){ if(!d) return '—'; const x=new Date(d); return isNaN(x)?'—':x.toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'}); }
+
+function toast(msg, isErr){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast show'+(isErr?' err':'');
+  setTimeout(()=>t.className='toast'+(isErr?' err':''),3200);
+}
+
+async function api(path, opts){
+  const res = await fetch(API+path, Object.assign({
+    headers: Object.assign({'Content-Type':'application/json'},
+      token?{'Authorization':'Bearer '+token}:{})
+  }, opts||{}));
+  if(res.status===401||res.status===403){ logout(); throw new Error('Session expired'); }
+  const txt = await res.text();
+  let body; try{ body = txt?JSON.parse(txt):{}; }catch{ body={}; }
+  if(!res.ok) throw new Error(body.error || ('HTTP '+res.status));
+  return body;
+}
+
+// ── auth ────────────────────────────────────────────────────────
+async function doLogin(){
+  const u=document.getElementById('u').value.trim();
+  const p=document.getElementById('p').value;
+  const el=document.getElementById('loginErr'); el.textContent='';
+  try{
+    const res=await fetch(API+'/admin/login',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({username:u,password:p})});
+    const d=await res.json();
+    if(!res.ok) throw new Error(d.error||'Login failed');
+    token=d.token; localStorage.setItem(TOKEN_KEY,token); boot();
+  }catch(e){ el.textContent=e.message; }
+}
+function logout(){ token=''; localStorage.removeItem(TOKEN_KEY);
+  document.getElementById('app').style.display='none';
+  document.getElementById('login').style.display='flex'; }
+
+function boot(){
+  document.getElementById('login').style.display='none';
+  document.getElementById('app').style.display='block';
+  loadSettings(); loadKyc();
+}
+
+function go(p, el){
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.tabs a').forEach(x=>x.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  el.classList.add('active');
+  if(p==='kyc')         loadKyc();
+  if(p==='withdrawals') loadWithdrawals();
+  if(p==='ledger')      loadLedger();
+}
+
+// ── settings ────────────────────────────────────────────────────
+let settingsCache={};
+async function loadSettings(){
+  try{
+    const d=await api('/admin/settings');
+    settingsCache=d.data||{};
+    Object.keys(settingsCache).forEach(k=>{
+      const el=document.getElementById('s_'+k);
+      if(el) el.value = settingsCache[k];
+    });
+  }catch(e){ toast(e.message,true); }
+}
+
+async function saveKeys(keys){
+  const patch={};
+  keys.forEach(k=>{ const el=document.getElementById('s_'+k); if(el) patch[k]=el.value; });
+  try{
+    await api('/admin/settings',{method:'PUT',body:JSON.stringify(patch)});
+    toast('Saved. The app picks this up within 30 seconds.');
+    loadSettings();
+  }catch(e){ toast(e.message,true); }
+}
+
+// ── KYC ─────────────────────────────────────────────────────────
+function thumb(url){
+  if(!url) return '';
+  const isPdf=/\.pdf$/i.test(url);
+  return `<a href="${esc(url)}" target="_blank" title="${esc(url)}">`
+    + (isPdf ? `<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:10px;color:var(--t4)">PDF</div>`
+             : `<img src="${esc(url)}" alt="">`)
+    + `</a>`;
+}
+
+async function loadKyc(){
+  const st=document.getElementById('kycStatus').value;
+  const body=document.getElementById('kycBody');
+  body.innerHTML='<tr><td colspan="7" class="empty">Loading…</td></tr>';
+  try{
+    const d=await api('/admin/kyc-queue?status='+st);
+    const c=d.counts||{};
+    document.getElementById('kycCounts').textContent =
+      `pending ${c.pending||0} · verified ${c.verified||0} · rejected ${c.rejected||0}`;
+    const rows=d.data||[];
+    if(!rows.length){ body.innerHTML='<tr><td colspan="7" class="empty">Nothing here.</td></tr>'; return; }
+    body.innerHTML = rows.map(u=>`
+      <tr>
+        <td><strong>${esc(u.name)}</strong><br><span style="color:var(--t7);font-size:11px">#${u.id} · ${fmt(u.created_at)}</span></td>
+        <td>${esc(u.email)}<br><span style="color:var(--t7)">${esc(u.phone||'—')}</span></td>
+        <td>${esc(u.pan_number||'—')}</td>
+        <td>${esc(u.aadhaar_number||'—')}</td>
+        <td><div class="docs">${thumb(u.pan_front_url)}${thumb(u.pan_back_url)}${thumb(u.aadhaar_front_url)}${thumb(u.aadhaar_back_url)}</div></td>
+        <td><span class="pill ${u.kyc_status==='verified'?'green':u.kyc_status==='rejected'?'red':'yellow'}">${esc(u.kyc_status)}</span>
+            ${u.bo_demat_number?`<br><span style="color:var(--t7);font-size:11px">${esc(u.bo_demat_number)}</span>`:''}</td>
+        <td>${u.kyc_status==='pending'
+          ? `<button class="ok" onclick="reviewKyc(${u.id},'approved')">Approve</button>
+             <button class="no" style="margin-top:6px" onclick="reviewKyc(${u.id},'rejected')">Reject</button>`
+          : '—'}</td>
+      </tr>`).join('');
+  }catch(e){ body.innerHTML=`<tr><td colspan="7" class="empty">${esc(e.message)}</td></tr>`; }
+}
+
+async function reviewKyc(userId, action){
+  let remarks=null;
+  if(action==='rejected'){
+    remarks=prompt('Reason for rejection (shown to the user):','Documents are not clearly readable');
+    if(remarks===null) return;
+  } else if(!confirm('Approve this KYC? A BO demat number will be generated and the account activated.')) return;
+
+  try{
+    const d=await api('/kyc/admin/review',{method:'POST',
+      body:JSON.stringify({userId,action,remarks})});
+    toast(d.message||'Done'); loadKyc();
+  }catch(e){ toast(e.message,true); }
+}
+
+// ── withdrawals ─────────────────────────────────────────────────
+async function loadWithdrawals(){
+  const st=document.getElementById('wStatus').value;
+  const body=document.getElementById('wBody');
+  body.innerHTML='<tr><td colspan="7" class="empty">Loading…</td></tr>';
+  try{
+    const d=await api('/admin/withdrawals'+(st?('?status='+st):''));
+    document.getElementById('wSummary').textContent =
+      `${d.total||0} request(s) · ${money(d.pendingAmount||0)} pending payout`;
+    const rows=d.data||[];
+    if(!rows.length){ body.innerHTML='<tr><td colspan="7" class="empty">No requests.</td></tr>'; return; }
+    body.innerHTML = rows.map(w=>`
+      <tr>
+        <td>#${w.id}</td>
+        <td><strong>${esc(w.user_name)}</strong><br><span style="color:var(--t7);font-size:11px">${esc(w.email)} · ${esc(w.phone||'—')}</span></td>
+        <td><strong>${money(w.amount)}</strong></td>
+        <td>${esc(w.method_snapshot||w.method_type)}</td>
+        <td>${fmt(w.created_at)}</td>
+        <td><span class="pill ${w.status==='approved'?'green':w.status==='rejected'?'red':'yellow'}">${esc(w.status)}</span>
+            ${w.reference_no?`<br><span style="color:var(--t7);font-size:11px">${esc(w.reference_no)}</span>`:''}
+            ${w.admin_remarks?`<br><span style="color:var(--t7);font-size:11px">${esc(w.admin_remarks)}</span>`:''}</td>
+        <td>${w.status==='pending'
+          ? `<button class="ok" onclick="payout(${w.id},'approve')">Mark paid</button>
+             <button class="no" style="margin-top:6px" onclick="payout(${w.id},'reject')">Reject</button>`
+          : '—'}</td>
+      </tr>`).join('');
+  }catch(e){ body.innerHTML=`<tr><td colspan="7" class="empty">${esc(e.message)}</td></tr>`; }
+}
+
+async function payout(id, action){
+  let payload={};
+  if(action==='approve'){
+    const ref=prompt('Payment reference / UTR number (optional):','');
+    if(ref===null) return;
+    payload={referenceNo:ref, remarks:'Paid by admin'};
+  }else{
+    const r=prompt('Reason for rejection (the amount is refunded to the wallet):','Incorrect payout details');
+    if(r===null) return;
+    payload={remarks:r};
+  }
+  try{
+    const d=await api(`/admin/withdrawals/${id}/${action}`,{method:'POST',body:JSON.stringify(payload)});
+    toast(d.message||'Done'); loadWithdrawals();
+  }catch(e){ toast(e.message,true); }
+}
+
+// ── referral ledger ─────────────────────────────────────────────
+async function loadLedger(){
+  const body=document.getElementById('ledgerBody');
+  body.innerHTML='<tr><td colspan="7" class="empty">Loading…</td></tr>';
+  try{
+    const d=await api('/admin/referrals');
+    document.getElementById('ledgerSummary').textContent =
+      `${d.total||0} referral(s) · ${money(d.totalPaid||0)} paid out in total`;
+    const rows=d.data||[];
+    if(!rows.length){ body.innerHTML='<tr><td colspan="7" class="empty">No referrals yet.</td></tr>'; return; }
+    body.innerHTML = rows.map(r=>`
+      <tr>
+        <td><strong>${esc(r.referrer_name)}</strong><br><span style="color:var(--t7);font-size:11px">${esc(r.referrer_email)}</span></td>
+        <td>${esc(r.referee_name)}</td>
+        <td><code>${esc(r.code_used)}</code></td>
+        <td><span class="pill ${r.kyc_status==='verified'?'green':r.kyc_status==='rejected'?'red':'gray'}">${esc(r.kyc_status)}</span></td>
+        <td>${money(r.referrer_reward)} + ${money(r.referee_reward)}</td>
+        <td><span class="pill ${r.status==='rewarded'?'green':r.status==='cancelled'?'red':'yellow'}">${esc(r.status)}</span></td>
+        <td>${fmt(r.created_at)}</td>
+      </tr>`).join('');
+  }catch(e){ body.innerHTML=`<tr><td colspan="7" class="empty">${esc(e.message)}</td></tr>`; }
+}
+
+// ── start ───────────────────────────────────────────────────────
+document.getElementById('p').addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); });
+if(token) boot(); else document.getElementById('login').style.display='flex';
+</script>
+</body>
+</html>

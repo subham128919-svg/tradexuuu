@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F4F5F9"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#14141F"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="10dp" android:paddingEnd="20dp"
+        android:paddingTop="14dp" android:paddingBottom="14dp">
+
+        <TextView android:id="@+id/ivBack"
+            android:layout_width="36dp" android:layout_height="36dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:gravity="center" android:text="‹"
+            android:textColor="#FFFFFF" android:textSize="26sp" />
+
+        <TextView
+            android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_marginStart="6dp" android:layout_weight="1"
+            android:text="Refer &amp; earn" android:textColor="#FFFFFF"
+            android:textSize="16sp" android:textStyle="bold" />
+
+        <ProgressBar android:id="@+id/progress"
+            android:layout_width="20dp" android:layout_height="20dp"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:id="@+id/content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="32dp"
+            android:visibility="gone">
+
+            <!-- Hero -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginStart="16dp" android:layout_marginEnd="16dp"
+                android:layout_marginTop="16dp"
+                app:cardBackgroundColor="#6D5EF8"
+                app:cardCornerRadius="18dp" app:cardElevation="3dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="vertical" android:padding="22dp">
+
+                    <TextView android:id="@+id/tvHeadline"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:text="Invite friends, earn rewards"
+                        android:textColor="#FFFFFF" android:textSize="19sp" android:textStyle="bold" />
+
+                    <TextView android:id="@+id/tvSubline"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp" android:lineSpacingExtra="3dp"
+                        android:textColor="#E2DFFF" android:textSize="13.5sp" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Code -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardCode"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginStart="16dp" android:layout_marginEnd="16dp"
+                android:layout_marginTop="14dp"
+                app:cardBackgroundColor="#FFFFFF"
+                app:cardCornerRadius="18dp" app:cardElevation="2dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="vertical" android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:letterSpacing="0.09" android:text="YOUR REFERRAL CODE"
+                        android:textColor="#8A8A9C" android:textSize="10sp" android:textStyle="bold" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp" android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView android:id="@+id/tvCode"
+                            android:layout_width="0dp" android:layout_height="52dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/bg_code_box"
+                            android:gravity="center"
+                            android:letterSpacing="0.18"
+                            android:text="—"
+                            android:textColor="#6D5EF8" android:textSize="18sp" android:textStyle="bold" />
+
+                        <TextView android:id="@+id/btnCopy"
+                            android:layout_width="wrap_content" android:layout_height="52dp"
+                            android:layout_marginStart="10dp"
+                            android:background="@drawable/bg_btn_outline"
+                            android:gravity="center"
+                            android:paddingStart="20dp" android:paddingEnd="20dp"
+                            android:text="Copy" android:textColor="#14141F"
+                            android:textSize="13.5sp" android:textStyle="bold" />
+
+                    </LinearLayout>
+
+                    <TextView android:id="@+id/btnShare"
+                        android:layout_width="match_parent" android:layout_height="50dp"
+                        android:layout_marginTop="14dp"
+                        android:background="@drawable/bg_btn_accent" android:gravity="center"
+                        android:text="Share invite link" android:textColor="#FFFFFF"
+                        android:textSize="14.5sp" android:textStyle="bold" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Stats -->
+            <LinearLayout
+                android:id="@+id/sectionStats"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginStart="16dp" android:layout_marginEnd="16dp"
+                android:layout_marginTop="14dp" android:orientation="horizontal">
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" app:cardBackgroundColor="#FFFFFF"
+                    app:cardCornerRadius="14dp" app:cardElevation="1dp">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:gravity="center" android:orientation="vertical" android:padding="16dp">
+                        <TextView android:id="@+id/tvStatInvited"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="0" android:textColor="#14141F"
+                            android:textSize="20sp" android:textStyle="bold" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp" android:text="Invited"
+                            android:textColor="#8A8A9C" android:textSize="11sp" />
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:layout_marginStart="10dp"
+                    app:cardBackgroundColor="#FFFFFF"
+                    app:cardCornerRadius="14dp" app:cardElevation="1dp">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:gravity="center" android:orientation="vertical" android:padding="16dp">
+                        <TextView android:id="@+id/tvStatRewarded"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="0" android:textColor="#14141F"
+                            android:textSize="20sp" android:textStyle="bold" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp" android:text="Rewarded"
+                            android:textColor="#8A8A9C" android:textSize="11sp" />
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:layout_marginStart="10dp"
+                    app:cardBackgroundColor="#FFFFFF"
+                    app:cardCornerRadius="14dp" app:cardElevation="1dp">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:gravity="center" android:orientation="vertical" android:padding="16dp">
+                        <TextView android:id="@+id/tvStatEarned"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="₹0" android:textColor="#25A35A"
+                            android:textSize="20sp" android:textStyle="bold" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp" android:text="Earned"
+                            android:textColor="#8A8A9C" android:textSize="11sp" />
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+            </LinearLayout>
+
+            <!-- How it works -->
+            <TextView
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginStart="22dp" android:layout_marginTop="24dp"
+                android:letterSpacing="0.09" android:text="HOW IT WORKS"
+                android:textColor="#8A8A9C" android:textSize="10sp" android:textStyle="bold" />
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginStart="16dp" android:layout_marginEnd="16dp"
+                android:layout_marginTop="9dp" app:cardBackgroundColor="#FFFFFF"
+                app:cardCornerRadius="16dp" app:cardElevation="1dp">
+                <TextView
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:lineSpacingExtra="6dp" android:padding="18dp"
+                    android:text="1.  Share your code with a friend\n2.  They sign up using your code\n3.  They complete KYC verification\n4.  The reward lands in both wallets automatically"
+                    android:textColor="#5E5E70" android:textSize="13.5sp" />
+            </androidx.cardview.widget.CardView>
+
+            <!-- Referral list -->
+            <LinearLayout
+                android:id="@+id/sectionList"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginStart="22dp" android:layout_marginTop="24dp"
+                    android:letterSpacing="0.09" android:text="PEOPLE YOU INVITED"
+                    android:textColor="#8A8A9C" android:textSize="10sp" android:textStyle="bold" />
+
+                <TextView android:id="@+id/tvNoReferrals"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp" android:layout_marginEnd="16dp"
+                    android:layout_marginTop="10dp" android:gravity="center"
+                    android:paddingTop="22dp" android:paddingBottom="22dp"
+                    android:text="No invites yet. Share your code to get started."
+                    android:textColor="#8A8A9C" android:textSize="13sp"
+                    android:visibility="gone" />
+
+                <LinearLayout android:id="@+id/listContainer"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp" android:layout_marginEnd="16dp"
+                    android:layout_marginTop="9dp" android:orientation="vertical" />
+
+            </LinearLayout>
+
+            <TextView android:id="@+id/tvTerms"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginStart="16dp" android:layout_marginEnd="16dp"
+                android:layout_marginTop="18dp"
+                android:background="@drawable/bg_note_blue" android:lineSpacingExtra="3dp"
+                android:padding="14dp" android:textColor="#49519B" android:textSize="12sp"
+                android:visibility="gone" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>

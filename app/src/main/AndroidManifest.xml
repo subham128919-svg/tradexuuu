@@ -4,6 +4,30 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
+
+    <!-- Needed on Android 11+ so the WhatsApp / dialer / mail intents in
+         SupportActivity can resolve a handler. Without <queries> the
+         package visibility rules make them silently fail. -->
+    <queries>
+        <package android:name="com.whatsapp"/>
+        <package android:name="com.whatsapp.w4b"/>
+        <intent>
+            <action android:name="android.intent.action.VIEW"/>
+            <data android:scheme="https"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.DIAL"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.SENDTO"/>
+            <data android:scheme="mailto"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.SEND"/>
+            <data android:mimeType="text/plain"/>
+        </intent>
+    </queries>
+
     <application
         android:name=".TradingApp"
         android:allowBackup="true"
@@ -25,7 +49,8 @@
         <activity android:name=".ui.auth.LoginActivity" android:exported="false"
             android:theme="@style/Theme.TradingApp.Login"
             android:windowSoftInputMode="adjustResize"/>
-        <activity android:name=".ui.auth.SignupActivity"     android:exported="false"/>
+        <activity android:name=".ui.auth.SignupActivity"     android:exported="false"
+            android:windowSoftInputMode="adjustResize"/>
         <activity android:name=".ui.auth.OtpVerifyActivity"  android:exported="false"/>
         <activity android:name=".ui.main.MainActivity"       android:exported="false"/>
         <activity android:name=".ui.chart.ChartActivity"     android:exported="false"/>
@@ -41,6 +66,37 @@
             android:theme="@style/Theme.TradingApp"/>
         <activity android:name=".ui.kyc.KycUploadActivity"  android:exported="false"/>
         <activity android:name=".ui.kyc.KycPreviewActivity" android:exported="false"/>
+
+        <!-- ══ Added by the features 1–8 patch ══════════════════════ -->
+
+        <!-- #3 account under review -->
+        <activity android:name=".ui.profile.AccountStatusActivity"
+            android:exported="false"/>
+
+        <!-- #4 all orders -->
+        <activity android:name=".ui.orders.MyOrdersActivity"
+            android:exported="false"/>
+
+        <!-- #5 customer support -->
+        <activity android:name=".ui.support.SupportActivity"
+            android:exported="false"/>
+
+        <!-- #6 refer & earn -->
+        <activity android:name=".ui.refer.ReferEarnActivity"
+            android:exported="false"/>
+
+        <!-- #7 withdrawals -->
+        <activity android:name=".ui.wallet.WithdrawActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize"/>
+        <activity android:name=".ui.wallet.AddPayoutMethodActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize"/>
+
+        <!-- #8 in-app WebView for About / Charges -->
+        <activity android:name=".ui.web.WebViewActivity"
+            android:exported="false"
+            android:configChanges="orientation|screenSize|keyboardHidden"/>
 
     </application>
 </manifest>
