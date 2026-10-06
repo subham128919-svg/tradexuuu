@@ -10,7 +10,11 @@ import android.webkit.*
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
 import com.tradingapp.R
 import com.tradingapp.data.model.toChartJson
@@ -46,15 +50,7 @@ class ChartActivity : AppCompatActivity() {
         b = ScreenChartBinding.inflate(layoutInflater)
         setContentView(b.root)
 
-        // FIX #10: edge-to-edge — requires chartTopBar/chartBottomBar ids;
-        // see screen_chart_topbar_patch.txt for the 2-line XML edit needed.
-        // If those ids don't exist yet in your layout, this call safely
-        // no-ops (findViewById-based binding lookups return null-safe).
-        runCatching {
-            applyEdgeToEdge(topView = b.root.findViewById(R.id.chartTopBar),
-                             bottomView = b.root.findViewById(R.id.chartBottomBar))
-        }
-        WindowInsetsControllerCompat(window, b.root).isAppearanceLightStatusBars = false
+        configureScreenInsets()
 
         setupHeader()
         setupWebView()
@@ -66,6 +62,31 @@ class ChartActivity : AppCompatActivity() {
         observeCandles()
         observeQuote()
         observeLiveTick()
+    }
+
+    @Suppress("DEPRECATION")
+    private fun configureScreenInsets() {
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        window.statusBarColor = Color.TRANSPARENT
+        window.navigationBarColor = Color.TRANSPARENT
+        WindowInsetsControllerCompat(window, b.root).apply {
+            isAppearanceLightStatusBars = false
+            isAppearanceLightNavigationBars = true
+        }
+        val topPadding = b.chartTopBar.paddingTop
+        val bottomPadding = b.chartBottomBar.paddingBottom
+        val leftPadding = b.root.paddingLeft
+        val rightPadding = b.root.paddingRight
+        ViewCompat.setOnApplyWindowInsetsListener(b.root) { _, insets ->
+            val bars = insets.getInsets(
+                WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()
+            )
+            b.chartTopBar.updatePadding(top = topPadding + bars.top)
+            b.chartBottomBar.updatePadding(bottom = bottomPadding + bars.bottom)
+            b.root.updatePadding(left = leftPadding + bars.left, right = rightPadding + bars.right)
+            insets
+        }
+        ViewCompat.requestApplyInsets(b.root)
     }
 
     private fun setupHeader() {
@@ -115,12 +136,13 @@ class ChartActivity : AppCompatActivity() {
         periods.forEach { p ->
             b.periodContainer.findViewWithTag<TextView>(p)?.let { tv ->
                 val isActive = p == active
+                tv.isSelected = isActive
 
                 tv.setTextColor(
                     if (isActive) {
                         Color.WHITE
                     } else {
-                        Color.parseColor("#333333")
+                        Color.parseColor("#364A62")
                     }
                 )
 
@@ -131,9 +153,9 @@ class ChartActivity : AppCompatActivity() {
 
                 tv.setBackgroundResource(
                     if (isActive) {
-                        R.drawable.bg_chart_period_active
+                        R.drawable.chart_modern_bg_period_active
                     } else {
-                        R.drawable.bg_chart_period
+                        R.drawable.chart_modern_bg_period
                     }
                 )
             }
@@ -211,6 +233,7 @@ class ChartActivity : AppCompatActivity() {
             q ?: return@collectLatest
             b.tvPrice.text = q.ltp.toRupee()
             b.tvChange.setChange(q.changePct, "%")
+            tintChange(q.changePct)
             b.tvOhlv.text = "O %.2f  H %.2f  L %.2f  Vol %,d"
                 .format(q.open, q.high, q.low, q.volume)
         }
@@ -221,11 +244,19 @@ class ChartActivity : AppCompatActivity() {
             if (tick.symbol != "$exchange:$symbol") return@collectLatest
             b.tvPrice.text = tick.ltp.toRupee()
             b.tvChange.setChange(tick.changePct, "%")
+            tintChange(tick.changePct)
             val time = tick.ts / 1000
             b.chartWebView.post {
                 b.chartWebView.evaluateJavascript("addTick($time, ${tick.ltp})", null)
             }
         }
+    }
+
+    // Keep the existing percentage formatting, with colors for a light surface.
+    private fun tintChange(value: Double) {
+        b.tvChange.setTextColor(
+            Color.parseColor(if (value >= 0) "#087D6B" else "#C34458")
+        )
     }
 
     override fun onBackPressed() {

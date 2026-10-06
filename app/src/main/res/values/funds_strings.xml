@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="funds_title">Add Funds</string>
+    <string name="funds_close">Close Add Funds</string>
+    <string name="funds_header_caption">Top up your trading wallet</string>
+    <string name="funds_wallet">TRADING WALLET</string>
+    <string name="funds_balance">Current Balance</string>
+    <string name="funds_balance_caption">Manage your funds, all in one place</string>
+    <string name="funds_enter_amount">Enter amount</string>
+    <string name="funds_amount_limits">Min ₹10 · Max ₹5,00,000</string>
+    <string name="funds_quick_amount">QUICK SELECT</string>
+    <string name="funds_add_money">Add Money</string>
+    <string name="funds_payment_note">Choose your payment method on the next screen.</string>
+    <string name="funds_footer_note">Payments powered by Razorpay</string>
+</resources>

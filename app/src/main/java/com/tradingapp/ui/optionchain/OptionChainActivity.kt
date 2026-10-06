@@ -19,6 +19,7 @@ import com.tradingapp.util.*
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlin.math.abs
 
 @AndroidEntryPoint
 class OptionChainActivity : AppCompatActivity() {
@@ -31,6 +32,11 @@ class OptionChainActivity : AppCompatActivity() {
     private val displayName by lazy { intent.getStringExtra(EXTRA_DISPLAY_NAME) ?: underlying }
     private var currentExpiry = ""
     private var currentLotSize: Int? = null
+
+    // Scroll to ATM only on the first render of an expiry. Without this
+    // guard, every live-tick-driven re-render would yank the list back
+    // to the money while the user is scrolling.
+    private var hasScrolledToAtm = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,9 +61,9 @@ class OptionChainActivity : AppCompatActivity() {
 
     private fun openContractChart(symbol: String, label: String) {
         startActivity(Intent(this, ChartActivity::class.java).apply {
-            putExtra(EXTRA_SYMBOL,   symbol)
+            putExtra(EXTRA_SYMBOL, symbol)
             putExtra(EXTRA_EXCHANGE, "NFO")
-            putExtra(EXTRA_NAME,     label)
+            putExtra(EXTRA_NAME, label)
             putExtra(EXTRA_LOT_SIZE, currentLotSize ?: 1)
         })
     }
@@ -87,7 +93,22 @@ class OptionChainActivity : AppCompatActivity() {
         currentLotSize = data.lotSize
         adapter.underlyingLabel = displayName
         adapter.expiryLabel = data.expiry
-        adapter.submitList(data.rows)
+        adapter.spot = data.spot
+
+        // Strike nearest to spot, and its row index. Computed here from
+        // the spot price the response already carries, so no API model
+        // change is needed anywhere.
+        val atmIndex = findAtmIndex(data)
+        adapter.atmStrike = atmIndex.takeIf { it >= 0 }?.let { data.rows[it].strike }
+
+        // submitList's callback runs after the diff is applied, so the
+        // row at atmIndex genuinely exists by the time we scroll to it.
+        adapter.submitList(data.rows) {
+            if (!hasScrolledToAtm && atmIndex >= 0) {
+                hasScrolledToAtm = true
+                scrollToAtm(atmIndex)
+            }
+        }
 
         b.tvSpot.text = data.spot?.let { "₹%.2f".format(it) } ?: "—"
         b.tvLotSize.text = data.lotSize?.let { "Lot size: $it" } ?: ""
@@ -97,12 +118,43 @@ class OptionChainActivity : AppCompatActivity() {
         highlightCurrentExpiryChip()
     }
 
+    private fun findAtmIndex(data: OptionChainResponse): Int {
+        val spot = data.spot ?: return -1
+        if (data.rows.isEmpty()) return -1
+        var best = Double.MAX_VALUE
+        var idx = -1
+        data.rows.forEachIndexed { i, row ->
+            val d = abs(row.strike - spot)
+            if (d < best) { best = d; idx = i }
+        }
+        return idx
+    }
+
+    /**
+     * Puts the ATM strike a few rows below the top rather than flush
+     * against it, so the in-the-money strikes above it are visible
+     * without scrolling up — the way every broker's chain opens. Then
+     * pulses the row twice so the eye lands on it.
+     */
+    private fun scrollToAtm(atmIndex: Int) {
+        val lm = b.rvChain.layoutManager as? LinearLayoutManager ?: return
+        lm.scrollToPositionWithOffset(maxOf(0, atmIndex - 3), 0)
+        b.rvChain.post {
+            val v = b.rvChain.findViewHolderForAdapterPosition(atmIndex)?.itemView ?: return@post
+            v.alpha = 0.25f
+            v.animate().alpha(1f).setDuration(260).withEndAction {
+                v.animate().alpha(0.45f).setDuration(200).withEndAction {
+                    v.animate().alpha(1f).setDuration(260).start()
+                }.start()
+            }.start()
+        }
+    }
+
     // Collected exactly once, for the Activity's lifetime — the expiry
     // LIST only changes on the initial load (switching expiries calls
     // loadChain(), not loadExpiries() again), so one collector here is
-    // enough; re-subscribing per chain load (the old approach) would
-    // leak a growing number of redundant coroutines over repeated
-    // expiry switches.
+    // enough; re-subscribing per chain load would leak a growing number
+    // of redundant coroutines over repeated expiry switches.
     private fun observeExpiries() = lifecycleScope.launch {
         vm.expiries.collectLatest { expiries -> buildExpiryChips(expiries) }
     }
@@ -112,11 +164,13 @@ class OptionChainActivity : AppCompatActivity() {
         expiries.forEach { expiry ->
             val chip = TextView(this@OptionChainActivity).apply {
                 text = formatExpiryShort(expiry)
-                tag  = expiry
+                tag = expiry
                 textSize = 13f
                 setPadding(28, 16, 28, 16)
                 setOnClickListener {
                     if (expiry == currentExpiry) return@setOnClickListener
+                    // Re-centre on the new expiry's own ATM.
+                    hasScrolledToAtm = false
                     vm.loadChain(underlying, expiry)
                 }
             }

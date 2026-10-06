@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chart_modern_title">Chart</string>
+    <string name="chart_modern_back">Back</string>
+    <string name="chart_modern_alert">Price alert</string>
+    <string name="chart_modern_watchlist">Watchlist</string>
+    <string name="chart_modern_search">Search</string>
+    <string name="chart_modern_options">Options</string>
+    <string name="chart_modern_sell">Sell</string>
+    <string name="chart_modern_buy">Buy</string>
+    <string name="chart_modern_stats_empty">O —   H —   L —   Vol —</string>
+</resources>

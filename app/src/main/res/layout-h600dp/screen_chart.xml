@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:background="#FFFFFF">
+
+    <!-- Insets add to the padding instead of squeezing fixed-height bars. -->
+    <LinearLayout android:id="@+id/chartTopBar"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:minHeight="72dp" android:orientation="horizontal"
+        android:gravity="center_vertical" android:background="#101D32"
+        android:paddingStart="12dp" android:paddingEnd="12dp"
+        android:paddingTop="12dp" android:paddingBottom="12dp">
+        <ImageView android:id="@+id/ivBack"
+            android:layout_width="48dp" android:layout_height="48dp"
+            android:padding="13dp" android:src="@drawable/chart_modern_ic_back"
+            android:background="@drawable/chart_modern_bg_toolbar_icon"
+            android:contentDescription="@string/chart_modern_back"
+            android:clickable="true" android:focusable="true" />
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1" android:layout_marginStart="10dp" android:layout_marginEnd="2dp"
+            android:text="@string/chart_modern_title" android:textSize="18sp"
+            android:fontFamily="sans-serif-medium" android:textColor="#FFFFFF" />
+        
+        <ImageView android:id="@+id/ivAlarm"
+            android:layout_width="48dp" android:layout_height="48dp"
+            android:layout_marginStart="4dp" android:padding="13dp"
+            android:src="@drawable/chart_modern_ic_alert"
+            android:background="@drawable/chart_modern_bg_toolbar_icon"
+            android:contentDescription="@string/chart_modern_alert"
+            android:clickable="true" android:focusable="true" />
+
+        <ImageView android:id="@+id/ivBookmark"
+            android:layout_width="48dp" android:layout_height="48dp"
+            android:layout_marginStart="4dp" android:padding="13dp"
+            android:src="@drawable/chart_modern_ic_bookmark"
+            android:background="@drawable/chart_modern_bg_toolbar_icon"
+            android:contentDescription="@string/chart_modern_watchlist"
+            android:clickable="true" android:focusable="true" />
+
+        <ImageView android:id="@+id/ivSearch"
+            android:layout_width="48dp" android:layout_height="48dp"
+            android:layout_marginStart="4dp" android:padding="13dp"
+            android:src="@drawable/chart_modern_ic_search"
+            android:background="@drawable/chart_modern_bg_toolbar_icon"
+            android:contentDescription="@string/chart_modern_search"
+            android:clickable="true" android:focusable="true" />
+
+    </LinearLayout>
+
+    <LinearLayout android:id="@+id/chartQuotePanel"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:background="#FFFFFF"
+        android:paddingStart="20dp" android:paddingEnd="20dp"
+        android:paddingTop="20dp" android:paddingBottom="18dp">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:gravity="center_vertical">
+            <TextView android:id="@+id/tvLogo"
+                android:layout_width="48dp" android:layout_height="48dp"
+                android:layout_marginEnd="12dp" android:gravity="center"
+                android:padding="4dp" android:textSize="11sp" android:fontFamily="sans-serif-medium"
+                android:textColor="#087D6B" android:background="@drawable/chart_modern_bg_logo" />
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:orientation="vertical">
+                <TextView android:id="@+id/tvSymbol"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:textSize="17sp" android:fontFamily="sans-serif-medium"
+                    android:textColor="#142139" android:breakStrategy="simple" />
+                <TextView android:id="@+id/tvName"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp" android:textSize="12sp"
+                    android:textColor="#596B82" android:breakStrategy="simple" />
+            </LinearLayout>
+            <TextView android:id="@+id/tvExchange"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginStart="8dp" android:paddingStart="8dp" android:paddingEnd="8dp"
+                android:paddingTop="5dp" android:paddingBottom="5dp"
+                android:textSize="10sp" android:fontFamily="sans-serif-medium"
+                android:textColor="#52657C" android:background="@drawable/chart_modern_bg_exchange" />
+        </LinearLayout>
+        <TextView android:id="@+id/tvPrice"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="16dp" android:text="—" android:textSize="30sp"
+            android:fontFamily="sans-serif-medium" android:textColor="#142139"
+            android:includeFontPadding="false" android:breakStrategy="simple" />
+        <TextView android:id="@+id/tvChange"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="6dp" android:textSize="13sp"
+            android:fontFamily="sans-serif-medium" android:textColor="#596B82"
+            android:includeFontPadding="false" />
+    </LinearLayout>
+
+    <!-- OHLCV values remain readable; swipe when the numbers exceed the width. -->
+    <HorizontalScrollView android:id="@+id/chartStatsStrip"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:minHeight="40dp" android:background="#F4F7FB"
+        android:scrollbars="none" android:overScrollMode="never" android:fillViewport="true">
+        <TextView android:id="@+id/tvOhlv"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:minHeight="40dp" android:gravity="center_vertical"
+            android:paddingStart="20dp" android:paddingEnd="20dp"
+            android:paddingTop="10dp" android:paddingBottom="10dp"
+            android:text="@string/chart_modern_stats_empty" android:textSize="11sp"
+            android:textColor="#52657C" android:fontFamily="monospace" android:singleLine="true" />
+    </HorizontalScrollView>
+
+    <FrameLayout android:id="@+id/chartCanvasContainer"
+        android:layout_width="match_parent" android:layout_height="0dp"
+        android:layout_weight="1" android:background="#FFFFFF">
+        <WebView android:id="@+id/chartWebView"
+            android:layout_width="match_parent" android:layout_height="match_parent"
+            android:background="#FFFFFF" />
+    </FrameLayout>
+
+    <HorizontalScrollView android:id="@+id/chartPeriodStrip"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:scrollbars="none" android:overScrollMode="never"
+        android:background="#FFFFFF">
+        <LinearLayout android:id="@+id/periodContainer"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:gravity="center_vertical"
+            android:paddingStart="16dp" android:paddingEnd="10dp"
+            android:paddingTop="10dp" android:paddingBottom="10dp">
+            
+        <TextView android:tag="1D"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:minWidth="48dp" android:minHeight="48dp"
+            android:layout_marginEnd="6dp"
+            android:paddingStart="14dp" android:paddingEnd="14dp"
+            android:paddingTop="10dp" android:paddingBottom="10dp"
+            android:gravity="center" android:text="1D"
+            android:textSize="12sp" android:fontFamily="sans-serif-medium"
+            android:textColor="#364A62"
+            android:background="@drawable/chart_modern_bg_period"
+            android:clickable="true" android:focusable="true"
+            android:contentDescription="1D chart period" />
+
+        <TextView android:tag="1W"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:minWidth="48dp" android:minHeight="48dp"
+            android:layout_marginEnd="6dp"
+            android:paddingStart="14dp" android:paddingEnd="14dp"
+            android:paddingTop="10dp" android:paddingBottom="10dp"
+            android:gravity="center" android:text="1W"
+            android:textSize="12sp" android:fontFamily="sans-serif-medium"
+            android:textColor="#364A62"
+            android:background="@drawable/chart_modern_bg_period"
+            android:clickable="true" android:focusable="true"
+            android:contentDescription="1W chart period" />
+
+        <TextView android:tag="1M"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:minWidth="48dp" android:minHeight="48dp"
+            android:layout_marginEnd="6dp"
+            android:paddingStart="14dp" android:paddingEnd="14dp"
+            android:paddingTop="10dp" android:paddingBottom="10dp"
+            android:gravity="center" android:text="1M"
+            android:textSize="12sp" android:fontFamily="sans-serif-medium"
+            android:textColor="#FFFFFF"
+            android:background="@drawable/chart_modern_bg_period_active"
+            android:clickable="true" android:focusable="true"
+            android:contentDescription="1M chart period" />
+
+        <TextView android:tag="3M"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:minWidth="48dp" android:minHeight="48dp"
+            android:layout_marginEnd="6dp"
+            android:paddingStart="14dp" android:paddingEnd="14dp"
+            android:paddingTop="10dp" android:paddingBottom="10dp"
+            android:gravity="center" android:text="3M"
+            android:textSize="12sp" android:fontFamily="sans-serif-medium"
+            android:textColor="#364A62"
+            android:background="@drawable/chart_modern_bg_period"
+            android:clickable="true" android:focusable="true"
+            android:contentDescription="3M chart period" />
+
+        <TextView android:tag="6M"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:minWidth="48dp" android:minHeight="48dp"
+            android:layout_marginEnd="6dp"
+            android:paddingStart="14dp" android:paddingEnd="14dp"
+            android:paddingTop="10dp" android:paddingBottom="10dp"
+            android:gravity="center" android:text="6M"
+            android:textSize="12sp" android:fontFamily="sans-serif-medium"
+            android:textColor="#364A62"
+            android:background="@drawable/chart_modern_bg_period"
+            android:clickable="true" android:focusable="true"
+            android:contentDescription="6M chart period" />
+
+        <TextView android:tag="1Y"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:minWidth="48dp" android:minHeight="48dp"
+            android:layout_marginEnd="6dp"
+            android:paddingStart="14dp" android:paddingEnd="14dp"
+            android:paddingTop="10dp" android:paddingBottom="10dp"
+            android:gravity="center" android:text="1Y"
+            android:textSize="12sp" android:fontFamily="sans-serif-medium"
+            android:textColor="#364A62"
+            android:background="@drawable/chart_modern_bg_period"
+            android:clickable="true" android:focusable="true"
+            android:contentDescription="1Y chart period" />
+
+        <TextView android:tag="5Y"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:minWidth="48dp" android:minHeight="48dp"
+            android:layout_marginEnd="6dp"
+            android:paddingStart="14dp" android:paddingEnd="14dp"
+            android:paddingTop="10dp" android:paddingBottom="10dp"
+            android:gravity="center" android:text="5Y"
+            android:textSize="12sp" android:fontFamily="sans-serif-medium"
+            android:textColor="#364A62"
+            android:background="@drawable/chart_modern_bg_period"
+            android:clickable="true" android:focusable="true"
+            android:contentDescription="5Y chart period" />
+
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E7EDF4" />
+    <LinearLayout android:id="@+id/chartBottomBar"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="horizontal" android:gravity="center_vertical"
+        android:paddingStart="16dp" android:paddingEnd="16dp"
+        android:paddingTop="12dp" android:paddingBottom="16dp"
+        android:background="#FFFFFF">
+        
+        <androidx.appcompat.widget.AppCompatButton android:id="@+id/btnOptionChain"
+            android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1" android:minWidth="0dp" android:minHeight="52dp"
+            android:layout_marginEnd="8dp"
+            android:paddingStart="8dp" android:paddingEnd="8dp"
+            android:paddingTop="12dp" android:paddingBottom="12dp"
+            android:text="@string/chart_modern_options" android:textAllCaps="false"
+            android:textSize="14sp" android:fontFamily="sans-serif-medium"
+            android:textColor="#243A57" android:background="@drawable/chart_modern_bg_options"
+            android:backgroundTint="@null" app:backgroundTint="@null"
+            android:stateListAnimator="@null" android:visibility="gone" />
+
+        <androidx.appcompat.widget.AppCompatButton android:id="@+id/btnSell"
+            android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1" android:minWidth="0dp" android:minHeight="52dp"
+            android:layout_marginEnd="8dp"
+            android:paddingStart="8dp" android:paddingEnd="8dp"
+            android:paddingTop="12dp" android:paddingBottom="12dp"
+            android:text="@string/chart_modern_sell" android:textAllCaps="false"
+            android:textSize="14sp" android:fontFamily="sans-serif-medium"
+            android:textColor="#AF3046" android:background="@drawable/chart_modern_bg_sell"
+            android:backgroundTint="@null" app:backgroundTint="@null"
+            android:stateListAnimator="@null" android:visibility="visible" />
+
+        <androidx.appcompat.widget.AppCompatButton android:id="@+id/btnBuy"
+            android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1" android:minWidth="0dp" android:minHeight="52dp"
+            android:layout_marginEnd="0dp"
+            android:paddingStart="8dp" android:paddingEnd="8dp"
+            android:paddingTop="12dp" android:paddingBottom="12dp"
+            android:text="@string/chart_modern_buy" android:textAllCaps="false"
+            android:textSize="14sp" android:fontFamily="sans-serif-medium"
+            android:textColor="#FFFFFF" android:background="@drawable/chart_modern_bg_buy"
+            android:backgroundTint="@null" app:backgroundTint="@null"
+            android:stateListAnimator="@null" android:visibility="visible" />
+
+    </LinearLayout>
+</LinearLayout>

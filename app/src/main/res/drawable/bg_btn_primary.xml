@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  NEW. Replacement background for the Verify OTP button.
+  bg_login_button was a single-state shape: pressing changed nothing and
+  isEnabled=false during verification still looked fully active, so the
+  button read as frozen rather than busy. This carries real pressed and
+  disabled states plus a ripple. See README section "Item 6".
+-->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android" android:color="#33FFFFFF">
+    <item>
+        <selector>
+            <item android:state_enabled="false">
+                <shape android:shape="rectangle">
+                    <solid android:color="#C5C0F2" /><corners android:radius="14dp" />
+                </shape>
+            </item>
+            <item android:state_pressed="true">
+                <shape android:shape="rectangle">
+                    <solid android:color="#5848D6" /><corners android:radius="14dp" />
+                </shape>
+            </item>
+            <item>
+                <shape android:shape="rectangle">
+                    <solid android:color="#6D5EF8" /><corners android:radius="14dp" />
+                </shape>
+            </item>
+        </selector>
+    </item>
+</ripple>
