@@ -113,10 +113,9 @@ class MyOrdersActivity : AppCompatActivity() {
         AlertDialog.Builder(this)
             .setTitle("Cancel order?")
             .setMessage(
-                "${order.orderType} ${order.qty} × ${order.symbol}\n\n" +
-                if (order.orderType == "BUY")
-                    "The blocked amount will be returned to your wallet."
-                else "This order will be withdrawn."
+                "${order.orderType} ${order.symbol}\n${order.filledQty}/${order.qty} units already filled.\n\n" +
+                "Only the remaining ${order.pendingQty} units will be cancelled. " +
+                "Remaining blocked funds: ₹%.2f. Executed trades remain.".format(order.blockedAmount)
             )
             .setPositiveButton("Cancel order") { _, _ -> doCancel(order.id) }
             .setNegativeButton("Keep it", null)
@@ -175,31 +174,33 @@ class OrderAdapter(
             tvSymbol.text = o.symbol
             tvSub.text = buildString {
                 append(o.orderType ?: "")
-                append(" · ").append(o.qty).append(" qty")
+                append(" · ").append(o.filledQty).append("/").append(o.qty).append(" units filled")
                 o.product?.let { append(" · ").append(it) }
                 o.exchange?.let { append(" · ").append(it) }
             }
 
             val unit = o.avgPrice ?: o.price
-            tvAmount.text = "₹%,.2f".format(unit * o.qty)
+            tvAmount.text = if (o.filledQty > 0) "Filled ₹%,.2f".format(unit * o.filledQty)
+                            else "Order value ₹%,.2f".format(o.price * o.qty)
 
             tvStatus.text = when (o.status) {
                 "EXECUTED"  -> "COMPLETED"
                 "PENDING"   -> "PENDING"
+                "PARTIAL"   -> "PARTIALLY FILLED"
                 "CANCELLED" -> "CANCELLED"
                 else        -> o.status ?: "—"
             }
             tvStatus.setBackgroundResource(
                 when (o.status) {
                     "EXECUTED"  -> R.drawable.bg_badge_green
-                    "PENDING"   -> R.drawable.bg_badge_amber
+                    "PENDING", "PARTIAL" -> R.drawable.bg_badge_amber
                     else        -> R.drawable.bg_badge_grey
                 }
             )
 
             tvWhen.text = formatWhen(o.placedAt)
 
-            if (o.status == "PENDING") {
+            if (o.status in listOf("PENDING", "PARTIAL")) {
                 btnCancel.visibility = View.VISIBLE
                 btnCancel.setOnClickListener { onCancel(o) }
             } else {

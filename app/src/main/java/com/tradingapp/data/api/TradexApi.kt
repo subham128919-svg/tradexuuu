@@ -148,6 +148,10 @@ data class AppOrderItem(
     val product: String? = null,
     val priceType: String? = null,
     val qty: Int = 0,
+    val filledQty: Int = 0,
+    val pendingQty: Int = 0,
+    val cancelledQty: Int = 0,
+    val blockedAmount: Double = 0.0,
     val price: Double = 0.0,
     val avgPrice: Double? = null,
     val status: String? = null,      // PENDING / EXECUTED / CANCELLED

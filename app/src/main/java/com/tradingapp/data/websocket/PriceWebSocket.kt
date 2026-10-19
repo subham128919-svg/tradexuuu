@@ -5,6 +5,7 @@ import com.google.gson.Gson
 import com.tradingapp.BuildConfig
 import com.tradingapp.di.ApplicationScope
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -46,6 +47,7 @@ sealed class ConnectionState {
     object Connected : ConnectionState()
     data class Reconnecting(val attempt: Int) : ConnectionState()
     data class Disconnected(val reason: String) : ConnectionState()
+    data class Degraded(val reason: String) : ConnectionState()
 }
 
 // ─────────────────────────────────────────────────────────────────
@@ -85,12 +87,13 @@ class PriceWebSocket @Inject constructor(
     // that decide liveness, which is what they're there for.
     private val wsClient: OkHttpClient = okHttpClient.newBuilder()
         .readTimeout(0, TimeUnit.MILLISECONDS)
+        .callTimeout(0, TimeUnit.MILLISECONDS)
         .build()
 
     // Symbols the app wants live data for. Persists across reconnects —
     // this is the whole point: the caller shouldn't have to re-subscribe
     // after a network blip, the socket layer handles that transparently.
-    private val subscribedSymbols = mutableSetOf<String>()
+    private val subscriptions = SubscriptionRegistry()
 
     private val userDisconnected = AtomicBoolean(true)
     private var reconnectAttempt = 0
@@ -98,7 +101,7 @@ class PriceWebSocket @Inject constructor(
     private var heartbeatJob: Job? = null
     private var lastPongAt = System.currentTimeMillis()
 
-    private val _ticks = MutableSharedFlow<PriceTick>(replay = 0, extraBufferCapacity = 128)
+    private val _ticks = MutableSharedFlow<PriceTick>(replay = 0, extraBufferCapacity = 2048, onBufferOverflow = BufferOverflow.DROP_OLDEST)
     val ticks: SharedFlow<PriceTick> = _ticks.asSharedFlow()
 
     private val _connectionState = MutableStateFlow<ConnectionState>(ConnectionState.Idle)
@@ -107,11 +110,12 @@ class PriceWebSocket @Inject constructor(
     @Synchronized
     fun connect() {
         userDisconnected.set(false)
-        if (socket != null) return
+        if (socket != null || reconnectJob?.isActive == true) return
         openSocket()
     }
 
-    private fun openSocket() {
+    @Synchronized private fun openSocket() {
+        if (socket != null || userDisconnected.get()) return
         _connectionState.value =
             if (reconnectAttempt > 0) ConnectionState.Reconnecting(reconnectAttempt)
             else ConnectionState.Connecting
@@ -120,22 +124,26 @@ class PriceWebSocket @Inject constructor(
     }
 
     private val listener = object : WebSocketListener() {
-        override fun onOpen(webSocket: WebSocket, response: Response) {
+        override fun onOpen(webSocket: WebSocket, response: Response) = synchronized(this@PriceWebSocket) {
+            if (webSocket !== socket) return@synchronized
             Log.d(TAG, "Connected")
             reconnectAttempt = 0
             lastPongAt = System.currentTimeMillis()
             _connectionState.value = ConnectionState.Connected
-            if (subscribedSymbols.isNotEmpty()) sendSubscribe(subscribedSymbols.toList())
+            val symbols = subscriptions.symbols()
+            if (symbols.isNotEmpty()) sendSubscribe(symbols)
             startHeartbeat()
         }
 
         override fun onMessage(webSocket: WebSocket, text: String) {
+            if (webSocket !== socket) return
             try {
                 @Suppress("UNCHECKED_CAST")
                 val map = gson.fromJson(text, Map::class.java) as Map<String, Any?>
                 when (map["type"]) {
                     "pong" -> lastPongAt = System.currentTimeMillis()
                     "tick" -> parseTick(map)?.let { _ticks.tryEmit(it) }
+                    "error" -> _connectionState.value = ConnectionState.Degraded(map["message"]?.toString() ?: "Price subscription failed")
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Parse error: ${e.message}")
@@ -144,19 +152,20 @@ class PriceWebSocket @Inject constructor(
 
         override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
             Log.e(TAG, "Failure: ${t.message}")
-            handleDisconnect("failure: ${t.message}")
+            handleDisconnect(webSocket, "failure: ${t.message}")
         }
 
         override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
             Log.d(TAG, "Closed: $reason")
-            handleDisconnect("closed: $reason")
+            handleDisconnect(webSocket, "closed: $reason")
         }
+        override fun onClosing(webSocket: WebSocket, code: Int, reason: String) { webSocket.close(code, reason) }
     }
 
     private fun parseTick(map: Map<String, Any?>): PriceTick? {
         val symbol = map["symbol"] as? String ?: return null
         fun num(key: String): Double = when (val v = map[key]) {
-            is Double -> v
+            is Number -> v.toDouble()
             is String -> v.toDoubleOrNull() ?: 0.0
             else -> 0.0
         }
@@ -175,12 +184,12 @@ class PriceWebSocket @Inject constructor(
             // silently falling back to local receipt time every tick.
             // Harmless in practice (receipt time is a fine proxy) but not
             // what was intended; "ts" kept as a fallback for safety.
-            ts        = ((map["updatedAt"] ?: map["ts"]) as? Double)?.toLong()
-                            ?: System.currentTimeMillis()
+            ts        = ((map["updatedAt"] ?: map["ts"]) as? Number)?.toLong() ?: 0L
         )
     }
 
-    private fun handleDisconnect(reason: String) {
+    @Synchronized private fun handleDisconnect(expected: WebSocket?, reason: String) {
+        if (expected !== socket) return
         stopHeartbeat()
         socket = null
         _connectionState.value = ConnectionState.Disconnected(reason)
@@ -208,8 +217,9 @@ class PriceWebSocket @Inject constructor(
                 val silentForMs = System.currentTimeMillis() - lastPongAt
                 if (silentForMs > 45_000) {
                     Log.w(TAG, "Heartbeat timeout ($silentForMs ms) — forcing reconnect")
-                    socket?.cancel()
-                    handleDisconnect("heartbeat timeout")
+                    val expired = socket
+                    handleDisconnect(expired, "heartbeat timeout")
+                    expired?.cancel()
                     break
                 }
                 socket?.send(gson.toJson(mapOf("action" to "ping")))
@@ -222,17 +232,17 @@ class PriceWebSocket @Inject constructor(
         heartbeatJob = null
     }
 
-    fun subscribe(symbols: List<String>) {
+    @Synchronized fun subscribe(symbols: List<String>) {
         if (symbols.isEmpty()) return
-        subscribedSymbols.addAll(symbols)
+        val added = subscriptions.acquire(symbols)
         connect()
-        if (_connectionState.value is ConnectionState.Connected) sendSubscribe(symbols)
+        if ((_connectionState.value is ConnectionState.Connected || _connectionState.value is ConnectionState.Degraded) && added.isNotEmpty()) sendSubscribe(added)
     }
 
-    fun unsubscribe(symbols: List<String>) {
+    @Synchronized fun unsubscribe(symbols: List<String>) {
         if (symbols.isEmpty()) return
-        subscribedSymbols.removeAll(symbols.toSet())
-        socket?.send(gson.toJson(mapOf("action" to "unsubscribe", "symbols" to symbols)))
+        val removed = subscriptions.release(symbols)
+        if (removed.isNotEmpty()) socket?.send(gson.toJson(mapOf("action" to "unsubscribe", "symbols" to removed)))
     }
 
     private fun sendSubscribe(symbols: List<String>) {
@@ -241,12 +251,13 @@ class PriceWebSocket @Inject constructor(
 
     // Explicit user/app-triggered disconnect — reconnect loop will NOT
     // restart until connect() is called again.
-    fun disconnect() {
+    @Synchronized fun disconnect() {
         userDisconnected.set(true)
         reconnectJob?.cancel()
         stopHeartbeat()
-        socket?.close(1000, "app disconnect")
+        val previous = socket
         socket = null
+        previous?.close(1000, "app disconnect")
         _connectionState.value = ConnectionState.Idle
     }
 

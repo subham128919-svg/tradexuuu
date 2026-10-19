@@ -90,7 +90,7 @@ class FnoExploreFragment : Fragment() {
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(
-                Lifecycle.State.STARTED
+                Lifecycle.State.RESUMED
             ) {
                 viewModel.indices.collect { list ->
 

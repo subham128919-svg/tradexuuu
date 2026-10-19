@@ -11,7 +11,9 @@ import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.core.view.doOnPreDraw
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.Lifecycle
 import com.tradingapp.R
 import com.tradingapp.data.model.Quote
 import com.tradingapp.databinding.ActivityMainBinding
@@ -63,6 +65,9 @@ class MainActivity : AppCompatActivity() {
 
     private var currentTab = TAB_EXPLORE
     private var currentSegment = SEG_EQUITY
+    private val selectedTabs = mutableMapOf<String, String>()
+    private var displayedTag: String? = null
+    private var observedSegment: String? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -85,10 +90,28 @@ class MainActivity : AppCompatActivity() {
         setupSearch()
         setupProfileIcon()
 
+        currentSegment = savedInstanceState?.getString("segment") ?: SEG_EQUITY
+        currentTab = savedInstanceState?.getString("tab") ?: TAB_EXPLORE
+        SEG_META.keys.forEach { seg ->
+            selectedTabs[seg] = savedInstanceState?.getString("tab:$seg") ?: TAB_EXPLORE
+        }
+        selectedTabs[currentSegment] = currentTab
+        viewModel.setSegment(currentSegment)
         observeSegment()
         observeIndices()
+        lifecycleScope.launchWhenStarted {
+            viewModel.connectionState.collectLatest { state ->
+                val status = when (state) {
+                    is com.tradingapp.data.websocket.ConnectionState.Connected -> "connected"
+                    is com.tradingapp.data.websocket.ConnectionState.Reconnecting -> "reconnecting"
+                    is com.tradingapp.data.websocket.ConnectionState.Disconnected -> "prices unavailable"
+                    is com.tradingapp.data.websocket.ConnectionState.Degraded -> "prices incomplete"
+                    else -> "connecting"
+                }
+                binding.tvSegSub.text = "${SEG_META[currentSegment]?.second.orEmpty()} · $status"
+            }
+        }
 
-        switchSegment(SEG_EQUITY)
     }
 
 
@@ -155,7 +178,10 @@ class MainActivity : AppCompatActivity() {
 
             viewModel.segment.collectLatest { seg ->
 
+                if (observedSegment == seg) return@collectLatest
+                observedSegment = seg
                 currentSegment = seg
+                currentTab = selectedTabs[seg] ?: TAB_EXPLORE
 
                 val meta = SEG_META[seg]
                     ?: return@collectLatest
@@ -165,12 +191,7 @@ class MainActivity : AppCompatActivity() {
 
                 buildTabStrip(seg)
 
-                val firstTab =
-                    TABS[seg]
-                        ?.firstOrNull()
-                        ?: TAB_EXPLORE
-
-                switchTab(firstTab)
+                switchTab(currentTab)
 
                 updateBottomNavHighlight(seg)
             }
@@ -190,16 +211,16 @@ class MainActivity : AppCompatActivity() {
         indices: List<Quote>
     ) {
 
-        binding.llIndices.removeAllViews()
+        if (binding.llIndices.childCount != indices.size) {
+            binding.llIndices.removeAllViews()
+            indices.forEach { _ ->
+                binding.llIndices.addView(layoutInflater.inflate(R.layout.item_index, binding.llIndices, false))
+            }
+        }
 
-        indices.forEach { q ->
+        indices.forEachIndexed { index, q ->
 
-            val view =
-                layoutInflater.inflate(
-                    R.layout.item_index,
-                    binding.llIndices,
-                    false
-                )
+            val view = binding.llIndices.getChildAt(index)
 
             view.findViewById<TextView>(
                 R.id.tvName
@@ -250,7 +271,6 @@ class MainActivity : AppCompatActivity() {
                 )
             }
 
-            binding.llIndices.addView(view)
         }
     }
 
@@ -361,11 +381,17 @@ class MainActivity : AppCompatActivity() {
     ) {
 
         currentTab = tab
+        selectedTabs[currentSegment] = tab
 
         updateTabHighlight()
+        val tag = "$currentSegment:$tab"
+        if (displayedTag == tag || supportFragmentManager.isStateSaved) return
+        val started = System.nanoTime()
+        val existing = supportFragmentManager.findFragmentByTag(tag)
+        val cached = existing?.view != null
 
         val fragment =
-            when {
+            existing ?: when {
 
                 tab == TAB_EXPLORE &&
                         currentSegment == SEG_FNO ->
@@ -404,13 +430,28 @@ class MainActivity : AppCompatActivity() {
                     )
             }
 
-        supportFragmentManager
-            .beginTransaction()
-            .replace(
-                R.id.fragmentHost,
-                fragment
-            )
-            .commit()
+        val transaction = supportFragmentManager.beginTransaction().setReorderingAllowed(true)
+        supportFragmentManager.fragments.filter { it.id == R.id.fragmentHost && it != fragment }.forEach {
+            transaction.hide(it).setMaxLifecycle(it, Lifecycle.State.STARTED)
+        }
+        if (!fragment.isAdded) transaction.add(R.id.fragmentHost, fragment, tag)
+        transaction.show(fragment).setMaxLifecycle(fragment, Lifecycle.State.RESUMED).commitNow()
+        displayedTag = tag
+        fragment.view?.doOnPreDraw {
+            if(com.tradingapp.BuildConfig.DEBUG) android.util.Log.d("TabTiming", "$tag cached=$cached elapsedMs=${(System.nanoTime()-started)/1_000_000.0}")
+        }
+    }
+
+    override fun onPostResume() {
+        super.onPostResume()
+        switchTab(currentTab)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putString("segment", currentSegment)
+        outState.putString("tab", currentTab)
+        selectedTabs.forEach { (seg, tab) -> outState.putString("tab:$seg", tab) }
+        super.onSaveInstanceState(outState)
     }
 
 

@@ -199,6 +199,7 @@ class ChartActivity : AppCompatActivity() {
             putExtra(EXTRA_EXCHANGE, exchange)
             putExtra(EXTRA_NAME,     name)
             putExtra("orderType",    type)
+            putExtra("product", intent.getStringExtra("product") ?: "DELIVERY")
             putExtra("ltp",          ltp)
             putExtra(EXTRA_LOT_SIZE, lotSize)
         })
@@ -231,19 +232,21 @@ class ChartActivity : AppCompatActivity() {
     private fun observeQuote() = lifecycleScope.launch {
         vm.quote.collectLatest { q ->
             q ?: return@collectLatest
-            b.tvPrice.text = q.ltp.toRupee()
-            b.tvChange.setChange(q.changePct, "%")
+            b.tvPrice.text = if(q.ltp > 0) q.ltp.toRupee() else "—"
+            if(q.close > 0 && q.ltp > 0) b.tvChange.setChange(q.changePct, "%") else b.tvChange.text = "—"
             tintChange(q.changePct)
-            b.tvOhlv.text = "O %.2f  H %.2f  L %.2f  Vol %,d"
-                .format(q.open, q.high, q.low, q.volume)
+            val saved = q.updatedAt <= 0 || System.currentTimeMillis() - q.updatedAt > 15000
+            b.tvOhlv.text = "O %.2f  H %.2f  L %.2f  Vol %,d".format(q.open, q.high, q.low, q.volume) +
+                if(saved) " · last known" else ""
         }
     }
 
     private fun observeLiveTick() = lifecycleScope.launch {
         vm.liveTicks.collectLatest { tick ->
             if (tick.symbol != "$exchange:$symbol") return@collectLatest
+            if (tick.ltp <= 0 || tick.ts <= 0 || System.currentTimeMillis() - tick.ts > 15000) return@collectLatest
             b.tvPrice.text = tick.ltp.toRupee()
-            b.tvChange.setChange(tick.changePct, "%")
+            if(tick.close > 0) b.tvChange.setChange(tick.changePct, "%") else b.tvChange.text = "—"
             tintChange(tick.changePct)
             val time = tick.ts / 1000
             b.chartWebView.post {
@@ -251,6 +254,8 @@ class ChartActivity : AppCompatActivity() {
             }
         }
     }
+    override fun onResume() { super.onResume(); vm.startPolling() }
+    override fun onPause() { vm.stopPolling(); super.onPause() }
 
     // Keep the existing percentage formatting, with colors for a light surface.
     private fun tintChange(value: Double) {

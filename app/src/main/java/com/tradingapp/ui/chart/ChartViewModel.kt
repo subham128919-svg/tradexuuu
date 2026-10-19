@@ -9,6 +9,9 @@ import com.tradingapp.data.repository.MarketRepository
 import com.tradingapp.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -42,6 +45,11 @@ class ChartViewModel @Inject constructor(
 
     val liveTicks = repo.liveTicks
     private var candleJob: Job? = null
+    private var quoteJob: Job? = null
+    private var subscribedSymbol: String? = null
+    private var pollingJob: Job? = null
+    private var selectedChart: Triple<String, String, String>? = null
+    private val candleCache = mutableMapOf<String, List<Candle>>()
 
     // Tell backend to permanently track this symbol so it stores
     // live + historical data indefinitely, irrespective of who's online.
@@ -51,24 +59,44 @@ class ChartViewModel @Inject constructor(
 
     fun loadChart(symbol: String, exchange: String, period: String) {
         loadCandles(symbol, exchange, period)
-        viewModelScope.launch {
-            repo.getQuotes(listOf("$exchange:$symbol")).collectLatest { res ->
-                if (res is Resource.Success) _quote.value = res.data.firstOrNull()
+        val fullSymbol = "$exchange:$symbol"
+        if (subscribedSymbol == fullSymbol) return
+        subscribedSymbol?.let { repo.unsubscribe(listOf(it)) }
+        subscribedSymbol = fullSymbol
+        quoteJob?.cancel()
+        quoteJob = viewModelScope.launch {
+            launch { repo.refreshQuotes(listOf(fullSymbol)) }
+            repo.observeQuotes(listOf(fullSymbol)).collectLatest { quotes ->
+                _quote.value = quotes.firstOrNull()
             }
         }
-        repo.subscribeToLivePrices(listOf("$exchange:$symbol"))
+        repo.subscribeToLivePrices(listOf(fullSymbol))
     }
 
     fun loadCandles(symbol: String, exchange: String, period: String) {
+        selectedChart = Triple(symbol, exchange, period)
+        val key = "$exchange:$symbol:$period"
         candleJob?.cancel()
         candleJob = viewModelScope.launch {
-            _candles.value = Resource.Loading
-            repo.getCandles("$exchange:$symbol", period).collectLatest { _candles.value = it }
+            val cached = candleCache[key]
+            _candles.value = if (cached == null) Resource.Loading else Resource.Success(cached)
+            repo.getCandles("$exchange:$symbol", period).collectLatest {
+                if (it is Resource.Success) candleCache[key] = it.data
+                if (it !is Resource.Loading || cached == null) _candles.value = it
+            }
         }
     }
+    fun startPolling() {
+        if (pollingJob?.isActive == true) return
+        pollingJob = viewModelScope.launch { while (isActive) {
+            delay(30_000)
+            selectedChart?.let { (symbol, exchange, period) -> if(candleJob?.isActive != true) loadCandles(symbol, exchange, period) }
+        } }
+    }
+    fun stopPolling() { pollingJob?.cancel(); pollingJob = null }
 
     override fun onCleared() {
         super.onCleared()
-        _quote.value?.let { repo.unsubscribe(listOf(it.symbol)) }
+        subscribedSymbol?.let { repo.unsubscribe(listOf(it)) }
     }
 }

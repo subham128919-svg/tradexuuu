@@ -38,6 +38,8 @@ class OptionChainAdapter(
 
     /** Strike nearest to spot. Set by the Activity before submitList. */
     var atmStrike: Double? = null
+    private val live = mutableMapOf<String, TickPayload>()
+    private var symbolRows = emptyMap<String, Int>()
 
     override fun onCreateViewHolder(parent: android.view.ViewGroup, viewType: Int): VH {
         val b = ItemOptionChainRowBinding.inflate(
@@ -49,23 +51,35 @@ class OptionChainAdapter(
     override fun onBindViewHolder(holder: VH, position: Int) = holder.bind(getItem(position))
 
     override fun onBindViewHolder(holder: VH, position: Int, payloads: MutableList<Any>) {
-        val payload = payloads.filterIsInstance<TickPayload>().lastOrNull()
-        if (payload == null) {
+        val ticks = payloads.filterIsInstance<TickPayload>()
+        if (ticks.isEmpty()) {
             super.onBindViewHolder(holder, position, payloads)
         } else {
-            holder.bindTick(payload)
+            ticks.forEach { holder.bindTick(it) }
         }
     }
 
     /** Live tick from the websocket — in-place update, no full rebind. */
-    fun updateTick(symbol: String, ltp: Double, changePct: Double) {
-        val idx = currentList.indexOfFirst { it.call?.symbol == symbol || it.put?.symbol == symbol }
-        if (idx == -1) return
+    fun updateTick(symbol: String, ltp: Double, changePct: Double, changeAvailable: Boolean, updatedAt: Long) {
+        if (ltp <= 0) return
+        val idx = symbolRows[symbol] ?: return
         val isCall = currentList[idx].call?.symbol == symbol
-        notifyItemChanged(idx, TickPayload(isCall, ltp, changePct))
+        if (updatedAt < (live[symbol]?.updatedAt ?: 0L)) return
+        val payload = TickPayload(isCall, ltp, changePct, changeAvailable, updatedAt)
+        live[symbol] = payload
+        notifyItemChanged(idx, payload)
+    }
+    override fun onCurrentListChanged(previousList: MutableList<OptionChainRow>, currentList: MutableList<OptionChainRow>) {
+        super.onCurrentListChanged(previousList, currentList)
+        val symbols = currentList.flatMap { listOfNotNull(it.call?.symbol, it.put?.symbol) }.toSet()
+        live.keys.retainAll(symbols)
+        symbolRows = currentList.flatMapIndexed { index, row -> listOfNotNull(row.call?.symbol, row.put?.symbol).map { it to index } }.toMap()
+        currentList.flatMap { listOfNotNull(it.call, it.put) }.forEach { contract ->
+            if (contract.updatedAt >= (live[contract.symbol]?.updatedAt ?: Long.MAX_VALUE)) live.remove(contract.symbol)
+        }
     }
 
-    data class TickPayload(val isCall: Boolean, val ltp: Double, val changePct: Double)
+    data class TickPayload(val isCall: Boolean, val ltp: Double, val changePct: Double, val changeAvailable: Boolean, val updatedAt: Long)
 
     inner class VH(private val b: ItemOptionChainRowBinding) : RecyclerView.ViewHolder(b.root) {
 
@@ -94,7 +108,7 @@ class OptionChainAdapter(
             val changeView = if (p.isCall) b.tvCallChange else b.tvPutChange
             ltpView.text = "₹%.2f".format(p.ltp)
             // A live tick means it has traded, so the percentage is real.
-            setChangeText(changeView, p.changePct, available = p.ltp > 0)
+            setChangeText(changeView, p.changePct, available = p.changeAvailable)
         }
 
         private fun bindSide(
@@ -112,7 +126,8 @@ class OptionChainAdapter(
                 return
             }
             ltpView.text = if (contract.priceAvailable) "₹%.2f".format(contract.ltp) else "—"
-            setChangeText(changeView, contract.changePct, contract.priceAvailable)
+            setChangeText(changeView, contract.changePct, contract.changeAvailable)
+            live[contract.symbol]?.let { bindTick(it) }
             container.isClickable = true
             container.setOnClickListener {
                 val side = if (isCall) "CE" else "PE"

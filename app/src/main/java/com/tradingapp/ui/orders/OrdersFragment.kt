@@ -33,21 +33,23 @@ class OrdersFragment : Fragment() {
 
     override fun onViewCreated(v: View, s: Bundle?) {
         super.onViewCreated(v, s)
-        adapter = RowAdapter { }
+        adapter = RowAdapter { startActivity(android.content.Intent(requireContext(), MyOrdersActivity::class.java)) }
 
         // FIX: adapter was created but never attached to rvOrders
         b.rvOrders.layoutManager = LinearLayoutManager(requireContext())
         b.rvOrders.adapter = adapter
 
-        vm.load(currentFilter)
-        launchOnStarted {
+        launchOnResumed {
             vm.orders.collect { res ->
+                if(res is Resource.Loading) adapter.submitList(emptyList())
+                if(res is Resource.Error) com.google.android.material.snackbar.Snackbar.make(b.root, res.message ?: "Orders refresh failed", com.google.android.material.snackbar.Snackbar.LENGTH_LONG).show()
                 if (res is Resource.Success) {
                     adapter.submitList(res.data.map { o ->
                         RowItem(
                             o.symbol.take(2), o.symbol,
                             "${o.orderType} Rs.%.2f · ${o.product}".format(o.price),
-                            "${o.filledQuantity}/${o.quantity}", o.status, o.type
+                            "${o.filledQuantity}/${o.quantity}", o.status, o.type,
+                            symbol = o.symbol, exchange = o.exchange, product = o.product, id = o.id
                         )
                     })
                 }
@@ -55,5 +57,6 @@ class OrdersFragment : Fragment() {
         }
     }
 
+    override fun onResume() { super.onResume(); vm.load(currentFilter) }
     override fun onDestroyView() { super.onDestroyView(); _b = null }
 }

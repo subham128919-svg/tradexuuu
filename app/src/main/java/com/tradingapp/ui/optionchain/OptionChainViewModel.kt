@@ -8,6 +8,8 @@ import com.tradingapp.data.repository.MarketRepository
 import com.tradingapp.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.CancellationException
+import androidx.lifecycle.SavedStateHandle
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -16,7 +18,8 @@ import javax.inject.Inject
 @HiltViewModel
 class OptionChainViewModel @Inject constructor(
     private val api:  ApiService,
-    private val repo: MarketRepository
+    private val repo: MarketRepository,
+    private val savedState: SavedStateHandle
 ) : ViewModel() {
 
     private val _expiries = MutableStateFlow<List<String>>(emptyList())
@@ -29,6 +32,7 @@ class OptionChainViewModel @Inject constructor(
 
     private var chainJob: Job? = null
     private var subscribedSymbols: List<String> = emptyList()
+    private var expiryJob: Job? = null
 
     // FIX: _chain used to only ever get updated inside loadChain(). If the
     // expiries list came back empty, or the request failed, or it threw,
@@ -37,13 +41,15 @@ class OptionChainViewModel @Inject constructor(
     // rendered (no data, no error, no "no options" message). Every branch
     // below now explicitly resolves _chain to either Success (via
     // loadChain) or Error, so the screen always ends up showing something.
-    fun loadExpiries(underlying: String) = viewModelScope.launch {
+    fun loadExpiries(underlying: String) {
+      if (expiryJob?.isActive == true || _expiries.value.isNotEmpty()) return
+      expiryJob = viewModelScope.launch {
         try {
             val r = api.getOptionExpiries(underlying)
             if (r.isSuccessful) {
                 val list = r.body()?.expiries ?: emptyList()
                 _expiries.value = list
-                val nearest = list.firstOrNull()
+                val nearest = savedState.get<String>("expiry")?.takeIf { it in list } ?: list.firstOrNull()
                 if (nearest != null) {
                     loadChain(underlying, nearest)
                 } else {
@@ -52,15 +58,18 @@ class OptionChainViewModel @Inject constructor(
             } else {
                 _chain.value = Resource.Error("Could not load expiries (${r.code()})")
             }
-        } catch (e: Exception) {
+        } catch (e: CancellationException) { throw e }
+        catch (e: Exception) {
             _chain.value = Resource.Error(e.message ?: "Network error")
         }
+      }
     }
 
     fun loadChain(underlying: String, expiry: String) {
+        savedState["expiry"] = expiry
         chainJob?.cancel()
         chainJob = viewModelScope.launch {
-            _chain.value = Resource.Loading
+            if ((_chain.value as? Resource.Success<OptionChainResponse>)?.data?.expiry != expiry) _chain.value = Resource.Loading
             try {
                 val r = api.getOptionChain(underlying, expiry)
                 if (r.isSuccessful && r.body() != null) {
@@ -74,19 +83,20 @@ class OptionChainViewModel @Inject constructor(
                 } else {
                     _chain.value = Resource.Error("Could not load option chain (${r.code()})")
                 }
-            } catch (e: Exception) {
+            } catch (e: CancellationException) { throw e }
+            catch (e: Exception) {
                 _chain.value = Resource.Error(e.message ?: "Network error")
             }
         }
     }
 
     private fun resubscribe(chain: OptionChainResponse) {
-        if (subscribedSymbols.isNotEmpty()) repo.unsubscribeLive(subscribedSymbols)
         val symbols = chain.rows.flatMap { row ->
-            listOfNotNull(row.call?.symbol, row.put?.symbol)
-        }.map { "NFO:$it" }
+            listOfNotNull(row.call, row.put).map { "${it.exchange}:${it.symbol}" }
+        }.distinct()
+        repo.unsubscribeLive(subscribedSymbols - symbols.toSet())
+        repo.subscribeLive(symbols - subscribedSymbols.toSet())
         subscribedSymbols = symbols
-        repo.subscribeLive(symbols)
     }
 
     override fun onCleared() {

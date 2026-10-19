@@ -7,6 +7,13 @@ import com.tradingapp.util.Resource; import dagger.hilt.android.lifecycle.HiltVi
 class OrdersViewModel @Inject constructor(private val repo: PortfolioRepository) : ViewModel() {
     private val _orders = MutableStateFlow<Resource<List<Order>>>(Resource.Loading)
     val orders: StateFlow<Resource<List<Order>>> = _orders
-    fun load(status: String) = viewModelScope.launch { repo.getOrders(status).collect { _orders.value = it } }
-    suspend fun cancel(orderId: String) = repo.getOrders()  // simplified
+    private var job: kotlinx.coroutines.Job? = null
+    private var session: String? = null
+    fun load(status: String) {
+        if(session != repo.sessionKey()) { session = repo.sessionKey(); _orders.value = Resource.Loading }
+        job?.cancel()
+        job = viewModelScope.launch { repo.getOrders(status).collect {
+            if (it !is Resource.Loading || _orders.value !is Resource.Success) _orders.value = it
+        } }
+    }
 }

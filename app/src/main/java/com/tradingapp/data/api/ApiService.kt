@@ -29,10 +29,21 @@ data class AppPosition(val symbol: String, val exchange: String, val name: Strin
                        val qty: Int, val avgPrice: Double, val ltp: Double,
                        val currentValue: Double, val invested: Double,
                        val pnl: Double, val pnlPct: Double, val isProfit: Boolean,
-                       val priceAvailable: Boolean = true)
+                       val priceAvailable: Boolean = true, val id: Long = 0,
+                       val product: String = "DELIVERY", val segment: String = "EQUITY",
+                       val lotSize: Int? = null, val priceUpdatedAt: Long = 0,
+                       val priceStale: Boolean = true)
 data class AppPositionsResponse(val data: List<AppPosition>, val totalValue: Double,
                                 val totalInvested: Double, val totalPnl: Double, val totalPnlPct: Double)
-data class AppOrderResponse(val success: Boolean, val message: String)
+data class AppOrderResponse(val success: Boolean, val message: String,
+                            val orderId: Int = 0, val status: String = "PENDING",
+                            val qty: Int = 0, val filledQty: Int = 0,
+                            val pendingQty: Int = 0, val cancelledQty: Int = 0,
+                            val newBalance: Double = 0.0, val executionMode: String? = null)
+data class MarginPreviewResponse(val required: Double, val basis: String,
+                                 val closingQty: Int, val openingQty: Int,
+                                 val availableCloseQty: Int, val balance: Double,
+                                 val lotSize: Int, val previewOnly: Boolean = true)
 data class WalletResponse(val balance: Double, val transactions: List<Map<String, Any>>)
 data class TrackResponse(val ok: Boolean, val symbol: String, val tracked: Int)
 
@@ -40,12 +51,15 @@ data class TrackResponse(val ok: Boolean, val symbol: String, val tracked: Int)
 data class OptionExpiriesResponse(val underlying: String, val expiries: List<String>)
 data class OptionContract(
     val symbol: String, val ltp: Double, val change: Double,
-    val changePct: Double, val priceAvailable: Boolean
+    val changePct: Double, val priceAvailable: Boolean,
+    val exchange: String = "NFO", val changeAvailable: Boolean = false,
+    val updatedAt: Long = 0, val stale: Boolean = true
 )
 data class OptionChainRow(val strike: Double, val call: OptionContract?, val put: OptionContract?)
 data class OptionChainResponse(
     val underlying: String, val expiry: String, val lotSize: Int?,
-    val spot: Double?, val rows: List<OptionChainRow>
+    val spot: Double?, val rows: List<OptionChainRow>, val exchange: String = "NFO",
+    val spotStale: Boolean = true, val spotUpdatedAt: Long = 0
 )
 data class HasOptionsResponse(val hasOptions: Boolean)
 data class LotSizeResponse(val lotSize: Int)
@@ -130,15 +144,18 @@ interface ApiService {
     suspend fun getAppOrders(@Query("status") status: String? = null): Response<ApiList<Map<String, Any>>>
 
     @GET("app-orders/positions")
-    suspend fun getAppPositions(): Response<AppPositionsResponse>
+    suspend fun getAppPositions(@Query("segment") segment: String? = null): Response<AppPositionsResponse>
 
-    @GET("portfolio/holdings")
+    @GET("app-orders/margin")
+    suspend fun getMarginPreview(@QueryMap parameters: Map<String, String>): Response<MarginPreviewResponse>
+
+    @GET("app-orders/holdings")
     suspend fun getHoldings(): Response<HoldingsResponse>
 
     @GET("portfolio/positions")
     suspend fun getPositions(): Response<PositionsResponse>
 
-    @GET("orders")
+    @GET("app-orders/display")
     suspend fun getOrders(@Query("status") status: String? = null): Response<ApiList<Order>>
 
     @GET("watchlist")
@@ -158,7 +175,7 @@ interface ApiService {
     suspend fun hasOptions(@Query("symbol") symbol: String): Response<HasOptionsResponse>
 
     @GET("market/lot-size")
-    suspend fun getLotSize(@Query("symbol") symbol: String): Response<LotSizeResponse>
+    suspend fun getLotSize(@Query("symbol") symbol: String, @Query("exchange") exchange: String = "NFO"): Response<LotSizeResponse>
 
     @GET("market/option-expiries")
     suspend fun getOptionExpiries(@Query("underlying") underlying: String): Response<OptionExpiriesResponse>

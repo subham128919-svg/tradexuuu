@@ -13,6 +13,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.CancellationException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -47,22 +49,31 @@ class ExploreViewModel @Inject constructor(
         loadTopMovers()
     }
 
-    fun load(segment: String, type: String) = viewModelScope.launch {
+    private var loadJob: Job? = null
+    private var moversJob: Job? = null
+    fun load(segment: String, type: String) {
+      loadJob?.cancel()
+      loadJob = viewModelScope.launch {
         when (val res = repo.refreshExplore(segment, type)) {
             is Resource.Success -> {
                 _syncError.value = null
                 val symbols = res.data.map { it.symbol }
                 if (symbols.isNotEmpty()) {
-                    _symbolOrder.value = symbols
-                    repo.subscribeLive(symbols)
+                    val unique = symbols.distinct()
+                    repo.unsubscribeLive(_symbolOrder.value - unique.toSet())
+                    repo.subscribeLive(unique - _symbolOrder.value.toSet())
+                    _symbolOrder.value = unique
                 }
             }
             is Resource.Error -> _syncError.value = res.message
             else -> {}
         }
+      }
     }
 
-    fun loadTopMovers() = viewModelScope.launch {
+    fun loadTopMovers() {
+      if (moversJob?.isActive == true) return
+      moversJob = viewModelScope.launch {
         try {
             val r = api.getTopMovers()
             if (r.isSuccessful) {
@@ -70,9 +81,11 @@ class ExploreViewModel @Inject constructor(
                 _gainers.value = body.gainers
                 _losers.value  = body.losers
             }
-        } catch (_: Exception) {
+        } catch (e: CancellationException) { throw e }
+        catch (_: Exception) {
             // Non-fatal — movers are a bonus feature; explore still works without them
         }
+      }
     }
 
     fun retry(segment: String, type: String) = load(segment, type)

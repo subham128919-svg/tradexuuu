@@ -49,6 +49,7 @@ class PositionsFragment : Fragment() {
                     it.putExtra(EXTRA_SYMBOL,   if (parts.size > 1) parts[1] else pos.symbol)
                     it.putExtra(EXTRA_EXCHANGE, if (parts.size > 1) parts[0] else "NSE")
                     it.putExtra(EXTRA_NAME,     pos.name)
+                    it.putExtra("product",      pos.product)
                 })
             }
         )
@@ -56,32 +57,37 @@ class PositionsFragment : Fragment() {
         b.rvPositions.adapter = adapter
 
         // FIX #6: Observe positions — now shows real P&L with candle fallback
-        launchOnStarted {
+        launchOnResumed {
+            vm.error.collectLatest { if (it != null) Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show() }
+        }
+        launchOnResumed {
             vm.positions.collectLatest { resp ->
-                resp ?: return@collectLatest
+                if(resp == null) { currentPositions = emptyList(); adapter.submitList(emptyList()); return@collectLatest }
                 currentPositions = resp.data
-                updateSummary(resp.totalPnl, resp.totalPnlPct)
+                if(resp.data.any { !it.priceAvailable }) b.tvSummaryValue.text = "— · prices unavailable" else updateSummary(resp.totalPnl, resp.totalPnlPct, resp.data.any { it.priceStale })
                 adapter.submitList(resp.data.toMutableList())
             }
         }
 
         // Update prices in real-time from WebSocket ticks
-        launchOnStarted {
+        launchOnResumed {
             vm.liveTicks.collectLatest { tick ->
                 val updated = currentPositions.map { p ->
-                    if (p.symbol != tick.symbol) return@map p
+                    if (p.symbol != tick.symbol || tick.ts <= 0 || tick.ts < p.priceUpdatedAt || tick.ts > System.currentTimeMillis() + 5000) return@map p
                     val ltp  = tick.ltp
+                    if (ltp <= 0) return@map p
                     val pnl  = (ltp - p.avgPrice) * p.qty
                     val pnlP = if (p.invested > 0) pnl / p.invested * 100 else 0.0
-                    p.copy(ltp = ltp, currentValue = ltp * p.qty,
+                    p.copy(ltp = ltp, currentValue = ltp * kotlin.math.abs(p.qty.toLong()),
                            pnl = pnl, pnlPct = pnlP, isProfit = pnl >= 0,
-                           priceAvailable = true) // a live tick is always a real price
+                           priceAvailable = true, priceUpdatedAt = tick.ts,
+                           priceStale = tick.ts <= 0 || System.currentTimeMillis() - tick.ts > 15000)
                 }
                 if (updated != currentPositions) {
                     currentPositions = updated
                     val totalPnl = updated.sumOf { it.pnl }
                     val totalInv = updated.sumOf { it.invested }
-                    updateSummary(totalPnl, if (totalInv > 0) totalPnl / totalInv * 100 else 0.0)
+                    if(updated.any { !it.priceAvailable }) b.tvSummaryValue.text = "— · prices unavailable" else updateSummary(totalPnl, if (totalInv > 0) totalPnl / totalInv * 100 else 0.0, updated.any { it.priceStale })
                     adapter.submitList(updated.toMutableList())
                 }
             }
@@ -95,21 +101,27 @@ class PositionsFragment : Fragment() {
             it.putExtra(EXTRA_SYMBOL,   pos.symbol.substringAfter(":"))
             it.putExtra(EXTRA_EXCHANGE, pos.exchange)
             it.putExtra(EXTRA_NAME,     pos.name)
-            it.putExtra("orderType",    "SELL")
+            it.putExtra("orderType",    OrderQuantity.exitSide(pos.qty))
+            it.putExtra("product",      pos.product)
+            it.putExtra("reduceOnly",   true)
+            it.putExtra("positionId",   pos.id)
+            it.putExtra(EXTRA_LOT_SIZE,  pos.lotSize ?: 1)
             it.putExtra("ltp",          ltp)
-            it.putExtra("defaultQty",   pos.qty.toString())
+            it.putExtra("defaultQty",   kotlin.math.abs(pos.qty.toLong()).toString())
         })
     }
 
-    private fun updateSummary(totalPnl: Double, totalPnlPct: Double) {
+    private fun updateSummary(totalPnl: Double, totalPnlPct: Double, saved: Boolean = false) {
         try {
             val sign  = if (totalPnl >= 0) "+" else ""
             val color = if (totalPnl >= 0) Color.parseColor("#2FBF71") else Color.parseColor("#FF5C5C")
             // REMOVE: b.tvSummaryLabel.text = "Day P&L"   ← delete this line
-            b.tvSummaryValue.text = "$sign₹%.2f ($sign%.2f%%)".format(totalPnl, totalPnlPct)
+            b.tvSummaryValue.text = "$sign₹%.2f ($sign%.2f%%)".format(totalPnl, totalPnlPct) + if(saved) " · saved prices" else ""
             b.tvSummaryValue.setTextColor(color)
         } catch (_: Exception) {}
     }
 
+    override fun onResume() { super.onResume(); vm.start(segment) }
+    override fun onPause() { vm.stop(); super.onPause() }
     override fun onDestroyView() { super.onDestroyView(); _b = null }
 }

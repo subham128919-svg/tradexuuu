@@ -32,6 +32,7 @@ class OptionChainActivity : AppCompatActivity() {
     private val displayName by lazy { intent.getStringExtra(EXTRA_DISPLAY_NAME) ?: underlying }
     private var currentExpiry = ""
     private var currentLotSize: Int? = null
+    private var currentExchange = "NFO"
 
     // Scroll to ATM only on the first render of an expiry. Without this
     // guard, every live-tick-driven re-render would yank the list back
@@ -40,6 +41,7 @@ class OptionChainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        hasScrolledToAtm = savedInstanceState?.getBoolean("scrolled") ?: false
         b = ActivityOptionChainBinding.inflate(layoutInflater)
         setContentView(b.root)
 
@@ -62,7 +64,7 @@ class OptionChainActivity : AppCompatActivity() {
     private fun openContractChart(symbol: String, label: String) {
         startActivity(Intent(this, ChartActivity::class.java).apply {
             putExtra(EXTRA_SYMBOL, symbol)
-            putExtra(EXTRA_EXCHANGE, "NFO")
+            putExtra(EXTRA_EXCHANGE, currentExchange)
             putExtra(EXTRA_NAME, label)
             putExtra(EXTRA_LOT_SIZE, currentLotSize ?: 1)
         })
@@ -91,6 +93,7 @@ class OptionChainActivity : AppCompatActivity() {
     private fun renderChain(data: OptionChainResponse) {
         currentExpiry = data.expiry
         currentLotSize = data.lotSize
+        currentExchange = data.exchange
         adapter.underlyingLabel = displayName
         adapter.expiryLabel = data.expiry
         adapter.spot = data.spot
@@ -110,7 +113,7 @@ class OptionChainActivity : AppCompatActivity() {
             }
         }
 
-        b.tvSpot.text = data.spot?.let { "₹%.2f".format(it) } ?: "—"
+        b.tvSpot.text = data.spot?.let { "₹%.2f".format(it) + if (data.spotStale) " · last known" else "" } ?: "—"
         b.tvLotSize.text = data.lotSize?.let { "Lot size: $it" } ?: ""
         b.tvEmpty.visibility = if (data.rows.isEmpty()) View.VISIBLE else View.GONE
         if (data.rows.isEmpty()) b.tvEmpty.text = "No contracts found for this expiry"
@@ -209,7 +212,12 @@ class OptionChainActivity : AppCompatActivity() {
             // exchange prefix to match the bare tradingsymbol used in
             // OptionContract.symbol.
             val bare = tick.symbol.substringAfter(":")
-            adapter.updateTick(bare, tick.ltp, tick.changePct)
+            if (tick.symbol.substringBefore(":") == currentExchange)
+                adapter.updateTick(bare, tick.ltp, tick.changePct, tick.close > 0 && tick.ltp > 0, tick.ts)
         }
+    }
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putBoolean("scrolled", hasScrolledToAtm)
+        super.onSaveInstanceState(outState)
     }
 }

@@ -14,7 +14,7 @@ import com.tradingapp.ui.adapter.RowItem
 import com.tradingapp.ui.chart.ChartActivity
 import com.tradingapp.util.EXTRA_EXCHANGE
 import com.tradingapp.util.EXTRA_SYMBOL
-import com.tradingapp.util.launchOnStarted
+import com.tradingapp.util.launchOnResumed
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -48,7 +48,7 @@ class WatchlistFragment : Fragment() {
         b.rvWatchlist.adapter = adapter
 
         vm.load()
-        launchOnStarted {
+        launchOnResumed {
             vm.rows.collect { rows ->
                 adapter.submitList(rows.map { w ->
                     RowItem(

@@ -31,6 +31,7 @@ class MainViewModel @Inject constructor(private val repo: MarketRepository) : Vi
 
     private val _segment = MutableStateFlow("equity")
     val segment: StateFlow<String> = _segment
+    val connectionState = repo.connectionState
 
     init {
         repo.subscribeLive(indexSymbols)
@@ -42,4 +43,5 @@ class MainViewModel @Inject constructor(private val repo: MarketRepository) : Vi
     fun setSegment(seg: String) {
         _segment.value = seg
     }
+    override fun onCleared() { repo.unsubscribeLive(indexSymbols); super.onCleared() }
 }

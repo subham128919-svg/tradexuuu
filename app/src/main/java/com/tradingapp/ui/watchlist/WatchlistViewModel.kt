@@ -13,6 +13,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -42,8 +46,9 @@ class WatchlistViewModel @Inject constructor(
     val rows: StateFlow<List<WatchlistRow>> = dao.observeAll().flatMapLatest { items ->
         if (items.isEmpty()) return@flatMapLatest flowOf(emptyList())
         val fullSymbols = items.map { "${it.exchange}:${it.symbol}" }
-        repo.subscribeLive(fullSymbols)
-        repo.observeQuotes(fullSymbols).map { quotes ->
+        flow {
+          repo.subscribeLive(fullSymbols)
+          try { emitAll(repo.observeQuotes(fullSymbols).map { quotes ->
             val bySymbol = quotes.associateBy { it.symbol }
             items.map { item ->
                 val key = "${item.exchange}:${item.symbol}"
@@ -55,17 +60,23 @@ class WatchlistViewModel @Inject constructor(
                     changePct = q?.changePct ?: item.changePct
                 )
             }
+          }) } finally { repo.unsubscribeLive(fullSymbols) }
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
-    fun load() = viewModelScope.launch {
+    private var loadJob: Job? = null
+    fun load() {
+      if (loadJob?.isActive == true) return
+      loadJob = viewModelScope.launch {
         try {
             val r = api.getWatchlist()
             if (r.isSuccessful) r.body()!!.data.forEach { dao.insert(it) }
-        } catch (_: Exception) {
+        } catch (e: CancellationException) { throw e }
+        catch (_: Exception) {
             // Offline is fine — dao.observeAll() still emits whatever
             // was cached from the last successful sync.
         }
+      }
     }
 
     fun remove(item: WatchlistItem) = viewModelScope.launch { dao.delete(item) }

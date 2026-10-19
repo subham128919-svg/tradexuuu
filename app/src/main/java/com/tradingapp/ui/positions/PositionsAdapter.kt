@@ -30,7 +30,7 @@ class PositionsAdapter(
             val sym = p.symbol.substringAfter(":")
             b.tvLogo.text   = sym.take(2).uppercase()
             b.tvSymbol.text = sym
-            b.tvQtyAvg.text = "${p.qty} qty · avg ₹%.2f".format(p.avgPrice)
+            b.tvQtyAvg.text = "${if (p.qty < 0) "Short" else "Long"} ${kotlin.math.abs(p.qty.toLong())} units · ${p.product} · avg ₹%.2f".format(p.avgPrice)
             bindPnlOnly(p)
             b.btnExit.setOnClickListener { onExit(p) }
             b.root.setOnClickListener   { onClick(p) }
@@ -41,7 +41,7 @@ class PositionsAdapter(
         // confidently showing "-100%" (computed from a fallback ltp of
         // 0) right next to that "—". Now both share the same guard.
         fun bindPnlOnly(p: AppPosition) {
-            b.tvLtp.text = if (p.ltp > 0) "₹%.2f".format(p.ltp) else "—"
+            b.tvLtp.text = if (p.ltp > 0) "₹%.2f".format(p.ltp) + if (p.priceStale) " · saved" else "" else "—"
             if (!p.priceAvailable) {
                 b.tvPnl.text = "Fetching…"
                 b.tvPnl.setTextColor(Color.parseColor("#6E7681"))
@@ -56,7 +56,9 @@ class PositionsAdapter(
 
     companion object {
         val DIFF = object : DiffUtil.ItemCallback<AppPosition>() {
-            override fun areItemsTheSame(a: AppPosition, b: AppPosition) = a.symbol == b.symbol
+            override fun areItemsTheSame(a: AppPosition, b: AppPosition) =
+                if (a.id != 0L && b.id != 0L) a.id == b.id
+                else a.symbol == b.symbol && a.exchange == b.exchange && a.product == b.product
             override fun areContentsTheSame(a: AppPosition, b: AppPosition) = a == b
             override fun getChangePayload(a: AppPosition, b: AppPosition): Any? {
                 val aS = a.copy(ltp=0.0, pnl=0.0, pnlPct=0.0, currentValue=0.0, isProfit=true, priceAvailable=true)

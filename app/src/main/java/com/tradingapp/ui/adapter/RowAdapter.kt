@@ -14,7 +14,8 @@ import com.tradingapp.databinding.ItemRowBinding
 data class RowItem(
     val logo: String, val name: String, val sub: String,
     val right: String, val rightSub: String, val tag: String = "",
-    val symbol: String = "", val exchange: String = "NSE"
+    val symbol: String = "", val exchange: String = "NSE",
+    val product: String? = null, val id: String? = null
 )
 
 class RowAdapter(private val onItemClick: (RowItem) -> Unit) :
@@ -68,7 +69,9 @@ class RowAdapter(private val onItemClick: (RowItem) -> Unit) :
 
     companion object {
         val DIFF = object : DiffUtil.ItemCallback<RowItem>() {
-            override fun areItemsTheSame(a: RowItem, b: RowItem) = a.symbol == b.symbol && a.name == b.name
+            override fun areItemsTheSame(a: RowItem, b: RowItem) =
+                if (a.id != null && b.id != null) a.id == b.id
+                else a.symbol == b.symbol && a.name == b.name && a.exchange == b.exchange && a.product == b.product
             override fun areContentsTheSame(a: RowItem, b: RowItem) = a == b
 
             override fun getChangePayload(a: RowItem, b: RowItem): Any? {

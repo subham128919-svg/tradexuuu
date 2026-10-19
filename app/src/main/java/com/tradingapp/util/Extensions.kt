@@ -7,4 +7,5 @@ fun Double.toRupee(): String { val nf = NumberFormat.getNumberInstance(Locale("e
 fun Double.toPct() = "${if (this >= 0) "+" else ""}${"%.2f".format(this)}%"
 fun TextView.setChange(v: Double, suffix: String = "") { text = "${if (v >= 0) "+" else ""}${"%.2f".format(v)}$suffix"; setTextColor(if (v >= 0) Color.parseColor("#2FBF71") else Color.parseColor("#FF5C5C")) }
 fun Fragment.launchOnStarted(block: suspend CoroutineScope.() -> Unit) { viewLifecycleOwner.lifecycleScope.launch { viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED, block) } }
+fun Fragment.launchOnResumed(block: suspend CoroutineScope.() -> Unit) { viewLifecycleOwner.lifecycleScope.launch { viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED, block) } }
 fun View.show() { visibility = View.VISIBLE }; fun View.hide() { visibility = View.GONE }

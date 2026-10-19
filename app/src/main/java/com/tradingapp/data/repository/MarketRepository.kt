@@ -12,6 +12,9 @@ import com.tradingapp.data.websocket.PriceWebSocket
 import com.tradingapp.di.ApplicationScope
 import com.tradingapp.util.Resource
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flow
@@ -59,13 +62,25 @@ class MarketRepository @Inject constructor(
         // updating in the cache even while the user is on a screen that
         // isn't actively observing them — e.g. ticks for a watchlist
         // symbol still land in Room while the user is looking at a chart.
+        val latest = mutableMapOf<String, PriceTick>()
+        appScope.launch { priceWs.ticks.collect { tick -> synchronized(latest) { latest[tick.symbol] = tick } } }
         appScope.launch {
-            priceWs.ticks.collect { tick -> persistTick(tick) }
+            while (isActive) {
+                delay(100)
+                val batch = synchronized(latest) { latest.values.toList().also { latest.clear() } }
+                try {
+                    if (batch.isNotEmpty()) quoteDao.upsertFresh(batch.map { tick -> quoteFromTick(tick) })
+                } catch (e: CancellationException) { throw e }
+                catch (e: Exception) {
+                    android.util.Log.e("MarketCache", "Tick persistence failed", e)
+                    synchronized(latest) { batch.forEach { tick -> if ((latest[tick.symbol]?.ts ?: 0) < tick.ts) latest[tick.symbol] = tick } }
+                    delay(1000)
+                }
+            }
         }
     }
 
-    private suspend fun persistTick(tick: PriceTick) {
-        quoteDao.upsert(listOf(
+    private fun quoteFromTick(tick: PriceTick): Quote =
             Quote(
                 symbol    = tick.symbol,
                 exchange  = tick.symbol.substringBefore(":", "NSE"),
@@ -80,8 +95,6 @@ class MarketRepository @Inject constructor(
                 volume    = tick.volume,
                 updatedAt = tick.ts
             )
-        ))
-    }
 
     // ═══════════════════════════════════════════════════════════════
     //  REACTIVE API — use this for anything shown continuously on
@@ -103,10 +116,11 @@ class MarketRepository @Inject constructor(
             val r = api.getQuotes(symbols.joinToString(","))
             if (r.isSuccessful) {
                 val data = r.body()!!.data
-                quoteDao.upsert(data)
+                quoteDao.upsertFresh(data)
                 Resource.Success(data)
             } else Resource.Error("API error ${r.code()}")
-        } catch (e: Exception) {
+        } catch (e: CancellationException) { throw e }
+        catch (e: Exception) {
             Resource.Error(e.message ?: "Network error")
         }
     }
@@ -115,10 +129,11 @@ class MarketRepository @Inject constructor(
         val r = api.getExplore(segment, type)
         if (r.isSuccessful) {
             val data = r.body()!!.data
-            quoteDao.upsert(data)
+            quoteDao.upsertFresh(data)
             Resource.Success(data)
         } else Resource.Error("API error ${r.code()}")
-    } catch (e: Exception) {
+    } catch (e: CancellationException) { throw e }
+    catch (e: Exception) {
         Resource.Error(e.message ?: "Network error")
     }
 
@@ -126,10 +141,11 @@ class MarketRepository @Inject constructor(
         val r = api.getIndices()
         if (r.isSuccessful) {
             val data = r.body()!!.data
-            quoteDao.upsert(data)
+            quoteDao.upsertFresh(data)
             Resource.Success(data)
         } else Resource.Error("API error ${r.code()}")
-    } catch (e: Exception) {
+    } catch (e: CancellationException) { throw e }
+    catch (e: Exception) {
         Resource.Error(e.message ?: "Network error")
     }
 
@@ -159,7 +175,8 @@ class MarketRepository @Inject constructor(
             val r = api.getCandles(symbol, period)
             if (r.isSuccessful) emit(Resource.Success(r.body()!!.data))
             else emit(Resource.Error("API error ${r.code()}"))
-        } catch (e: Exception) {
+        } catch (e: CancellationException) { throw e }
+        catch (e: Exception) {
             emit(Resource.Error(e.message ?: "Network error"))
         }
     }

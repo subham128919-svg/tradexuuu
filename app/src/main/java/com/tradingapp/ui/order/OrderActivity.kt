@@ -4,6 +4,7 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
 import android.view.Gravity
+import android.view.View
 import android.widget.GridLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -17,6 +18,7 @@ import com.tradingapp.util.*
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 @AndroidEntryPoint
 class OrderActivity : AppCompatActivity() {
@@ -41,7 +43,11 @@ class OrderActivity : AppCompatActivity() {
     private var lotSize = 1
     private val initialLotSizeGuess by lazy { intent.getIntExtra(EXTRA_LOT_SIZE, 1) }
 
-    private var product   = "DELIVERY"
+    private var product = "DELIVERY"
+    private val reduceOnly by lazy { intent.getBooleanExtra("reduceOnly", false) }
+    private val positionId by lazy { intent.getLongExtra("positionId", 0).takeIf { it > 0 } }
+    private var defaultApplied = false
+    private var quantityError: String? = null
     // FIX #buy/sell toggle: starts as LIMIT, tappable to switch to MARKET
     private var priceType = "LIMIT"
     private var qty       = ""
@@ -52,7 +58,7 @@ class OrderActivity : AppCompatActivity() {
     // context: raw share count for equity (lotSize=1), number of LOTS
     // for F&O (lotSize>1). This always returns the real order quantity
     // to send to the backend / use for required-amount math.
-    private fun actualQty(): Int = (qty.toIntOrNull() ?: 0) * lotSize
+    private fun actualQty(): Int = vm.lotSize.value?.let { OrderQuantity.toUnits(qty, it) } ?: 0
 
     private fun applyLotSizeUi() {
         b.tvQtyLabel.text = if (lotSize > 1) "Qty (lots of $lotSize)" else "Qty"
@@ -74,6 +80,16 @@ class OrderActivity : AppCompatActivity() {
         val isBuy = orderTypePrm == "BUY"
         b.btnOrder.text = orderTypePrm
         b.btnOrder.setBackgroundColor(if (isBuy) Color.parseColor("#2FBF71") else Color.parseColor("#FF5C5C"))
+        product = savedInstanceState?.getString("product") ?: intent.getStringExtra("product") ?: "DELIVERY"
+        qty = savedInstanceState?.getString("qty") ?: ""
+        priceStr = savedInstanceState?.getString("price") ?: ""
+        priceType = savedInstanceState?.getString("priceType") ?: "LIMIT"
+        defaultApplied = savedInstanceState?.getBoolean("defaultApplied") ?: false
+        if (exchange in listOf("NFO", "BFO")) {
+            b.tabDelivery.text = "Overnight"
+            b.tabMtf.visibility = View.GONE
+        }
+        b.btnOrder.isEnabled = false
 
         // F&O: numpad now enters LOTS, not raw shares — label it clearly.
         // Show the instant intent-based guess right away (avoids a UI
@@ -81,10 +97,7 @@ class OrderActivity : AppCompatActivity() {
         lotSize = initialLotSizeGuess
         applyLotSizeUi()
 
-        if (defaultQty.isNotEmpty()) {
-            qty = defaultQty
-            b.tvQtyDisplay.text = qty
-        }
+        b.tvQtyDisplay.text = qty
 
         b.ivClose.setOnClickListener { finish() }
 
@@ -94,7 +107,15 @@ class OrderActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             vm.lotSize.collectLatest { ls ->
+                if (ls == null) { b.btnOrder.isEnabled = false; return@collectLatest }
                 lotSize = ls
+                if (!defaultApplied && defaultQty.isNotEmpty()) {
+                    val units = defaultQty.toLongOrNull()?.let { kotlin.math.abs(it) } ?: 0L
+                    val display = OrderQuantity.displayFromUnits(units, ls)
+                    if (display == null) quantityError = "Position quantity does not match the current contract lot size. Refresh Positions."
+                    else { qty = display; b.tvQtyDisplay.text = display; defaultApplied = true }
+                }
+                b.btnOrder.isEnabled = !vm.submitting.value && quantityError == null
                 applyLotSizeUi()
                 updateRequired()
             }
@@ -105,7 +126,7 @@ class OrderActivity : AppCompatActivity() {
                 val display = if (ltp > 0) ltp else ltpHint
                 b.tvPriceInfo.text = "$exchange  ₹${"%.2f".format(display)}"
                 if (priceStr.isEmpty() && display > 0 && priceType == "LIMIT") {
-                    priceStr = "%.2f".format(display)
+                    priceStr = String.format(Locale.US, "%.2f", display)
                     b.tvPriceDisplay.text = priceStr
                     updateRequired()
                 }
@@ -115,9 +136,14 @@ class OrderActivity : AppCompatActivity() {
         lifecycleScope.launch {
             vm.balance.collectLatest { bal -> b.tvBalance.text = "Balance: ₹%.2f".format(bal) }
         }
+        lifecycleScope.launch { vm.submitting.collectLatest { b.btnOrder.isEnabled = !it && vm.lotSize.value != null && quantityError == null } }
+        lifecycleScope.launch { vm.error.collectLatest { if (it != null) Toast.makeText(this@OrderActivity, it, Toast.LENGTH_LONG).show() } }
+        lifecycleScope.launch { vm.margin.collectLatest { renderMargin() } }
+        lifecycleScope.launch { vm.marginError.collectLatest { renderMargin() } }
 
         listOf(b.tabDelivery to "DELIVERY", b.tabIntraday to "INTRADAY", b.tabMtf to "MTF").forEach { (tv, prod) ->
             tv.setOnClickListener {
+                if (reduceOnly) return@setOnClickListener
                 product = prod
                 listOf(b.tabDelivery, b.tabIntraday, b.tabMtf).forEach {
                     it.setBackgroundResource(R.drawable.bg_chip_off)
@@ -125,7 +151,10 @@ class OrderActivity : AppCompatActivity() {
                 }
                 tv.setBackgroundResource(R.drawable.bg_chip_on)
                 tv.setTextColor(Color.parseColor("#F2F4F7"))
+                updateRequired()
             }
+            tv.isEnabled = !reduceOnly
+            tv.setBackgroundResource(if (prod == product) R.drawable.bg_chip_on else R.drawable.bg_chip_off)
         }
 
         // NEW: Market/Limit toggle — this is what the reference app has
@@ -147,21 +176,26 @@ class OrderActivity : AppCompatActivity() {
                 (vm.ltp.value.takeIf { it > 0 } ?: ltpHint)
             else (priceStr.toDoubleOrNull() ?: 0.0)
 
-            if (qtyInt <= 0) {
+            if (qtyInt <= 0 || quantityError != null) {
                 val msg = if (lotSize > 1) "Enter number of lots" else "Enter quantity"
                 Toast.makeText(this, msg, Toast.LENGTH_SHORT).show(); return@setOnClickListener
+            }
+            val maxExitUnits = defaultQty.toLongOrNull()?.let { kotlin.math.abs(it) }
+            if (reduceOnly && (positionId == null || (maxExitUnits != null && qtyInt > maxExitUnits))) {
+                Toast.makeText(this, "Exit quantity exceeds this position. Refresh Positions.", Toast.LENGTH_LONG).show()
+                return@setOnClickListener
             }
             if (price  <= 0) { Toast.makeText(this, "Price not available yet, try again", Toast.LENGTH_SHORT).show(); return@setOnClickListener }
 
             b.btnOrder.isEnabled = false
             lifecycleScope.launch {
-                val res = vm.placeOrder(symbol, exchange, name, orderTypePrm, product, priceType, qtyInt, price)
+                val res = vm.placeOrder(symbol, exchange, name, orderTypePrm, product, priceType, qtyInt, price, reduceOnly, positionId)
                 if (res.isSuccess) {
-                    Toast.makeText(this@OrderActivity, "$orderTypePrm order placed! ✓", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@OrderActivity, res.getOrNull()?.message ?: "Order accepted; check Orders for fills", Toast.LENGTH_LONG).show()
                     finish()
                 } else {
                     Toast.makeText(this@OrderActivity, res.exceptionOrNull()?.message ?: "Order failed", Toast.LENGTH_LONG).show()
-                    b.btnOrder.isEnabled = true
+                    b.btnOrder.isEnabled = vm.lotSize.value != null && quantityError == null
                 }
             }
         }
@@ -184,7 +218,7 @@ class OrderActivity : AppCompatActivity() {
         } else {
             b.tvPriceDisplay.alpha = 1f
             val ltp = vm.ltp.value.takeIf { it > 0 } ?: ltpHint
-            if (priceStr.isEmpty() && ltp > 0) priceStr = "%.2f".format(ltp)
+            if (priceStr.isEmpty() && ltp > 0) priceStr = String.format(Locale.US, "%.2f", ltp)
             b.tvPriceDisplay.text = priceStr.ifEmpty { "0.00" }
         }
         highlightInput()
@@ -228,6 +262,7 @@ class OrderActivity : AppCompatActivity() {
 
     private fun onNumpadKey(key: String) {
         if (inputMode == "qty") {
+            if (vm.lotSize.value == null) return
             qty = when (key) { "⌫" -> qty.dropLast(1); "." -> qty; else -> qty + key }
             b.tvQtyDisplay.text = qty.ifEmpty { "" }
             b.tvQtyDisplay.hint = if (qty.isEmpty()) "0" else ""
@@ -246,13 +281,19 @@ class OrderActivity : AppCompatActivity() {
         val q   = actualQty()
         val ltp = vm.ltp.value.takeIf { it > 0 } ?: ltpHint
         val p   = if (priceType == "MARKET") ltp else (priceStr.toDoubleOrNull() ?: ltp)
-        val req = q * p
-        b.tvRequired.text  = "Required: ₹%.0f".format(req)
+        if (q > 0 && p.isFinite() && p > 0 && quantityError == null) {
+            val parameters = mutableMapOf("symbol" to symbol, "exchange" to exchange, "side" to orderTypePrm,
+                "product" to product, "priceType" to priceType, "qty" to q.toString(), "price" to p.toString(),
+                "reduceOnly" to reduceOnly.toString())
+            positionId?.let { parameters["positionId"] = it.toString() }
+            vm.preview(parameters)
+        } else vm.preview(null)
+        renderMargin()
         val execInfo = if (priceType == "MARKET")
-            "Order will be executed at market price"
+            "Market order with 2% price protection; fills depend on available depth"
         else
-            "Order will be executed at ₹%.2f or lower price".format(p)
-        b.tvOrderInfo.text = if (lotSize > 1 && q > 0) {
+            "Limit: ₹%.2f or ${if (orderTypePrm == "SELL") "higher" else "lower"}; execution is not guaranteed".format(p)
+        b.tvOrderInfo.text = "Local simulation • " + if (lotSize > 1 && q > 0) {
             val lots = q / lotSize
             "$execInfo • $q qty ($lots lot${if (lots == 1) "" else "s"})"
         } else execInfo
@@ -262,5 +303,25 @@ class OrderActivity : AppCompatActivity() {
             b.tvPriceHint.text = if (priceType == "MARKET") "At current market price"
                                   else "%+.2f%% from market".format(diff)
         }
+    }
+
+    private fun renderMargin() {
+        val preview = vm.margin.value
+        b.tvRequired.text = when {
+            quantityError != null -> quantityError
+            actualQty() <= 0 -> "Enter quantity to preview margin"
+            vm.marginError.value != null -> vm.marginError.value
+            preview == null -> "Checking margin…"
+            else -> "Margin estimate: ₹%.2f · close ${preview.closingQty}, open ${preview.openingQty} units".format(preview.required)
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putString("qty", qty)
+        outState.putString("price", priceStr)
+        outState.putString("priceType", priceType)
+        outState.putString("product", product)
+        outState.putBoolean("defaultApplied", defaultApplied)
+        super.onSaveInstanceState(outState)
     }
 }

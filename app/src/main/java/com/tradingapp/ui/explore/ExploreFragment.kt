@@ -88,11 +88,11 @@ class ExploreFragment : Fragment() {
         viewModel.load(segment, type)
     }
 
-    private fun observeQuotes() = launchOnStarted {
+    private fun observeQuotes() = launchOnResumed {
         viewModel.quotes.collect { list -> cardAdapter.submitList(list) }
     }
 
-    private fun observeSyncState() = launchOnStarted {
+    private fun observeSyncState() = launchOnResumed {
         viewModel.syncError.collect { msg ->
             binding.tvError.visibility = if (msg != null) View.VISIBLE else View.GONE
             binding.tvError.text = msg?.let { "Showing cached data — $it Tap to retry." } ?: ""
@@ -101,13 +101,13 @@ class ExploreFragment : Fragment() {
     }
 
     private fun observeMovers() {
-        launchOnStarted {
+        launchOnResumed {
             viewModel.gainers.collect { list ->
                 binding.layoutGainers.visibility = if (list.isNotEmpty()) View.VISIBLE else View.GONE
                 gainersAdapter.submitList(list.map { it.toItem() })
             }
         }
-        launchOnStarted {
+        launchOnResumed {
             viewModel.losers.collect { list ->
                 binding.layoutLosers.visibility = if (list.isNotEmpty()) View.VISIBLE else View.GONE
                 losersAdapter.submitList(list.map { it.toItem() })

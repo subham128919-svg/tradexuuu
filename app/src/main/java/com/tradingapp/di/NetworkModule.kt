@@ -11,6 +11,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.Interceptor
+import okhttp3.Dispatcher
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -36,12 +37,28 @@ object NetworkModule {
 
     @Provides @Singleton
     fun provideOkHttp(authInterceptor: Interceptor): OkHttpClient = OkHttpClient.Builder()
+        .dispatcher(Dispatcher().apply { maxRequests = 24; maxRequestsPerHost = 8 })
         .connectTimeout(15, TimeUnit.SECONDS)
         .readTimeout(15, TimeUnit.SECONDS)
+        .callTimeout(20, TimeUnit.SECONDS)
+        .retryOnConnectionFailure(false)
         .pingInterval(20, TimeUnit.SECONDS)
         .addInterceptor(authInterceptor)
+        .addInterceptor { chain ->
+            val started = System.nanoTime()
+            val request = chain.request().newBuilder().header("X-Request-Id", java.util.UUID.randomUUID().toString()).build()
+            try {
+                chain.proceed(request).also { response ->
+                    if (BuildConfig.DEBUG) android.util.Log.d("ApiTiming", "${request.method} ${request.url.encodedPath} ${response.code} ${(System.nanoTime() - started) / 1_000_000}ms requestId=${response.header("X-Request-Id")}")
+                }
+            } catch (e: java.io.IOException) {
+                if (BuildConfig.DEBUG) android.util.Log.d("ApiTiming", "${request.method} ${request.url.encodedPath} ${e.javaClass.simpleName} ${(System.nanoTime() - started) / 1_000_000}ms")
+                throw e
+            }
+        }
         .addInterceptor(HttpLoggingInterceptor().apply {
-            level = if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY
+            redactHeader("Authorization")
+            level = if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BASIC
                     else HttpLoggingInterceptor.Level.NONE
         })
         .build()
